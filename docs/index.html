@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Transantiago API</title>
+  <meta name="description" content="Transantiago API - Unofficial API based on GTFS">
+  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <link rel="stylesheet" href="//unpkg.com/docsify/themes/buble.css">
+  <style>
+    body {
+      background-color: #f9f9f9;
+    }
+
+    table {
+      border-spacing: .5rem;
+    }
+
+    .cover-main img[alt="trilogy logo"] {
+      margin-top: -3%;
+      width: 420px;
+    }
+
+    .cover-main p > a {
+      margin-top: 5%;
+    }
+
+    .sidebar .active a {
+      color: #0074D9;
+    }
+
+    .markdown-section h3 {
+      margin: 1.2em 0 1.2em;
+    }
+
+    .markdown-section pre {
+      border-left: 0;
+    }
+
+    .markdown-section code,
+    .markdown-section pre > code {
+      font-family: "Operator Mono", "Fira Code", "Ubuntu Mono",
+                   "Droid Sans Mono", "Liberation Mono", "Source Code Pro",
+                   Menlo, Consolas, Inconsolata, Courier, monospace;
+      font-size: 14px;
+      background-color: #e8e8e8;
+      border-radius: 0;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="#/">Home</a>
+    <a href="#/api">Documentation</a>
+  </nav>
+  <div id="app"></div>
+</body>
+
+<script>
+  const baseURL = 'https://raw.githubusercontent.com/ignaciohermosilla/transantiago-api/master'
+  window.$docsify = {
+    alias: {
+      '.*?/readme': `${baseURL}/readme`,
+    },
+    auto2top: true,
+    coverpage: 'cover.md',
+    homepage: `${baseURL}/readme.md`,
+    loadSidebar: true,
+    mergeNavbar: true,
+    maxLevel: 4,
+    name: 'Transantiago API',
+    repo: 'https://github.com/ignaciohermosilla/transantiago-api',
+    subMaxLevel: 3,
+    search: {
+      noData: {
+        '/': 'no results'
+      },
+      paths: 'auto',
+      placeholder: {
+        '/': 'search...'
+      }
+    },
+    formatUpdated: '{MM}/{DD} {HH}:{mm}',
+    plugins: [
+      (hook, vm) => {
+        hook.beforeEach(html => {
+          const { file } = vm.route
+          const base = 'https://github.com/ignaciohermosilla/transantiago-api/blob/master'
+          let tail
+          if (file.indexOf('githubusercontent') > 0) {
+            const i = file.indexOf('master')
+            tail = file.slice(i + 6)
+          } else {
+            tail = `/docs/${file}`
+          }
+
+          const url = base + tail
+          const edit = `[:pencil2:](${url}) [edit this page](${url})\n`
+          return `${html}\n----\n${edit}`
+        })
+      }
+    ]
+  }
+</script>
+<script src="//unpkg.com/docsify/lib/docsify.js"></script>
+<script src="//unpkg.com/docsify/lib/plugins/search.min.js"></script>
+</html>

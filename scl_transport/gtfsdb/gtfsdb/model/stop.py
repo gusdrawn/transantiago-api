@@ -18,7 +18,7 @@ class Stop(Base):
     filename = 'stops.txt'
 
     __tablename__ = 'stops'
-    __table_args__ = {'extend_existing': True}
+    __table_args__ = {'extend_existing': config.EXISTING_SCHEMA_FLAG}
 
     stop_id = Column(String(255), primary_key=True, index=True, nullable=False)
     stop_code = Column(String(50))

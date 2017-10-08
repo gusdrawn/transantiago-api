@@ -11,7 +11,7 @@ class Frequency(Base):
     filename = 'frequencies.txt'
 
     __tablename__ = 'frequencies'
-    __table_args__ = {'extend_existing': True}
+    __table_args__ = {'extend_existing': config.EXISTING_SCHEMA_FLAG}
 
     trip_id = Column(String(255), primary_key=True)
     start_time = Column(String(8), primary_key=True)

@@ -23,7 +23,7 @@ class Block(Base):
     datasource = config.DATASOURCE_DERIVED
 
     __tablename__ = 'blocks'
-    __table_args__ = {'extend_existing': True}
+    __table_args__ = {'extend_existing': config.EXISTING_SCHEMA_FLAG}
 
     id = Column(Integer, Sequence(None, optional=True), primary_key=True)
     sequence = Column(Integer)

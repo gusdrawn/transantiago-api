@@ -14,7 +14,7 @@ class Trip(Base):
     filename = 'trips.txt'
 
     __tablename__ = 'trips'
-    __table_args__ = {'extend_existing': True}
+    __table_args__ = {'extend_existing': config.EXISTING_SCHEMA_FLAG}
 
     trip_id = Column(String(255), primary_key=True, index=True, nullable=False)
     route_id = Column(String(255), index=True, nullable=False)

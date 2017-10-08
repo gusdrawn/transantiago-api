@@ -20,7 +20,7 @@ class Pattern(Base):
     datasource = config.DATASOURCE_DERIVED
 
     __tablename__ = 'patterns'
-    __table_args__ = {'extend_existing': True}
+    __table_args__ = {'extend_existing': config.EXISTING_SCHEMA_FLAG}
 
     shape_id = Column(String(255), primary_key=True, index=True)
     pattern_dist = Column(Numeric(20, 10))
@@ -71,7 +71,7 @@ class Shape(Base):
     filename = 'shapes.txt'
 
     __tablename__ = 'shapes'
-    __table_args__ = {'extend_existing': True}
+    __table_args__ = {'extend_existing': config.EXISTING_SCHEMA_FLAG}
 
     shape_id = Column(String(255), primary_key=True, index=True)
     shape_pt_lat = Column(Numeric(12, 9))

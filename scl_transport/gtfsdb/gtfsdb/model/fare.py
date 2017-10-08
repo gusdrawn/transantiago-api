@@ -13,7 +13,7 @@ class FareAttribute(Base):
     filename = 'fare_attributes.txt'
 
     __tablename__ = 'fare_attributes'
-    __table_args__ = {'extend_existing': True}
+    __table_args__ = {'extend_existing': config.EXISTING_SCHEMA_FLAG}
 
     fare_id = Column(String(255), primary_key=True)
     price = Column(Numeric(10, 2), nullable=False)
@@ -29,7 +29,7 @@ class FareRule(Base):
     filename = 'fare_rules.txt'
 
     __tablename__ = 'fare_rules'
-    __table_args__ = {'extend_existing': True}
+    __table_args__ = {'extend_existing': config.EXISTING_SCHEMA_FLAG}
 
     id = Column(Integer, Sequence(None, optional=True), primary_key=True)
     fare_id = Column(String(255), index=True, nullable=False)

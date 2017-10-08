@@ -16,7 +16,7 @@ class StopTime(Base):
     filename = 'stop_times.txt'
 
     __tablename__ = 'stop_times'
-    __table_args__ = {'extend_existing': True}
+    __table_args__ = {'extend_existing': config.EXISTING_SCHEMA_FLAG}
 
     trip_id = Column(String(255), primary_key=True, index=True, nullable=False)
     stop_id = Column(String(255), index=True, nullable=False)

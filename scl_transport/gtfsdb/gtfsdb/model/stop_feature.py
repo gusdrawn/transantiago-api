@@ -13,7 +13,7 @@ class StopFeature(Base):
     filename = 'stop_features.txt'
 
     __tablename__ = 'stop_features'
-    __table_args__ = {'extend_existing': True}
+    __table_args__ = {'extend_existing': config.EXISTING_SCHEMA_FLAG}
 
     id = Column(Integer, Sequence(None, optional=True), primary_key=True)
     stop_id = Column(String(255), index=True, nullable=False)

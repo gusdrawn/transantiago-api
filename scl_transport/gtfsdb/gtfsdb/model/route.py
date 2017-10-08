@@ -18,7 +18,7 @@ class RouteType(Base):
     datasource = config.DATASOURCE_LOOKUP
     filename = 'route_type.txt'
     __tablename__ = 'route_type'
-    __table_args__ = {'extend_existing': True}
+    __table_args__ = {'extend_existing': config.EXISTING_SCHEMA_FLAG}
 
     route_type = Column(Integer, primary_key=True, index=True, autoincrement=False)
     route_type_name = Column(String(255))

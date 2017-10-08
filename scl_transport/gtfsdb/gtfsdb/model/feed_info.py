@@ -10,7 +10,7 @@ class FeedInfo(Base):
     filename = 'feed_info.txt'
 
     __tablename__ = 'feed_info'
-    __table_args__ = {'extend_existing': True}
+    __table_args__ = {'extend_existing': config.EXISTING_SCHEMA_FLAG}
 
     feed_publisher_name = Column(String(255), primary_key=True)
     feed_publisher_url = Column(String(255), nullable=False)

@@ -14,9 +14,10 @@ if config.has_section('loggers'):
 
 '''Application defaults'''
 DEFAULT_BATCH_SIZE = 10000
-DEFAULT_DATABASE_URL = 'postgresql://postgres:@localhost/test_gtfs'
+DEFAULT_DATABASE_URL = os.getenv('SQLALCHEMY_DATABASE_URI', 'postgresql://postgres:@localhost/postgres')
 DEFAULT_IS_GEOSPATIAL = False
 DEFAULT_SCHEMA = None
+EXISTING_SCHEMA_FLAG = True
 
 '''Data source constants'''
 DATASOURCE_GTFS = 1

@@ -22,7 +22,7 @@ class Calendar(Base):
     filename = 'calendar.txt'
 
     __tablename__ = 'calendar'
-    __table_args__ = (Index('calendar_ix1', 'start_date', 'end_date'), {'extend_existing': True})
+    __table_args__ = (Index('calendar_ix1', 'start_date', 'end_date'), {'extend_existing': config.EXISTING_SCHEMA_FLAG})
 
     service_id = Column(String(255), primary_key=True, index=True, nullable=False)
     monday = Column(Boolean, nullable=False)

@@ -1,3 +1,4 @@
+!> **NOTA** Esta es una versión no estable de la API, se pueden introducir cambios profundos.
 
 > ***Transantiago API*** es una API (no oficial) basada en la información [oficial](https://www.dtpm.cl/index.php/2013-04-24-14-10-40/gtfs-vigente) disponible de transantiago (formato "General Transit Feed Specification - GTFS). Información de servicios de buses y de Metro, posición de paraderos y estaciones, trazados de servicios y frecuencias y tiempos de viaje por periodo del día.
 

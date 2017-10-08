@@ -36,12 +36,14 @@ https://txgr7z1gbc.execute-api.eu-west-2.amazonaws.com/dev/api/v1/stops?lat=-33.
 
 ```
 https://txgr7z1gbc.execute-api.eu-west-2.amazonaws.com/dev/api/v1/stops/<stop_id>/routes
+https://txgr7z1gbc.execute-api.eu-west-2.amazonaws.com/dev/api/v1/stops/PB1/routes
 ```
 
 - Obtener la información de un viaje específico (a.k.a `trips`), incluyendo todos los paraderos de la ruta y la "micro" asociada.
 
 ```
 https://txgr7z1gbc.execute-api.eu-west-2.amazonaws.com/dev/api/v1/trips/<trip_id>
+https://txgr7z1gbc.execute-api.eu-west-2.amazonaws.com/dev/api/v1/trips/101-I-L_V34-B00
 ```
 
 ## Contribución

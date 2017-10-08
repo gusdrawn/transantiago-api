@@ -29,19 +29,19 @@ Aquí algunos ejemplos de uso:
 - Obtener los paraderos (a.k.a `stops`) cercanos a cierta ubicación (ordenados por cercanía):
 
 ```
-https://shielded-garden-95327.herokuapp.com/v1/stops?lat=-33.491585&lon=-70.643562
+https://txgr7z1gbc.execute-api.eu-west-2.amazonaws.com/dev/api/v1/stops?lat=-33.491585&lon=-70.643562
 ```
 
 - Obtener las rutas o "micros" de un paradero concreto:
 
 ```
-https://shielded-garden-95327.herokuapp.com/v1/stops/<stop_id>/routes
+https://txgr7z1gbc.execute-api.eu-west-2.amazonaws.com/dev/api/v1/stops/<stop_id>/routes
 ```
 
 - Obtener la información de un viaje específico (a.k.a `trips`), incluyendo todos los paraderos de la ruta y la "micro" asociada.
 
 ```
-https://shielded-garden-95327.herokuapp.com/v1/trips/<trip_id>
+https://txgr7z1gbc.execute-api.eu-west-2.amazonaws.com/dev/api/v1/trips/<trip_id>
 ```
 
 ## Contribución

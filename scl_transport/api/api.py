@@ -413,18 +413,18 @@ App construction & route registration
 
 
 def add_routes(app):
-    app.add_route('/v1/ping', HealthCheckResource())
-    app.add_route('/v1/info', InfoResource())
-    app.add_route('/v1/stops/', StopCollectionResource())
-    app.add_route('/v1/stops/{stop_id}', StopResource())
-    app.add_route('/v1/stops/{stop_id}/routes', StopRoutesResource())
-    app.add_route('/v1/stops/{stop_id}/schedule', StopScheduleCollectionResource())
-    app.add_route('/v1/stops/{stop_id}/schedule/{route_id}', StopScheduleResource())
-    app.add_route('/v1/routes/', RouteCollectionResource())
-    app.add_route('/v1/routes/{route_id}', RouteResource())
-    app.add_route('/v1/trips/', TripCollectionResource())
-    app.add_route('/v1/trips/{trip_id}', TripResource())  # TODO: order by sequence
-    app.add_route('/v1/trips/{trip_id}/stops', TripStopsCollectionResource())  # TODO: order by sequence
+    app.add_route('/api/v1/ping', HealthCheckResource())
+    app.add_route('/api/v1/info', InfoResource())
+    app.add_route('/api/v1/stops/', StopCollectionResource())
+    app.add_route('/api/v1/stops/{stop_id}', StopResource())
+    app.add_route('/api/v1/stops/{stop_id}/routes', StopRoutesResource())
+    app.add_route('/api/v1/stops/{stop_id}/schedule', StopScheduleCollectionResource())
+    app.add_route('/api/v1/stops/{stop_id}/schedule/{route_id}', StopScheduleResource())
+    app.add_route('/api/v1/routes/', RouteCollectionResource())
+    app.add_route('/api/v1/routes/{route_id}', RouteResource())
+    app.add_route('/api/v1/trips/', TripCollectionResource())
+    app.add_route('/api/v1/trips/{trip_id}', TripResource())  # TODO: order by sequence
+    app.add_route('/api/v1/trips/{trip_id}/stops', TripStopsCollectionResource())  # TODO: order by sequence
 
 
 def create_app():

@@ -1,5 +1,7 @@
 # API
 
+Actualmente la API está disponible en `https://txgr7z1gbc.execute-api.eu-west-2.amazonaws.com/dev/` (temporal)
+
 ## Stops (`Paraderos`)
 
 Información sobre paraderos

@@ -2,17 +2,18 @@
 
 import json
 import falcon
+import arrow
 import os
 
 from scl_transport.api.utils import pager
 
-from .models import (
+from scl_transport.gtfsdb.gtfsdb import (
     Stop,
     StopTime,
     Trip,
     Route,
-    Feed,
-    StopSchedule
+    FeedInfo,
+    Database
 )
 
 from marshmallow import Schema, fields
@@ -31,7 +32,7 @@ Create engine, session_factory and scoped_session object.
 """
 
 adapter = None
-session_factory = lambda: adapter.connection.session_maker()
+session_factory = lambda: adapter.session_factory()
 Session = scoped_session(session_factory)
 
 
@@ -161,8 +162,27 @@ class TripSchema(Schema):
     service = fields.Nested(ServiceSchema)
 
     trip_headsign = fields.Str()
+    trip_short_name = fields.Str()
     direction_id = fields.Str()
     frequency = fields.Nested(FrequencySchema)
+
+    trip_len = fields.Integer()
+    is_valid = fields.Boolean()
+
+    start_time = fields.Time()
+    end_time = fields.Time()
+
+    start_stop = fields.Nested(StopSchema)
+    end_stop = fields.Nested(StopSchema)
+
+
+class StopTimeSchema(Schema):
+    stop = fields.Nested(StopSchema)
+    trip = fields.Nested(TripSchema)
+    arrival_time = fields.Str()
+    departure_time = fields.Str()
+    stop_sequence = fields.Integer()
+    stop_headsign = fields.Str()
 
 
 class FeedSchema(Schema):
@@ -190,7 +210,7 @@ class HealthCheckResource(object):
 
 class InfoResource(object):
     def on_get(self, req, resp):
-        feed = self.session.query(Feed).first()
+        feed = self.session.query(FeedInfo).first()
         if not feed:
             raise EntityNotFound()
 
@@ -275,7 +295,7 @@ class StopCollectionResource(object):
 
         if args.get('lat') and args.get('lon'):
             pt = WKTElement('POINT({0} {1})'.format(args['lon'], args['lat']), srid=4326)
-            stops = stops.order_by(Stop.stop_location.distance_box(pt))
+            stops = stops.order_by(Stop.geom.distance_box(pt))
 
         paginator = pager(stops, page, per_page_limit)
         #  serializer  results
@@ -319,20 +339,43 @@ class StopRoutesResource(object):
 
 
 class StopScheduleCollectionResource(object):
+    #@use_args({'limit': fields.Int(), 'date': fields.Str()})
     def on_get(self, req, resp, stop_id):
-        stop_schedule = StopSchedule(stop_id=stop_id)
-        body = dict(
-            results=stop_schedule.to_dict(self.session),
-        )
+        # TODO: to serializer
+        date = req.params.get('date')
+        if date:
+            try:
+                date = arrow.get(date, 'YYYY-MM-DD').date()
+            except arrow.parser.ParserError:
+                pass
+        date = arrow.now().date()
+        limit = req.params.get('limit', PER_PAGE_LIMIT * 2)  # TODO: temporary solution
+        stop_times = StopTime.get_departure_schedule(self.session, stop_id, limit=limit, date=date)
+        stop_time_schema = StopTimeSchema()
+        results = stop_time_schema.dump(stop_times, many=True).data
+        body = dict(results=results,)
         resp.body = json.dumps(body)
 
 
 class StopScheduleResource(object):
     def on_get(self, req, resp, stop_id, route_id):
-        stop_schedule = StopSchedule(stop_id=stop_id, route_id=route_id)
-        body = dict(
-            results=stop_schedule.to_dict(self.session),
+        date = req.params.get('date')
+        if date:
+            try:
+                date = arrow.get(date, 'YYYY-MM-DD').date()
+            except arrow.parser.ParserError:
+                pass
+        limit = req.params.get('limit', PER_PAGE_LIMIT * 2)  # TODO: temporary solution
+        stop_times = StopTime.get_departure_schedule(
+            session=self.session,
+            stop_id=stop_id,
+            route_id=route_id,
+            date=date,
+            limit=limit
         )
+        stop_time_schema = StopTimeSchema()
+        results = stop_time_schema.dump(stop_times, many=True).data
+        body = dict(results=results,)
         resp.body = json.dumps(body)
 
 
@@ -392,8 +435,7 @@ def create_app():
     )
     add_routes(app)
     global adapter
-    from scl_transport.database import Adapter
-    adapter_to_set = Adapter(connection=None)
+    adapter_to_set = Database()
     adapter = adapter_to_set
 
     # activate raven (Sentry) if requested

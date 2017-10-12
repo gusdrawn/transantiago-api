@@ -13,6 +13,7 @@ from scl_transport.gtfsdb.gtfsdb import (
     Trip,
     Route,
     FeedInfo,
+    StopSchedule,
     Database
 )
 
@@ -115,13 +116,37 @@ Schemas
 """
 
 
+class AgencySchema(Schema):
+    agency_id = fields.Str()
+    agency_name = fields.Str()
+    agency_url = fields.Str()
+    agency_timezone = fields.Str()
+    agency_lang = fields.Str()
+    agency_phone = fields.Str()
+    agency_fare_url = fields.Str()
+
+
 class StopSchema(Schema):
     stop_id = fields.Str()
     stop_code = fields.Str()
     stop_name = fields.Str()
     stop_lat = fields.Str()
+    stop_desc = fields.Str()
     stop_lon = fields.Str()
+    zone_id = fields.Str()
+    parent_station = fields.Str()
+    direction = fields.Str()
+    position = fields.Str()
+    headsigns = fields.List(fields.Str())
     stop_url = fields.Str(allow_none=True)
+
+    #is_active = fields.Boolean()
+
+
+class RouteDirectionSchema(Schema):
+    route_id = fields.Str()
+    direction_id = fields.Int()
+    direction_name = fields.Str()
 
 
 class RouteSchema(Schema):
@@ -134,6 +159,13 @@ class RouteSchema(Schema):
     route_url = fields.Str()
     route_color = fields.Str()
     route_text_color = fields.Str()
+    route_sort_order = fields.Int()
+    min_headway_minutes = fields.Int()
+    # extra fields
+    is_active = fields.Boolean()
+    start_date = fields.Date()
+    end_date = fields.Date()
+    directions = fields.List(fields.Nested(RouteDirectionSchema))
 
 
 class ServiceSchema(Schema):
@@ -179,8 +211,8 @@ class TripSchema(Schema):
 class StopTimeSchema(Schema):
     stop = fields.Nested(StopSchema)
     trip = fields.Nested(TripSchema)
-    arrival_time = fields.Str()
-    departure_time = fields.Str()
+    arrival_time = fields.Time()
+    departure_time = fields.Time()
     stop_sequence = fields.Integer()
     stop_headsign = fields.Str()
 
@@ -339,21 +371,23 @@ class StopRoutesResource(object):
 
 
 class StopScheduleCollectionResource(object):
-    #@use_args({'limit': fields.Int(), 'date': fields.Str()})
-    def on_get(self, req, resp, stop_id):
-        # TODO: to serializer
-        date = req.params.get('date')
-        if date:
-            try:
-                date = arrow.get(date, 'YYYY-MM-DD').date()
-            except arrow.parser.ParserError:
-                pass
-        date = arrow.now().date()
-        limit = req.params.get('limit', PER_PAGE_LIMIT * 2)  # TODO: temporary solution
-        stop_times = StopTime.get_departure_schedule(self.session, stop_id, limit=limit, date=date)
-        stop_time_schema = StopTimeSchema()
-        results = stop_time_schema.dump(stop_times, many=True).data
-        body = dict(results=results,)
+    @use_args({'limit': fields.Int(), 'date': fields.Date(), 'arrival_time_after': fields.Time()})
+    def on_get(self, req, resp, args, stop_id):
+        """
+        stop_times = StopTime.get_departure_schedule(
+            session=self.session,
+            stop_id=stop_id,
+            limit=args.get('limit', PER_PAGE_LIMIT),
+            date=args.get('date')
+        )
+        from pprint import pprint
+        """
+        stop_schedule = StopSchedule(stop_id)
+        stop_schedule.as_dict(self.session)
+        #pprint(stop_schedule.as_dict(self.session))
+        #stop_time_schema = StopTimeSchema()
+        #results = stop_time_schema.dump(stop_times, many=True).data
+        body = dict(results=stop_schedule.as_dict(self.session),)
         resp.body = json.dumps(body)
 
 

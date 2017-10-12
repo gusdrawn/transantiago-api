@@ -5,9 +5,9 @@ from sqlalchemy import Column, Sequence
 from sqlalchemy.orm import relationship
 from sqlalchemy.types import Integer, String
 
-from scl_transport.gtfsdb.gtfsdb import config
-from scl_transport.gtfsdb.gtfsdb.model.base import Base
-from scl_transport.gtfsdb.gtfsdb.model.trip import Trip
+from .. import config
+from .base import Base
+from .trip import Trip
 
 import logging
 log = logging.getLogger(__name__)
@@ -27,9 +27,9 @@ class Block(Base):
 
     id = Column(Integer, Sequence(None, optional=True), primary_key=True)
     sequence = Column(Integer)
-    block_id = Column(String(255),   index=True, nullable=False)
+    block_id = Column(String(255), index=True, nullable=False)
     service_id = Column(String(255), index=True, nullable=False)
-    trip_id = Column(String(255),    index=True, nullable=False)
+    trip_id = Column(String(255), index=True, nullable=False)
     prev_trip_id = Column(String(255))
     next_trip_id = Column(String(255))
     start_stop_id = Column(String(255), index=True, nullable=False)

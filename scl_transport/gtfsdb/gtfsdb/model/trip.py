@@ -5,8 +5,8 @@ from sqlalchemy import Column
 from sqlalchemy.orm import relationship
 from sqlalchemy.types import Integer, String
 
-from scl_transport.gtfsdb.gtfsdb import config
-from scl_transport.gtfsdb.gtfsdb.model.base import Base
+from .. import config
+from .base import Base
 
 
 class Trip(Base):
@@ -47,6 +47,12 @@ class Trip(Base):
         foreign_keys='(Trip.trip_id)',
         order_by='StopTime.stop_sequence',
         uselist=True, viewonly=True)
+
+    frequency = relationship(
+        'Frequency',
+        primaryjoin='Frequency.trip_id==Trip.trip_id',
+        foreign_keys='(Frequency.trip_id)',
+        uselist=False, viewonly=True)
 
     universal_calendar = relationship(
         'UniversalCalendar',

@@ -8,8 +8,8 @@ from sqlalchemy.orm import deferred, relationship
 from sqlalchemy.types import Integer, String
 from sqlalchemy.sql import func
 
-from scl_transport.gtfsdb.gtfsdb import config
-from scl_transport.gtfsdb.gtfsdb.model.base import Base
+from .. import config
+from .base import Base
 
 __all__ = ['RouteType', 'Route', 'RouteDirection', 'RouteFilter']
 

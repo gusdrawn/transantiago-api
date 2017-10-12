@@ -4,7 +4,7 @@ log = logging.getLogger(__file__)
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 
-from scl_transport.gtfsdb.gtfsdb import config
+from .. import config
 
 
 class Database(object):

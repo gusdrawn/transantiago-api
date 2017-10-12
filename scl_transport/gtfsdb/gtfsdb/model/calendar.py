@@ -7,8 +7,8 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
 from sqlalchemy.types import Boolean, Date, Integer, String
 
-from scl_transport.gtfsdb.gtfsdb import config
-from scl_transport.gtfsdb.gtfsdb.model.base import Base
+from .frequency import config
+from .base import Base
 
 
 __all__ = ['Calendar', 'CalendarDate', 'UniversalCalendar']

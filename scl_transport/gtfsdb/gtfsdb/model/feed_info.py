@@ -1,8 +1,8 @@
 from sqlalchemy import Column
 from sqlalchemy.types import Date, String
 
-from scl_transport.gtfsdb.gtfsdb import config
-from scl_transport.gtfsdb.gtfsdb.model.base import Base
+from .. import config
+from .base import Base
 
 
 class FeedInfo(Base):

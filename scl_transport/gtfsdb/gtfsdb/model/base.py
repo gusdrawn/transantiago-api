@@ -4,12 +4,13 @@ import os
 from pkg_resources import resource_filename  # @UnresolvedImport
 import sys
 import time
+import arrow
 import logging
 log = logging.getLogger(__name__)
 
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import object_session
-from scl_transport.gtfsdb.gtfsdb import config, util
+from .. import config, util
 
 
 class _Base(object):
@@ -165,6 +166,14 @@ class _Base(object):
                         row[k] = None
                     elif k.endswith('date'):
                         row[k] = datetime.datetime.strptime(v, '%Y%m%d').date()
+                    elif k.endswith('time') and k != 'min_transfer_time':
+                        if v == '24:00:00':
+                            v = '23:59:59'
+                        input_time = '{} {}'.format('2017/01/01', v)
+                        try:
+                            row[k] = arrow.get(input_time, 'YYYY/MM/DD HH:mm:ss').time()
+                        except Exception:
+                            pass
                 else:
                     log.info("I've got issues with your GTFS {0} data.  I'll continue, but expect more errors...".format(cls.__name__))
             except Exception, e:

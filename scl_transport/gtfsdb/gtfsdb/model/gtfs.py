@@ -6,7 +6,7 @@ import time
 from urllib import urlretrieve
 import zipfile
 
-from scl_transport.gtfsdb.gtfsdb import config
+from .. import config
 from .route import Route
 
 

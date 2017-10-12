@@ -1,8 +1,8 @@
 import argparse
 
-from scl_transport.gtfsdb.gtfsdb import config
-from scl_transport.gtfsdb.gtfsdb.model.base import Base
-from scl_transport.gtfsdb.gtfsdb.api import database_load
+from . import config
+from .model.base import Base
+from .api import database_load
 
 
 def gtfsdb_load():

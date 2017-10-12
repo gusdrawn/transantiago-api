@@ -6,8 +6,8 @@ from sqlalchemy import Column, Integer, Numeric, String
 from sqlalchemy.orm import deferred, relationship
 from sqlalchemy.sql import func
 
-from scl_transport.gtfsdb.gtfsdb import config
-from scl_transport.gtfsdb.gtfsdb.model.base import Base
+from .. import config
+from .base import Base
 
 
 __all__ = ['Pattern', 'Shape']

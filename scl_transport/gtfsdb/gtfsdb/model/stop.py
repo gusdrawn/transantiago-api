@@ -6,8 +6,8 @@ from geoalchemy2 import Geometry
 from sqlalchemy import Column, Integer, Numeric, String
 from sqlalchemy.orm import joinedload_all, object_session, relationship
 
-from scl_transport.gtfsdb.gtfsdb import config
-from scl_transport.gtfsdb.gtfsdb.model.base import Base
+from .. import config
+from .base import Base
 
 
 log = logging.getLogger(__name__)

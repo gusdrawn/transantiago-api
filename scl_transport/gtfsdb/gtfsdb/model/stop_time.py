@@ -2,13 +2,18 @@ import datetime
 import logging
 log = logging.getLogger(__name__)
 
+import time
+import arrow
 from sqlalchemy import Column, and_
 from sqlalchemy.orm import relationship, joinedload_all
 from sqlalchemy.sql.expression import func
-from sqlalchemy.types import Boolean, Integer, Numeric, String
+from sqlalchemy.types import Boolean, Integer, Numeric, String, Time, BigInteger
 
-from scl_transport.gtfsdb.gtfsdb import config
-from scl_transport.gtfsdb.gtfsdb.model.base import Base
+from .. import config
+from ..util import convert_str_to_time
+from .base import Base
+from .frequency import Frequency
+from .trip import Trip
 
 
 class StopTime(Base):
@@ -18,11 +23,12 @@ class StopTime(Base):
     __tablename__ = 'stop_times'
     __table_args__ = {'extend_existing': config.EXISTING_SCHEMA_FLAG}
 
+    id = Column(BigInteger, primary_key=True, autoincrement=True)
     trip_id = Column(String(255), primary_key=True, index=True, nullable=False)
     stop_id = Column(String(255), index=True, nullable=False)
     stop_sequence = Column(Integer, primary_key=True, nullable=False)
-    arrival_time = Column(String(9))
-    departure_time = Column(String(9), index=True)
+    arrival_time = Column(Time)
+    departure_time = Column(Time, index=True)
     stop_headsign = Column(String(255))
     pickup_type = Column(Integer, default=0)
     drop_off_type = Column(Integer, default=0)
@@ -41,10 +47,24 @@ class StopTime(Base):
         foreign_keys='(StopTime.trip_id)',
         uselist=False, viewonly=True)
 
+    # @@TODO: temporary
+    frequency = relationship(
+        'Frequency',
+        primaryjoin='Frequency.trip_id==StopTime.trip_id',
+        foreign_keys='(Frequency.trip_id)',
+        uselist=False, viewonly=True)
+
     def __init__(self, *args, **kwargs):
         super(StopTime, self).__init__(*args, **kwargs)
         if 'timepoint' not in kwargs:
             self.timepoint = 'arrival_time' in kwargs
+
+    def __repr__(self):
+        """Default repr"""
+        if hasattr(self, "id"):
+            return "<%s %s>" % (self.__class__.__name__, self.id)
+        else:
+            return super(StopTime, self).__repr__()
 
     def get_headsign(self):
         """ get the headsign at this stop ... rule is that if stop is empty, use trip headsign """
@@ -148,10 +168,17 @@ class StopTime(Base):
         return ret_val
 
     @classmethod
-    def get_departure_schedule(cls, session, stop_id, date=None, route_id=None, limit=None):
+    def get_departure_schedule(
+        cls,
+        session,
+        stop_id,
+        date=None,
+        route_id=None,
+        limit=None
+    ):
         """ helper routine which returns the stop schedule for a give date
         """
-        from gtfsdb.model.trip import Trip
+        from .trip import Trip
 
         # step 0: make sure we have a valid date
         if date is None:
@@ -219,3 +246,129 @@ class StopTime(Base):
                             # (don't return the stop_time as a departure)
                             # this is the last trip of the day (so return it)
         return ret_val
+
+
+class StopSchedule(object):
+    def __init__(self, stop_id, route_id=None, from_datetime=None):
+        self.stop_id = stop_id
+        self.route_id = route_id
+        self.from_datetime = from_datetime
+
+    def _build_datetime(self, input_date, input_time):
+        dt = arrow.get(input_date)
+        dt = dt.replace(hour=input_time.hour)
+        dt = dt.replace(minute=input_time.minute)
+        dt = dt.replace(second=input_time.second)
+        return arrow.get(dt)
+
+    def _get_time_seconds(self, input_time):
+        return datetime.timedelta(
+            hours=input_time.hour,
+            minutes=input_time.minute,
+            seconds=input_time.second
+        ).total_seconds()
+
+    def _filter_on_frequency(self, now, query, route_id):
+        results = []
+        # @@TODO: improve this query (avoid post-process)
+        stop_times = query.join(StopTime.frequency).filter(
+            Trip.route_id == route_id,
+            Frequency.start_time <= now.time(),
+            Frequency.end_time >= now.time()
+        ).order_by(StopTime.trip_id, Frequency.start_time)
+
+        for stop_time in stop_times:
+            if stop_time.trip.route_id == route_id:
+                results.append(stop_time)
+                return results
+        return results
+
+    def _next_route_schedule(self, now, route_id, stop_time):
+        if not stop_time:
+            return []
+
+        arrival_time = stop_time.arrival_time
+        arrival_seconds_offset = self._get_time_seconds(arrival_time)
+        start_datetime = self._build_datetime(now.date(), stop_time.frequency.start_time)
+        end_datetime = self._build_datetime(now.date(), stop_time.frequency.end_time)
+
+        route_schedule = []
+        """
+        @@TODO: get proper start_date instead of iterate
+        #num = int((self._get_time_seconds(stop_time.trip.frequency.end_time) - self._get_time_seconds(stop_time.trip.frequency.start_time)) / stop_time.trip.frequency.headway_secs)
+        """
+        for i in range(100):
+            if len(route_schedule) > 5:
+                break
+            if start_datetime > end_datetime:
+                # @@TODO: is this possible?
+                break
+            datetime_to_cast = start_datetime.replace(seconds=arrival_seconds_offset)
+            if datetime_to_cast >= now.datetime:
+                route_schedule.append({
+                    'route_id': stop_time.trip.route_id,
+                    'stop_id': stop_time.stop_id,
+                    'trip_id': stop_time.trip_id,
+                    'arrival_timestamp': datetime_to_cast.timestamp,
+                    'arrival_date': arrow.get(datetime_to_cast).format('YYYY-MM-DD'),
+                    'arrival_time': arrow.get(datetime_to_cast).format('HH:mm:ss')
+                })
+            start_datetime = arrow.get(start_datetime).replace(seconds=stop_time.frequency.headway_secs)
+        return route_schedule
+
+    def _populate_route_schedule(self, now, route_id, next_stop_times):
+        route_schedule = []
+        if not next_stop_times:
+            return []
+        while next_stop_times:
+            stop_time = next_stop_times.pop(0)
+            if len(route_schedule) > 5:
+                break
+            route_schedule.extend(self._next_route_schedule(now, route_id, stop_time))
+        return route_schedule
+
+    def _get_now(self):
+        now = arrow.now('America/Santiago')
+        n = arrow.get(now.naive)
+        return n
+
+    def as_dict(self, session):
+        now = self._get_now()
+        stop_id = self.stop_id
+        given_route_id = self.route_id
+
+        stop_times = StopTime.get_departure_schedule(
+            session=session,
+            stop_id=stop_id,
+            date=now.date(),
+            route_id=self.route_id
+        )
+
+        # 1) build base query
+        stop_time_ids = [stop_time.id for stop_time in stop_times]
+        query = session.query(StopTime).filter(StopTime.id.in_(stop_time_ids))
+
+        # 2) get distinct routes, TODO: query
+        distinct_route_ids = []
+        for stop_time in query:
+            if stop_time.trip.route_id not in distinct_route_ids:
+                distinct_route_ids.append(stop_time.trip.route_id)
+
+        # 3) TODO: get distinct trips
+        query = query.distinct(StopTime.trip_id)
+
+        # 4) get stop_times for route in frequency <route_id>: <first_stop_time>, <optional_second_stop_time>
+        route_stop_time_map = {}
+        for route_id in distinct_route_ids:
+            if given_route_id and route_id != given_route_id:
+                continue
+            route_stop_time_map[route_id] = self._filter_on_frequency(now, query, route_id)
+
+        # 4) extraer mas cercano mayor a now(), ejm: a cada 5 minutos (Frequency.headway_secs) en el 65min(StopTime.arrival_time) desde inicio ruta
+        results = []
+        for route_id, stop_times in route_stop_time_map.items():
+            route_schedule = self._populate_route_schedule(now, route_id, stop_times)
+            results.extend(route_schedule)
+        results = sorted(results, key=lambda k: k['arrival_timestamp'])
+
+        return results

@@ -556,17 +556,12 @@ api/v1/stops/<stop_id>/schedule
 
 > **Query params**
 
-| property  | opcional       | default         | description                                         |
-| --------- | :-------:  | :-------------: | --------------------------------------------------- |
-| `limit`  | `si`   | `100`       | Cantidad de resultados por página.               |
-| `date`     | `si`   | `` | Fecha de horario a filtrar. formato ISO 8601 YYYY-MM-DD. |
-
 > **Ejemplo**
 
 - Consulta
 
 ```curl
-api/v1/stops/PA1/schedule?limit=3&date=2017-11-11
+api/v1/stops/PA1/schedule
 ```
 
 - Respuesta
@@ -575,237 +570,28 @@ api/v1/stops/PA1/schedule?limit=3&date=2017-11-11
 {
     "results": [
         {
-            "stop_headsign": null,
-            "stop": {
-                "stop_lat": "-33.440116927",
-                "stop_code": "PA1",
-                "stop_lon": "-70.680021028",
-                "stop_url": null,
-                "stop_id": "PA1",
-                "stop_name": "PA1-Parada 6 / (M) Quinta Normal"
-            },
-            "arrival_time": "00:21:50",
-            "stop_sequence": 34,
-            "trip": {
-                "route": {
-                    "route_long_name": "El Cortijo - (M) Estacion Central",
-                    "route_type": "3",
-                    "route_text_color": "FFFFFF",
-                    "agency_id": "TS",
-                    "route_id": "B26",
-                    "route_color": "ED1C24",
-                    "route_desc": null,
-                    "route_url": null,
-                    "route_short_name": "B26"
-                },
-                "direction_id": "0",
-                "is_valid": true,
-                "trip_headsign": "(M) Est. Central",
-                "start_stop": {
-                    "stop_lat": "-33.367588431",
-                    "stop_code": "PB833",
-                    "stop_lon": "-70.691163625",
-                    "stop_url": null,
-                    "stop_id": "PB833",
-                    "stop_name": "PB833-Julio Parra Santos Esq. / Julio Montt Salamanca"
-                },
-                "trip_len": 37,
-                "end_stop": {
-                    "stop_lat": "-33.452072584",
-                    "stop_code": "PI169",
-                    "stop_lon": "-70.678008931",
-                    "stop_url": null,
-                    "stop_id": "PI169",
-                    "stop_name": "PI169-Parada 5 / (M) Estación Central"
-                },
-                "trip_id": "B26-I-D_V34-B28",
-                "trip_short_name": null
-            },
-            "departure_time": "00:21:50"
+            "arrival_date": "2017-10-13",
+            "arrival_timestamp": 1507919127,
+            "route_id": "406",
+            "arrival_time": "18:25:27",
+            "stop_id": "PA1",
+            "trip_id": "406-I-L_V34-B08"
         },
         {
-            "stop_headsign": null,
-            "stop": {
-                "stop_lat": "-33.440116927",
-                "stop_code": "PA1",
-                "stop_lon": "-70.680021028",
-                "stop_url": null,
-                "stop_id": "PA1",
-                "stop_name": "PA1-Parada 6 / (M) Quinta Normal"
-            },
-            "arrival_time": "00:21:52",
-            "stop_sequence": 34,
-            "trip": {
-                "route": {
-                    "route_long_name": "El Cortijo - (M) Estacion Central",
-                    "route_type": "3",
-                    "route_text_color": "FFFFFF",
-                    "agency_id": "TS",
-                    "route_id": "B26",
-                    "route_color": "ED1C24",
-                    "route_desc": null,
-                    "route_url": null,
-                    "route_short_name": "B26"
-                },
-                "direction_id": "0",
-                "is_valid": true,
-                "trip_headsign": "(M) Est. Central",
-                "start_stop": {
-                    "stop_lat": "-33.367588431",
-                    "stop_code": "PB833",
-                    "stop_lon": "-70.691163625",
-                    "stop_url": null,
-                    "stop_id": "PB833",
-                    "stop_name": "PB833-Julio Parra Santos Esq. / Julio Montt Salamanca"
-                },
-                "trip_len": 37,
-                "end_stop": {
-                    "stop_lat": "-33.452072584",
-                    "stop_code": "PI169",
-                    "stop_lon": "-70.678008931",
-                    "stop_url": null,
-                    "stop_id": "PI169",
-                    "stop_name": "PI169-Parada 5 / (M) Estación Central"
-                },
-                "trip_id": "B26-I-L_V34-B00",
-                "trip_short_name": null
-            },
-            "departure_time": "00:21:52"
+            "arrival_date": "2017-10-13",
+            "arrival_timestamp": 1507919137,
+            "route_id": "109",
+            "arrival_time": "18:25:37",
+            "stop_id": "PA1",
+            "trip_id": "109-I-L_V34-B08"
         },
         {
-            "stop_headsign": null,
-            "stop": {
-                "stop_lat": "-33.440116927",
-                "stop_code": "PA1",
-                "stop_lon": "-70.680021028",
-                "stop_url": null,
-                "stop_id": "PA1",
-                "stop_name": "PA1-Parada 6 / (M) Quinta Normal"
-            },
-            "arrival_time": "00:22:25",
-            "stop_sequence": 34,
-            "trip": {
-                "route": {
-                    "route_long_name": "El Cortijo - (M) Estacion Central",
-                    "route_type": "3",
-                    "route_text_color": "FFFFFF",
-                    "agency_id": "TS",
-                    "route_id": "B26",
-                    "route_color": "ED1C24",
-                    "route_desc": null,
-                    "route_url": null,
-                    "route_short_name": "B26"
-                },
-                "direction_id": "0",
-                "is_valid": true,
-                "trip_headsign": "(M) Est. Central",
-                "start_stop": {
-                    "stop_lat": "-33.367588431",
-                    "stop_code": "PB833",
-                    "stop_lon": "-70.691163625",
-                    "stop_url": null,
-                    "stop_id": "PB833",
-                    "stop_name": "PB833-Julio Parra Santos Esq. / Julio Montt Salamanca"
-                },
-                "trip_len": 37,
-                "end_stop": {
-                    "stop_lat": "-33.452072584",
-                    "stop_code": "PI169",
-                    "stop_lon": "-70.678008931",
-                    "stop_url": null,
-                    "stop_id": "PI169",
-                    "stop_name": "PI169-Parada 5 / (M) Estación Central"
-                },
-                "trip_id": "B26-I-L_V34-B11",
-                "trip_short_name": null
-            },
-            "departure_time": "00:22:25"
-        }
-    ]
-}
-```
-
-### Listar horarios de paradero para ruta (micro) específica.
-
-> **Endpoint**
-
-```curl
-api/v1/stops/<stop_id>/schedule/<route_id>
-```
-
-> **Argumentos**
-
-  - `{string} stop_id`: identificador de paradero
-  - `{string} route_id`: identificador de ruta
-
-> **Query params**
-
-| property  | opcional       | default         | description                                         |
-| --------- | :-------:  | :-------------: | --------------------------------------------------- |
-| `limit`  | `si`   | `100`       | Cantidad de resultados por página.               |
-| `date`     | `si`   | `` | Fecha de horario a filtrar. formato ISO 8601 YYYY-MM-DD. |
-
-> **Ejemplo**
-
-- Consulta
-
-```curl
-api/v1/stops/PA1/schedule/J16?limit=3&date=2017-11-11
-```
-
-- Respuesta
-
-```json
-{
-    "results": [
-        {
-            "stop_headsign": null,
-            "stop": {
-                "stop_lat": "-33.440116927",
-                "stop_code": "PA1",
-                "stop_lon": "-70.680021028",
-                "stop_url": null,
-                "stop_id": "PA1",
-                "stop_name": "PA1-Parada 6 / (M) Quinta Normal"
-            },
-            "arrival_time": "00:22:51",
-            "stop_sequence": 34,
-            "trip": {
-                "route": {
-                    "route_long_name": "El Cortijo - (M) Estacion Central",
-                    "route_type": "3",
-                    "route_text_color": "FFFFFF",
-                    "agency_id": "TS",
-                    "route_id": "B26",
-                    "route_color": "ED1C24",
-                    "route_desc": null,
-                    "route_url": null,
-                    "route_short_name": "B26"
-                },
-                "direction_id": "0",
-                "is_valid": true,
-                "trip_headsign": "(M) Est. Central",
-                "start_stop": {
-                    "stop_lat": "-33.367588431",
-                    "stop_code": "PB833",
-                    "stop_lon": "-70.691163625",
-                    "stop_url": null,
-                    "stop_id": "PB833",
-                    "stop_name": "PB833-Julio Parra Santos Esq. / Julio Montt Salamanca"
-                },
-                "trip_len": 37,
-                "end_stop": {
-                    "stop_lat": "-33.452072584",
-                    "stop_code": "PI169",
-                    "stop_lon": "-70.678008931",
-                    "stop_url": null,
-                    "stop_id": "PI169",
-                    "stop_name": "PI169-Parada 5 / (M) Estación Central"
-                },
-                "trip_id": "B26-I-S_V34-B12",
-                "trip_short_name": null
-            },
-            "departure_time": "00:22:51"
+            "arrival_date": "2017-10-13",
+            "arrival_timestamp": 1507919137,
+            "route_id": "513",
+            "arrival_time": "18:25:37",
+            "stop_id": "PA1",
+            "trip_id": "513-I-L_V34-B08"
         }
     ]
 }

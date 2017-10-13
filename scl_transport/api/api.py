@@ -14,7 +14,8 @@ from scl_transport.gtfsdb.gtfsdb import (
     Route,
     FeedInfo,
     StopSchedule,
-    Database
+    Database,
+    RouteStop,
 )
 
 from marshmallow import Schema, fields
@@ -137,7 +138,7 @@ class StopSchema(Schema):
     parent_station = fields.Str()
     direction = fields.Str()
     position = fields.Str()
-    headsigns = fields.List(fields.Str())
+    #headsigns = fields.List(fields.Str())
     stop_url = fields.Str(allow_none=True)
 
     #is_active = fields.Boolean()
@@ -230,7 +231,7 @@ class FeedSchema(Schema):
 API endpoints
 """
 
-PER_PAGE_LIMIT = 100
+PER_PAGE_LIMIT = 50
 
 
 class HealthCheckResource(object):
@@ -358,14 +359,12 @@ class StopResource(object):
 
 class StopRoutesResource(object):
     def on_get(self, req, resp, stop_id):
-        stop_routes = self.session.query(Stop, Route).join(StopTime).join(Trip).join(Route).filter(
-            Stop.stop_id == stop_id
+        stop_routes = RouteStop.unique_routes_at_stop(
+            session=self.session,
+            stop_id=stop_id
         )
-        routes = []
-        for _, route in stop_routes:
-            routes.append(route)
         route_schema = RouteSchema()
-        results = route_schema.dump(routes, many=True).data
+        results = route_schema.dump(stop_routes, many=True).data
         body = dict(results=results,)
         resp.body = json.dumps(body)
 
@@ -373,20 +372,9 @@ class StopRoutesResource(object):
 class StopScheduleCollectionResource(object):
     @use_args({'limit': fields.Int(), 'date': fields.Date(), 'arrival_time_after': fields.Time()})
     def on_get(self, req, resp, args, stop_id):
-        """
-        stop_times = StopTime.get_departure_schedule(
-            session=self.session,
-            stop_id=stop_id,
-            limit=args.get('limit', PER_PAGE_LIMIT),
-            date=args.get('date')
-        )
-        from pprint import pprint
-        """
+
         stop_schedule = StopSchedule(stop_id)
         stop_schedule.as_dict(self.session)
-        #pprint(stop_schedule.as_dict(self.session))
-        #stop_time_schema = StopTimeSchema()
-        #results = stop_time_schema.dump(stop_times, many=True).data
         body = dict(results=stop_schedule.as_dict(self.session),)
         resp.body = json.dumps(body)
 
@@ -419,9 +407,15 @@ class TripStopsCollectionResource(object):
     def on_get(self, req, resp, args, trip_id):
         page = args.get('page', 1)
         per_page_limit = args.get('limit', PER_PAGE_LIMIT)
-        stops = self.session.query(Stop).join(StopTime).join(Trip).filter(
+
+        trip = self.session.query(Trip).filter(
             Trip.trip_id == trip_id
-        ).order_by(StopTime.stop_sequence)
+        ).one_or_none()
+        stops = []
+        for stop_time in trip.stop_times:
+            stops.append(stop_time.stop)
+
+        stops = self.session.query(Stop).filter(Stop.stop_id.in_([stop.stop_id for stop in stops]))
 
         paginator = pager(stops, page, per_page_limit)
         #  serializer  results

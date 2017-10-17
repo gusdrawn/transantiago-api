@@ -5,8 +5,12 @@ import falcon
 import arrow
 import os
 
-from scl_transport.api.utils import pager
+from marshmallow import Schema, fields
+from webargs.falconparser import use_args
+from sqlalchemy.orm import scoped_session
+from geoalchemy2.elements import WKTElement
 
+from scl_transport.api.utils import pager
 from scl_transport.gtfsdb.gtfsdb import (
     Stop,
     StopTime,
@@ -17,12 +21,6 @@ from scl_transport.gtfsdb.gtfsdb import (
     Database,
     RouteStop,
 )
-
-from marshmallow import Schema, fields
-from webargs.falconparser import use_args
-from sqlalchemy.orm import scoped_session
-from geoalchemy2.elements import WKTElement
-
 
 # global raven
 
@@ -150,6 +148,13 @@ class RouteDirectionSchema(Schema):
     direction_name = fields.Str()
 
 
+class ShapeSchema(Schema):
+    shape_id = fields.Str()
+    shape_pt_lat = fields.Str()
+    shape_pt_lon = fields.Str()
+    shape_pt_sequence = fields.Int()
+
+
 class RouteSchema(Schema):
     route_id = fields.Str()
     agency_id = fields.Str()
@@ -200,7 +205,7 @@ class TripSchema(Schema):
     frequency = fields.Nested(FrequencySchema)
 
     trip_len = fields.Integer()
-    is_valid = fields.Boolean()
+    is_valid = fields.Boolean()  # this operation may take a long time
 
     start_time = fields.Time()
     end_time = fields.Time()
@@ -283,6 +288,17 @@ class TripResource(object):
         trip_schema = TripSchema()
         dump_data = trip_schema.dump(trip).data
         resp.body = json.dumps(dump_data)
+
+
+class TripShapeCollectionResource(object):
+    def on_get(self, req, resp, trip_id):
+        trip = self.session.query(Trip).filter_by(trip_id=trip_id).one_or_none()
+        if not trip:
+            raise EntityNotFound()
+
+        shape_schema = ShapeSchema()
+        dump_data = shape_schema.dump(trip.pattern.shape, many=True).data
+        resp.body = json.dumps({'results': dump_data})
 
 
 class RouteCollectionResource(object):
@@ -411,6 +427,7 @@ class TripStopsCollectionResource(object):
         trip = self.session.query(Trip).filter(
             Trip.trip_id == trip_id
         ).one_or_none()
+
         stops = []
         for stop_time in trip.stop_times:
             stops.append(stop_time.stop)
@@ -453,6 +470,7 @@ def add_routes(app):
     app.add_route('/api/v1/trips/', TripCollectionResource())
     app.add_route('/api/v1/trips/{trip_id}', TripResource())  # TODO: order by sequence
     app.add_route('/api/v1/trips/{trip_id}/stops', TripStopsCollectionResource())  # TODO: order by sequence
+    app.add_route('/api/v1/trips/{trip_id}/shape', TripShapeCollectionResource())
 
 
 def create_app():

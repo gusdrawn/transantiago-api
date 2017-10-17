@@ -31,6 +31,12 @@ class Pattern(Base):
         foreign_keys='(Pattern.shape_id)',
         uselist=True, viewonly=True)
 
+    shape = relationship(
+        'Shape',
+        primaryjoin='Pattern.shape_id==Shape.shape_id',
+        foreign_keys='(Pattern.shape_id)',
+        uselist=True, order_by='Shape.shape_pt_sequence', viewonly=True)
+
     @classmethod
     def add_geometry_column(cls):
         if not hasattr(cls, 'geom'):

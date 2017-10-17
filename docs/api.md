@@ -748,7 +748,7 @@ api/v1/trips/101-I-L_V34-B00
 > **Endpoint**
 
 ```curl
-api/v1/trips/trip_id/stops
+api/v1/trips/<trip_id>/stops
 ```
 
 > **Query params**
@@ -819,7 +819,64 @@ api/v1/trips/101-I-L_V34-B00/stops?limit=3
 }
 ```
 
+### Listar puntos de trayecto para viaje
+
+> **Endpoint**
+
+```curl
+api/v1/trips/<trip_id>/shape
+```
+
+> **Ejemplo**
+
+- Consulta
+
+```curl
+api/v1/trips/101-I-L_V34-B00/shape
+```
+
+- Respuesta
+
+```json
+{
+    "results": [
+        {
+            "shape_pt_lat": "-33.406175001",
+            "shape_id": "101I_V34",
+            "shape_pt_lon": "-70.623244000",
+            "shape_pt_sequence": 1
+        },
+        {
+            "shape_pt_lat": "-33.405073001",
+            "shape_id": "101I_V34",
+            "shape_pt_lon": "-70.622375000",
+            "shape_pt_sequence": 2
+        },
+        {
+            "shape_pt_lat": "-33.404523001",
+            "shape_id": "101I_V34",
+            "shape_pt_lon": "-70.623311000",
+            "shape_pt_sequence": 3
+        },
+        {
+            "shape_pt_lat": "-33.403721001",
+            "shape_id": "101I_V34",
+            "shape_pt_lon": "-70.624666000",
+            "shape_pt_sequence": 4
+        },
+        {
+            "shape_pt_lat": "-33.403699001",
+            "shape_id": "101I_V34",
+            "shape_pt_lon": "-70.624721000",
+            "shape_pt_sequence": 5
+        }
+    ]
+}
+```
+
 ## Schedule (`Horarios`)
+
+!> **NOTA** Este endpoint aún está en proceso de construcción.
 
 Información sobre horarios de buses en paradero especificado.
 

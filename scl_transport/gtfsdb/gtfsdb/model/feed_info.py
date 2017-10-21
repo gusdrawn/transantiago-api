@@ -1,5 +1,5 @@
 from sqlalchemy import Column
-from sqlalchemy.types import Date, String
+from sqlalchemy.types import Date, String, DateTime
 
 from .. import config
 from .base import Base
@@ -19,3 +19,6 @@ class FeedInfo(Base):
     feed_end_date = Column(Date)
     feed_version = Column(String(255))
     feed_license = Column(String(255))
+    #
+    feed_download_url = Column(String(255))
+    feed_last_fetched_at = Column(DateTime, nullable=True, default=None)

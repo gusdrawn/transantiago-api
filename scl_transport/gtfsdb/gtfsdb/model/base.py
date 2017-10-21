@@ -97,6 +97,10 @@ class _Base(object):
             log.warn("update_cached_data(): threw an exception with attribute {0}".format(attribute_name))
 
     @classmethod
+    def get_fieldnames(cls, fieldnames):
+        return [field.strip().lower() for field in fieldnames]
+
+    @classmethod
     def load(cls, db, **kwargs):
         """Load method for ORM
 
@@ -122,7 +126,7 @@ class _Base(object):
             f = open(file_path, 'r')
             utf8_file = util.UTF8Recoder(f, 'utf-8-sig')
             reader = csv.DictReader(utf8_file)
-            reader.fieldnames = [field.strip().lower() for field in reader.fieldnames]
+            reader.fieldnames = cls.get_fieldnames(reader.fieldnames)
             table = cls.__table__
             try:
                 db.engine.execute(table.delete())
@@ -140,6 +144,7 @@ class _Base(object):
                     i = 0
             if len(records) > 0:
                 db.engine.execute(table.insert(), records)
+
             f.close()
         process_time = time.time() - start_time
         log.debug('{0}.load ({1:.0f} seconds)'.format(cls.__name__, process_time))

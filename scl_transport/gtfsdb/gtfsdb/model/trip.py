@@ -33,12 +33,14 @@ class Trip(Base):
         'Pattern',
         primaryjoin='Trip.shape_id==Pattern.shape_id',
         foreign_keys='(Trip.shape_id)',
+        lazy='select',
         uselist=False, viewonly=True)
 
     route = relationship(
         'Route',
         primaryjoin='Trip.route_id==Route.route_id',
         foreign_keys='(Trip.route_id)',
+        lazy='select',
         uselist=False, viewonly=True)
 
     stop_times = relationship(
@@ -46,18 +48,21 @@ class Trip(Base):
         primaryjoin='Trip.trip_id==StopTime.trip_id',
         foreign_keys='(Trip.trip_id)',
         order_by='StopTime.stop_sequence',
+        lazy='select',
         uselist=True, viewonly=True)
 
     frequency = relationship(
         'Frequency',
         primaryjoin='Frequency.trip_id==Trip.trip_id',
         foreign_keys='(Frequency.trip_id)',
+        lazy='select',
         uselist=False, viewonly=True)
 
     universal_calendar = relationship(
         'UniversalCalendar',
         primaryjoin='Trip.service_id==UniversalCalendar.service_id',
         foreign_keys='(Trip.service_id)',
+        lazy='select',
         uselist=True, viewonly=True)
 
     @classmethod

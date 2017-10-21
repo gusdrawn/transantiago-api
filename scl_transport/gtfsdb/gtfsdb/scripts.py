@@ -42,12 +42,23 @@ def get_args():
     )
     return args, kwargs
 
+
 def route_stop_load():
     """ written as a test / debug method for RS table loader """
     from gtfsdb import Database, RouteStop
     kwargs = get_args()[1]
     db = Database(**kwargs)
     RouteStop.load(db, **kwargs)
+
+
+def bip_spot_load(directory):
+    from . import Database, BipSpot
+    kwargs = {'gtfs_directory': directory, 'is_geospatial': True}
+    db = Database(**kwargs)
+    BipSpot.add_geometry_column()
+    BipSpot.__table__.create(bind=db.engine)
+    BipSpot.load(db, **kwargs)
+
 
 def db_connect_tester():
     """ simple routine to connect to an existing database and list a few stops

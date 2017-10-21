@@ -20,6 +20,7 @@ from scl_transport.gtfsdb.gtfsdb import (
     StopSchedule,
     Database,
     RouteStop,
+    BipSpot,
 )
 
 # global raven
@@ -196,6 +197,8 @@ class FrequencySchema(Schema):
 
 class TripSchema(Schema):
     trip_id = fields.Str()
+    service_id = fields.Str()
+
     route = fields.Nested(RouteSchema)
     service = fields.Nested(ServiceSchema)
 
@@ -205,7 +208,7 @@ class TripSchema(Schema):
     frequency = fields.Nested(FrequencySchema)
 
     trip_len = fields.Integer()
-    is_valid = fields.Boolean()  # this operation may take a long time
+    #is_valid = fields.Boolean()  # this operation may take a long time
 
     start_time = fields.Time()
     end_time = fields.Time()
@@ -232,6 +235,17 @@ class FeedSchema(Schema):
     feed_version = fields.Str()
 
 
+class BipSpotSchema(Schema):
+    bip_spot_code = fields.Str()
+    bip_spot_entity = fields.Str()
+    bip_spot_fantasy_name = fields.Str()
+    bip_spot_address = fields.Str()
+    bip_spot_commune = fields.Str()
+    bip_opening_time = fields.Str()
+    bip_spot_lon = fields.Str()
+    bip_spot_lat = fields.Str()
+
+
 """
 API endpoints
 """
@@ -254,6 +268,46 @@ class InfoResource(object):
 
         feed_schema = FeedSchema()
         dump_data = feed_schema.dump(feed).data
+        resp.body = json.dumps(dump_data)
+
+
+class BipSpotCollectionResource(object):
+    @use_args({'limit': fields.Int(), 'page': fields.Int(), 'lat': fields.Str(), 'lon': fields.Str()})
+    def on_get(self, req, resp, args):
+        page = args.get('page', 1)
+        per_page_limit = args.get('limit', PER_PAGE_LIMIT)
+        bip_spots = self.session.query(BipSpot).filter()
+
+        if args.get('lat') and args.get('lon'):
+            BipSpot.add_geometry_column()  # @@TODO: fix this
+            pt = WKTElement('POINT({0} {1})'.format(args['lon'], args['lat']), srid=4326)
+            bip_spots = bip_spots.order_by(BipSpot.geom.distance_box(pt))
+
+        paginator = pager(bip_spots, page, per_page_limit)
+
+        #  serializer  results
+        bip_spot_schema = BipSpotSchema()
+        results = bip_spot_schema.dump(paginator.items, many=True).data
+        #  build body
+        body = dict(
+            has_next=paginator.has_next,
+            total_results=paginator.total,
+            total_pages=paginator.pages,
+            results=results,
+            page_size=len(results),
+            page_number=paginator.page,
+        )
+        resp.body = json.dumps(body)
+
+
+class BipSpotResource(object):
+    def on_get(self, req, resp, bip_spot_code):
+        bip_spot = self.session.query(BipSpot).filter_by(bip_spot_code=bip_spot_code).one_or_none()
+        if not bip_spot:
+            raise EntityNotFound()
+
+        bip_spot_schema = BipSpotSchema()
+        dump_data = bip_spot_schema.dump(bip_spot).data
         resp.body = json.dumps(dump_data)
 
 
@@ -459,6 +513,7 @@ App construction & route registration
 
 def add_routes(app):
     app.add_route('/api/v1/ping', HealthCheckResource())
+    # GTFS resources
     app.add_route('/api/v1/info', InfoResource())
     app.add_route('/api/v1/stops/', StopCollectionResource())
     app.add_route('/api/v1/stops/{stop_id}', StopResource())
@@ -471,6 +526,9 @@ def add_routes(app):
     app.add_route('/api/v1/trips/{trip_id}', TripResource())  # TODO: order by sequence
     app.add_route('/api/v1/trips/{trip_id}/stops', TripStopsCollectionResource())  # TODO: order by sequence
     app.add_route('/api/v1/trips/{trip_id}/shape', TripShapeCollectionResource())
+    # external resources
+    app.add_route('/api/v1/bip_spots/', BipSpotCollectionResource())
+    app.add_route('/api/v1/bip_spots/{bip_spot_code}', BipSpotResource())
 
 
 def create_app():

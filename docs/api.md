@@ -934,3 +934,112 @@ api/v1/stops/PA1/schedule
     ]
 }
 ```
+
+## BIP Spots (`Puntos carga BIP`)
+
+Información sobre puntos carga tarjeta BIP
+
+### Listar puntos de carga
+
+> **Endpoint**
+
+```curl
+api/v1/bip_spots
+```
+
+> **Query params**
+
+| property  | opcional       | default         | description                                         |
+| --------- | :-------:  | :-------------: | --------------------------------------------------- |
+| `limit`  | `si`   | `50`       | Cantidad de resultados por página.               |
+| `page`     | `si`   | `1` | Número de página |
+| `lon` | `si` | `None`      | Longitud, debe ser definido en conjunto con `lat`. Ejemplo: `-70.643562`      |
+| `lat` | `si` | `None`      | Latitud, debe ser definido en conjunto con `lon` Ejemplo: `-33.491585      |
+
+> **Ejemplo**
+
+- Consulta
+
+```curl
+api/v1/bip_spots?limit=3
+```
+
+- Respuesta
+
+```json
+{
+    "has_next": true,
+    "page_number": 1,
+    "total_results": 676,
+    "total_pages": 676,
+    "results": [
+        {
+            "bip_spot_code": "60",
+            "bip_spot_fantasy_name": "PCMA60",
+            "bip_spot_commune": "SANTIAGO",
+            "bip_spot_lat": "-33.44272566",
+            "bip_spot_lon": "-70.644872",
+            "bip_spot_address": "AV. LIB. BERNARDO OHIGGINS 622",
+            "bip_spot_entity": "Serviestado",
+            "bip_opening_time": "Lun a Vie 8:00 a 19:00 Sab 9:00 a 17:00"
+        },
+        {
+            "bip_spot_lat": "-33.486436",
+            "bip_spot_code": "61",
+            "bip_spot_fantasy_name": "PCMA61",
+            "bip_spot_commune": "MAIPU",
+            "bip_spot_lon": "-70.750752",
+            "bip_spot_address": "AV. AMERICO VESPUCIO NORTE CALETERA ORIENTE 51",
+            "bip_spot_entity": "Serviestado",
+            "bip_opening_time": "Lun a Vie 8:00 a 19:00 Sab 9:00 a 17:00"
+        },
+        {
+            "bip_spot_lat": "-33.5332983565256",
+            "bip_spot_code": "64",
+            "bip_spot_fantasy_name": "PCMA 64",
+            "bip_spot_commune": "LA CISTERNA",
+            "bip_spot_lon": "-70.6630693155897",
+            "bip_spot_address": "GRAN AV. JOSE MIGUEL CARRERA 8496",
+            "bip_spot_entity": "Serviestado",
+            "bip_opening_time": "Lun a Vie 8:00 a 19:00 Sab 9:00 a 17:00"
+        }
+    ],
+    "page_size": 3
+}
+```
+
+### Obtener Punto de carga BIP
+
+> **Endpoint**
+
+```curl
+api/v1/bip_spots/<bip_spot_code>
+```
+
+> **Argumentos**
+
+  - `{string} bip_spot_code`: identificador de Punto de carga
+
+
+> **Ejemplo**
+
+- Consulta
+
+```curl
+api/v1/bip_spots/60
+```
+
+- Respuesta
+
+```json
+{
+    "bip_spot_lat": "-33.44272566",
+    "bip_spot_code": "60",
+    "bip_spot_fantasy_name": "PCMA60",
+    "bip_spot_commune": "SANTIAGO",
+    "bip_spot_lon": "-70.644872",
+    "bip_spot_address": "AV. LIB. BERNARDO OHIGGINS 622",
+    "bip_spot_entity": "Serviestado",
+    "bip_opening_time": "Lun a Vie 8:00 a 19:00 Sab 9:00 a 17:00"
+}
+```

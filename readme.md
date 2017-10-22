@@ -2,9 +2,6 @@
     <a href="#">
         <img src="https://txgr7z1gbc.execute-api.eu-west-2.amazonaws.com/dev/shields/gtfs_version"
             alt="GTFS"></a>
-    <a href="#">
-        <img src="https://txgr7z1gbc.execute-api.eu-west-2.amazonaws.com/dev/shields/fetched_at"
-            alt="build status"></a>
 </p>
 
 !> **NOTA** Esta es una versión no estable de la API, se pueden introducir cambios profundos.

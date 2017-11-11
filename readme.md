@@ -8,7 +8,7 @@
     </a>
 </p>
 
-!> **NOTA** Esta es una versión no estable de la API, se pueden introducir cambios profundos.
+!> **NOTA** Esta es una API en proceso temprano de desarrollo, se pueden introducir cambios profundos.
 
 > ***Transantiago API*** es una API (no oficial) basada en la información [oficial](https://www.dtpm.cl/index.php/2013-04-24-14-10-40/gtfs-vigente) disponible de transantiago (formato "General Transit Feed Specification - GTFS). Información de servicios de buses y de Metro, posición de paraderos y estaciones, trazados de servicios y frecuencias y tiempos de viaje por periodo del día.
 
@@ -32,31 +32,53 @@
 
 ## Uso
 
-Ver la [documentación](https://ignaciohermosilla.github.io/transantiago-api/#/api) para ver todos los endpoints disponibles. 
+Ver la [documentación](http://scltrans.it/#/api) para ver todos los endpoints disponibles. 
 
 Aquí algunos ejemplos de uso:
 
-- Obtener los paraderos (a.k.a `stops`) cercanos a cierta ubicación (ordenados por cercanía):
+- Listar los paraderos (a.k.a `stops`) cercanos a cierta ubicación (ordenados por cercanía).:
 
 ```
-https://txgr7z1gbc.execute-api.eu-west-2.amazonaws.com/dev/api/v1/stops?lat=-33.491585&lon=-70.643562
+https://api.scltrans.it/v1/stops?center_lat=-33.491585&center_lon=-70.643562
 ```
 
-- Obtener las rutas o "micros" de un paradero concreto:
+- Listar los paraderos activos en un área (bounding box)
 
 ```
-https://txgr7z1gbc.execute-api.eu-west-2.amazonaws.com/dev/api/v1/stops/<stop_id>/routes
-https://txgr7z1gbc.execute-api.eu-west-2.amazonaws.com/dev/api/v1/stops/PB1/routes
+https://api.scltrans.it/v1/stops?bbox=-70.609818,-33.442328,-70.566473,-33.409806&is_active=1
+```
+
+- Listar las rutas o "micros" del paradero PB1:
+
+```
+https://api.scltrans.it/v1/stops/PB1/routes
+```
+
+- Obtener información sobre los próximos arrivos en el paradero PB1:
+
+```
+https://api.scltrans.it/v1/stops/PB1/next_arrivals
 ```
 
 - Obtener la información de un viaje específico (a.k.a `trips`), incluyendo todos los paraderos de la ruta y la "micro" asociada.
 
 ```
-https://txgr7z1gbc.execute-api.eu-west-2.amazonaws.com/dev/api/v1/trips/<trip_id>
-https://txgr7z1gbc.execute-api.eu-west-2.amazonaws.com/dev/api/v1/trips/101-I-L_V34-B00
+https://api.scltrans.it/v1/trips/101-I-L_V34-B00
 ```
+
+- Obtener la información de trazado del viaje 101-I-L_V34-B00:
+
+```
+https://api.scltrans.it/v1/trips/101-I-L_V34-B00/shape
+```
+
+- Listar los puntos de carga bip en área específica (bounding box):
+
+```
+https://api.scltrans.it/v1/bip_spots?bbox=-70.609818,-33.442328,-70.566473,-33.409806
+``` 
+
 
 ## Contribución
 
 Este es un proyecto 100% opensource y por amor al arte. Cualquier colaboración es muy bienvenida.
-

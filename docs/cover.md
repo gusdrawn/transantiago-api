@@ -5,8 +5,8 @@
 - Información de servicios de buses, posición de paraderos y estaciones, trazados de servicios, frecuencias y tiempos de viaje por periodo del día.
 
 
-[GitHub](https://github.com/ignacioHermosilla/transantiago-api)
-[Get Started](#uso)
+[Uso](#uso)
+[Documentación API](api.md)
 
 
 ![color](linear-gradient(to bottom, #cceaff 0%, #b4e4c0 100%))

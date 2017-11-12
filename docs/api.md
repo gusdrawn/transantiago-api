@@ -29,6 +29,11 @@ Información sobre paraderos o estaciones.
 
 !> **NOTA**  `center_lon`, `center_lat` y `radius` formar parte del mismo filtro de geolocalización. No se debe usar en conjunto con `bbox`, puesto que este es otro filtro. 
 
+> **Respuesta**
+
+Lista de [Stops](#Stop)
+
+
 > **Ejemplo**
 
 - Consulta
@@ -110,6 +115,10 @@ Información sobre paraderos o estaciones.
   - `{string} stop_id`: identificador de paradero
 
 
+> **Respuesta**
+
+[Objeto de Stop](#Stop)
+
 > **Ejemplo**
 
 - Consulta
@@ -149,6 +158,10 @@ Información sobre paraderos o estaciones.
 > **Argumentos**
 
   - `{string} stop_id`: identificador de paradero
+
+> **Respuesta**
+
+Lista de [Routes](#Route)
 
 > **Ejemplo**
 
@@ -240,6 +253,10 @@ Información sobre paraderos o estaciones.
 | `route_id`     | `si`   | `None` | opción de filtrar por `route_id` |
 | `is_active`  | `si`   | `None`       | Opción para filtrar viajes activos.  |
 
+> **Respuesta**
+
+Lista de [Trips](#Trip)
+
 
 > **Ejemplo**
 
@@ -328,6 +345,12 @@ Rutas de transporte público. Una ruta es un grupo de viajes que se muestran a l
 | --------- | :-------:  | :-------------: | --------------------------------------------------- |
 | `limit`  | `si`   | `100`       | Cantidad de resultados por página.               |
 | `page`     | `si`   | `1` | Número de página |
+
+
+> **Respuesta**
+
+Lista de [Routes](#Route)
+
 
 > **Ejemplo**
 
@@ -445,6 +468,9 @@ Rutas de transporte público. Una ruta es un grupo de viajes que se muestran a l
 
   - `{string} route_id`: identificador de ruta
 
+> **Respuesta**
+
+[Objeto de Route](#Route)
 
 > **Ejemplo**
 
@@ -504,6 +530,11 @@ Viajes para cada servicio (`route`). Un viaje es una secuencia de dos o más par
 | --------- | :-------:  | :-------------: | --------------------------------------------------- |
 | `limit`  | `si`   | `50`       | Cantidad de resultados por página.               |
 | `page`     | `si`   | `1` | Número de página |
+
+
+> **Respuesta**
+
+Lista de [Trips](#Trip)
 
 > **Ejemplo**
 
@@ -590,6 +621,10 @@ Viajes para cada servicio (`route`). Un viaje es una secuencia de dos o más par
 
   - `{string} trip_id`: identificador de viaje
 
+
+> **Respuesta**
+
+[Objeto de Trip](#Trip)
 
 > **Ejemplo**
 
@@ -718,6 +753,11 @@ Viajes para cada servicio (`route`). Un viaje es una secuencia de dos o más par
 /v1/trips/<trip_id>/shape
 ```
 
+> **Respuesta**
+
+Lista de [Shapes](#Shape)
+
+
 > **Ejemplo**
 
 - Consulta
@@ -844,6 +884,10 @@ Información sobre puntos carga tarjeta BIP
 | `center_lat` | `si` | `None`      | Latitud. Si se define, los resultados serán ordenados de más cercano a más lejano a este punto. Usar en conjunto con `center_lon`. Ejemplo: `-33.491585`      |
 | `radius` | `si` | `None`      | Radio en metros. Usar en conjunto con `center_lat` y `center_lon`. Si es definido, se mostrarán sólo los resultados dentro de ese radio (en relación al centro (center_lat` y `center_lon`))     |
 
+> **Respuesta**
+
+Lista de [Bip Spots](#bip-spot)
+
 > **Ejemplo**
 
 - Consulta
@@ -908,6 +952,10 @@ Información sobre puntos carga tarjeta BIP
 
   - `{string} bip_spot_code`: identificador de Punto de carga
 
+> **Respuesta**
+
+[Objeto de BIP Spot](#bip-spot)
+
 
 > **Ejemplo**
 
@@ -954,6 +1002,10 @@ Información sobre buses del transantiago en operación. Esta información es ob
 | `center_lon` | `si` | `None`      | Longitud. Si se define, los resultados serán ordenados de más cercano a más lejano a este punto. Usar en conjunto con `center_lat`. Ejemplo: `-70.643562`      |
 | `center_lat` | `si` | `None`      | Latitud. Si se define, los resultados serán ordenados de más cercano a más lejano a este punto. Usar en conjunto con `center_lon`. Ejemplo: `-33.491585`      |
 | `radius` | `si` | `None`      | Radio en metros. Usar en conjunto con `center_lat` y `center_lon`. Si es definido, se mostrarán sólo los resultados dentro de ese radio (en relación al centro (center_lat` y `center_lon`))     |
+
+> **Respuesta**
+
+Lista de [Buses](#Bus)
 
 > **Ejemplo**
 
@@ -1025,6 +1077,9 @@ Información sobre buses del transantiago en operación. Esta información es ob
 
   - `{string} bus_plate_number`: patente de bus
 
+> **Respuesta**
+
+[Objeto de Bus](#Bus)
 
 > **Ejemplo**
 
@@ -1050,3 +1105,109 @@ Información sobre buses del transantiago en operación. Esta información es ob
     "captured_at": "2017-11-11T17:23:21+00:00"
 }
 ```
+
+# Objetos de respuestas
+
+##  Direction
+| campo  |  descripción  |
+| --------- | :-------------: |
+| `direction_id`  |  El campo direction_id contiene un valor binario que indica la dirección de un viaje. `0` : viaje de ida. `1`: viaje de regreso. |
+| `direction_headsign`  |  Contiene el texto que aparece en un cartel que identifica el destino del viaje para los pasajeros.  |
+| `direction_name`  |  Nombres para cada dirección con el campo trip_headsign. |
+ 
+
+##  Route
+| campo  |  descripción  |
+| --------- | :-------------: |
+| `route_long_name`  | Contiene el nombre completo de una ruta. Este nombre suele ser más descriptivo que el route_short_name y suele incluir el destino o parada de la ruta.  |
+| `end_date`  |  Contiene la fecha de finalización del servicio. Esta fecha se incluye en el intervalo del servicio. |
+| `route_type`  | Describe el tipo de transporte público utilizado en una ruta. Los valores válidos para este campo son: `0`: tranvía, metro ligero. `1`: subterráneo, metro. `2`: tren. Utilizado para viajes de larga distancia. `3`: autobús. Utilizado para rutas en autobús de corta y larga distancia. `4`: transbordador, ferry. `5`: funicular. Utilizado para funiculares en superficie en donde el cable pasa por debajo del vehículo. `6`: cabina, vehículo suspendido de un cable. `7`: funicular. Cualquier sistema diseñado para recorridos con una gran inclinación.  |
+| `route_text_color`  |  El campo route_text_color se puede usar para especificar un color legible para el texto incluido sobre un fondo del valor route_color. Este color se debe proporcionar en formato hexadecimal como, por ejemplo, FFD700. |
+| `route_id`  | El campo route_id es un ID que identifica una ruta de forma exclusiva. |
+| `agency_id`  |  ID que identifica de forma exclusiva a una empresa de transporte público. Un feed de transporte público puede representar datos de más de una empresa. El agency_id es un conjunto de datos único.  |
+| `route_color`  | Define el color correspondiente a una ruta. Este color está en formato hexadecimal.   |
+| `route_desc`  | Contiene una descripción de una ruta, opcional. |
+| `directions`  |  lista de [direcciones](#Direction) |
+| `route_url`  |  Contiene la URL de una página web relativa a una ruta concreta.  |
+| `route_short_name`  |  Contiene el nombre corto de una ruta. |
+| `start_date`  |  Contiene la fecha de inicio del servicio. |
+
+##  Frequency
+| campo  |  descripción  |
+| --------- | :-------------: |
+| `start_time`  |  Especifica la hora a la que empieza el servicio con la frecuencia especificada. La hora se calcula como "mediodía menos 12 h" (lo que corresponde a la medianoche, excepto durante el período en el que se aplica el cambio de horario de verano/invierno) al principio de la fecha de servicio. |
+| `end_time`  |  El campo end_time especifica la hora a la que el servicio cambia de frecuencia (o bien finaliza) en la primera parada del viaje. La hora se calcula como "mediodía menos 12 h" (lo que corresponde a la medianoche, excepto durante el período en el que se aplica el cambio de horario de verano/invierno) al principio de la fecha de servicio. |
+| `headway_secs`  |  Indica el período de tiempo en segundos entre salidas desde la misma parada (tiempo entre viajes) para este tipo de viaje, durante el intervalo de tiempo especificado mediante start_time y end_time. |
+| `exact_times  |  Determina si los viajes basados en frecuencias deben estar programados de manera exacta según la información especificada de tiempo entre viajes. Los valores válidos para este campo son:`0` o (vacío): los viajes basados en frecuencias no están programados de manera exacta. Este es el comportamiento predeterminado. `1: los viajes basados en frecuencias están programados de manera exacta.  |
+
+
+##  Trip
+| campo  |  descripción  |
+| --------- | :-------------: |
+| `direction_id`  |  Contiene un valor binario que indica la dirección de un viaje. Usa este campo para diferenciar viajes con dos direcciones con el mismo valor de route_id. `0` : viaje de ida. `1`: viaje de regreso  |
+| `start_time`  |  Especifica la hora a la que empieza el servicio con la frecuencia especificada. La hora se calcula como "mediodía menos 12 h" (lo que corresponde a la medianoche, excepto durante el período en el que se aplica el cambio de horario de verano/invierno) al principio de la fecha de servicio  |
+| `end_time`  |  Especifica la hora a la que el servicio cambia de frecuencia (o bien finaliza) en la primera parada del viaje. La hora se calcula como "mediodía menos 12 h" (lo que corresponde a la medianoche, excepto durante el período en el que se aplica el cambio de horario de verano/invierno) al principio de la fecha de servicio. |    
+| `route_id`  |  ID que identifica una ruta de forma exclusiva. route_id es un conjunto de datos único. |
+| `frequency`  | [frecuencia](#Frequency)  |
+| `trip_headsign`  |   Contiene el texto que aparece en un cartel que identifica el destino del viaje para los pasajeros.  |
+| `service_id`  | ID que identifica de forma exclusiva un conjunto de fechas en el que el servicio está disponible en una o más rutas.  |
+| `trip_len` | |
+| `trip_id` | Contiene un ID que identifica un viaje. trip_id es un conjunto de datos único. |
+| `trip_short_name` | Contiene el texto que aparece en horarios y carteles para que los pasajeros identifiquen el viaje. |
+
+##  Bus
+| campo  |  descripción  |
+| --------- | :-------------: |
+| `bus_plate_number`  |  Patente del bus.  |
+| `operator_number`  |  Identificador del concesionario.  |
+| `direction_id`  |  Contiene un valor binario que indica la dirección de un viaje. Usa este campo para diferenciar viajes con dos direcciones con el mismo valor de route_id. `0` : viaje de ida. `1`: viaje de regreso  |
+| `bus_movement_orientation`  |  Son 8 direcciones posibles que indican dirección general del movimiento instantáneo. Los valores posibles son: 0 = Norte, 1 = Noreste, 2 = Este, 3 = Sureste, 4 = Sur, 5 = Suroeste, 6 = Oeste, 7 = Noroeste.  |
+| `added_at`  |  Fecha de inclusión de la base de datos  |
+| `bus_lon`  |  Coordenada geográfica de la última transmisión, correspondiente a la proyección EPSG4326 - WSG 84  |
+| `route_id`  |  El campo route_id es un ID que identifica una ruta de forma exclusiva.  |
+| `bus_speed`  |   Velocidad instantánea en km/h redondeado a 1 decimal.  |
+| `bus_lat`  |  Coordenada geográfica de la última transmisión, correspondiente a la proyección EPSG4326 - WSG 84.  |
+| `captured_at`  |  Fecha de la transmisión del bus.  |
+
+
+##  BIP Spot
+| campo  |  descripción  |
+| --------- | :-------------: |
+| `bip_spot_code`  |  Identificador único del punto de carga BIP  |
+| `bip_spot_fantasy_name`  |  Identificador del punto de carga. Normalmente es un nombre de fantasía identificable por los usuarios.  |
+| `bip_spot_commune`  |  Comuna  |
+| `bip_spot_lat`  |  Latitud de la ubicación del punto BIP |
+| `bip_spot_lon`  |  Longitud de la ubicación del punt BIP |
+| `bip_spot_address`  |  Dirección del punto de carga BIP  |
+| `bip_spot_entity`  |  Nombre de la institución donde está ubicado el punto de carga  |
+| `bip_opening_time  |  Descripción de los horarios de atención del punto BIP  |
+
+
+##  Shape
+| campo  |  descripción  |
+| --------- | :-------------: |
+| `shape_pt_lat`  |  Latitud de un punto de una forma con un ID de forma.  |
+| `shape_pt_lon`  |  Longitud de un punto de una forma con un ID de forma. |
+| `shape_id`  |  ID que identifica exclusivamente a una forma.  |
+| `shape_pt_sequence`  |  Asocia la latitud y la longitud de un punto de una forma al orden secuencial que tienen a lo largo de la forma. Los valores de shape_pt_sequence son enteros no negativos y aumentan a lo largo del viaje.  |
+
+##  Stop
+| campo  |  descripción  |
+| --------- | :-------------: |
+| `stop_lat`  |  El campo stop_lat contiene la latitud de una parada o estación. El valor de este campo debe ser una latitud WGS 84 válida. |
+| `directions`  | lista de [direcciones](#Direction) |
+| `stop_lon`     |   Contiene la longitud de una parada o estación. El valor de este campo debe ser una latitud WGS 84 válida entre -180 y 180. |
+| `stop_code`     | Contiene texto corto o un número que identifica de forma exclusiva la parada de los pasajeros. Los códigos de parada se suelen usar en sistemas de información sobre transporte público para teléfonos o impresos en los carteles de paradas para facilitar a los usuarios la consulta de los horarios de parada o información en tiempo real sobre llegadas a una parada concreta. |
+| `agency_id`     |  Identifica una empresa para la ruta especificada.  |
+| `stop_id`     | ID que identifica de forma exclusiva a una parada o estación. |
+| `stop_name`     |  Contiene el nombre de una parada o estación.  |
+
+## Paginación
+| campo  |  descripción  |
+| --------- | :-------------: |
+| has_next  |  Boleano que indica si hay más páginas de respuesta  |
+| page_number  |  El número de página actual  |
+| total_results  |  total de resultados  |
+| total_pages  |  Número total de páginas  |
+| results  |  lista de resultados  |
+| page_size  |  cantidad de resultados en página  |

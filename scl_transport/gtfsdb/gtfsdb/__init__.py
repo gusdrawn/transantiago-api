@@ -10,9 +10,10 @@ from .model.route import *
 from .model.bip_spot import BipSpot
 from .model.route_stop import RouteStop
 from .model.shape import *
-from .model.stop import Stop
+from .model.stop import Stop, StopDirection
 from .model.stop_feature import *
 from .model.stop_time import StopTime, StopSchedule
 from .model.transfer import Transfer
 from .model.trip import Trip
 from .model.block import Block
+from .model.bus import *

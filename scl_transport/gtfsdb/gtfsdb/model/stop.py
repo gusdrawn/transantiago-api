@@ -3,12 +3,12 @@ import datetime
 from collections import defaultdict
 
 from geoalchemy2 import Geometry
-from sqlalchemy import Column, Integer, Numeric, String
+from sqlalchemy import Column, Integer, Numeric, String, PickleType
 from sqlalchemy.orm import joinedload_all, object_session, relationship
 
 from .. import config
+from .. import util
 from .base import Base
-
 
 log = logging.getLogger(__name__)
 
@@ -35,6 +35,8 @@ class Stop(Base):
     platform_code = Column(String(50))
     direction = Column(String(50))
     position = Column(String(50))
+    agency_id = Column(String(255), index=True, nullable=True)
+    cached_routes = Column(PickleType)
     # TODO: remove or load in a different way
     geom = Column(Geometry(geometry_type='POINT', srid=config.SRID))
 
@@ -50,6 +52,12 @@ class Stop(Base):
         foreign_keys='(Stop.stop_id)',
         uselist=True, viewonly=True)
 
+    directions = relationship(
+        'StopDirection',
+        primaryjoin='Stop.stop_id==StopDirection.stop_id',
+        foreign_keys='(Stop.stop_id)',
+        uselist=True, viewonly=True, lazy='joined')
+
     @classmethod
     def add_geometry_column(cls):
         if not hasattr(cls, 'geom'):
@@ -59,25 +67,6 @@ class Stop(Base):
     def add_geom_to_dict(cls, row):
         args = (config.SRID, row['stop_lon'], row['stop_lat'])
         row['geom'] = 'SRID={0};POINT({1} {2})'.format(*args)
-
-    @property
-    def routes(self):
-        """ return list of routes servicing this stop
-            @todo: rewrite the cache to use timeout checking in Base.py
-        """
-        try:
-            self._routes
-        except AttributeError:
-            from gtfsdb.model.route import Route
-            from gtfsdb.model.trip import Trip
-            from gtfsdb.model.stop_time import StopTime
-            session = object_session(self)
-            q = session.query(Route)
-            f = ((StopTime.stop_id == self.stop_id) & (StopTime.departure_time != ''))
-            q = q.filter(Route.trips.any(Trip.stop_times.any(f)))
-            q = q.order_by(Route.route_sort_order)
-            self._routes = q.all()
-        return self._routes
 
     @property
     def headsigns(self):
@@ -126,7 +115,7 @@ class Stop(Base):
             date = datetime.date.today()
 
         #import pdb; pdb.set_trace()
-        from gtfsdb.model.stop_time import StopTime
+        from .stop_time import StopTime
         st = StopTime.get_departure_schedule(self.session, self.stop_id, date, limit=1)
         if st and len(st) > 0:
             _is_active = True
@@ -163,5 +152,66 @@ class Stop(Base):
         ret_val = []
         stops = cls.active_stops(session, limit, active_filter)
         for s in stops:
-            ret_val.append({"stop_id":s.stop_id, "agencies":s.agencies})
+            ret_val.append({"stop_id": s.stop_id, "agencies": s.agencies})
         return ret_val
+
+
+class StopDirection(Base):
+    datasource = config.DATASOURCE_GTFS
+    filename = 'stop_directions.txt'
+
+    __tablename__ = 'stop_directions'
+
+    stop_id = Column(String(255), primary_key=True, index=True, nullable=False)
+    direction_id = Column(Integer, primary_key=True, index=True, nullable=False)
+    direction_name = Column(String(255))
+    direction_headsign = Column(String(255))
+
+    stop = relationship(
+        'Stop',
+        primaryjoin='StopDirection.stop_id==Stop.stop_id',
+        foreign_keys='(StopDirection.stop_id)',
+        uselist=False, viewonly=True, lazy='joined')
+
+    @classmethod
+    def post_process(cls, db, **kwargs):
+        log.debug('{0}.post_process'.format(cls.__name__))
+        cls.populate(db.session)
+
+    @classmethod
+    def populate(cls, session):
+        from .stop_time import StopTime
+        stops = {}
+        total = session.query(StopTime).count()
+        util.printProgressBar(0, total, prefix='Generating stop directions:', suffix='Complete', length=50)
+        i = 0
+        for stop_time in session.query(StopTime).filter():
+            stop_id = stop_time.stop_id
+            if not stops.get(stop_id):
+                stops[stop_id] = {}
+            direction_id = stop_time.trip.direction_id
+            trip_headsign = stop_time.trip.trip_headsign
+            if not stops[stop_id].get(direction_id):
+                stops[stop_id][direction_id] = trip_headsign
+            util.printProgressBar(i + 1, total, prefix='Generating stop directions:', suffix='Complete', length=50)
+            i += 1
+
+        DIRECTION_MAP = {
+            0: 'Outbound',
+            1: 'Inbound'
+        }
+
+        stop_directions = []
+        for stop_id, stop_content in stops.items():
+            for direction_id, direction_headsign in stop_content.items():
+                stop_directions.append(
+                    StopDirection(
+                        stop_id=stop_id,
+                        direction_id=int(direction_id),
+                        direction_name=DIRECTION_MAP.get(int(direction_id)),
+                        direction_headsign=direction_headsign
+                    )
+                )
+
+        session.bulk_save_objects(stop_directions)
+        session.commit()

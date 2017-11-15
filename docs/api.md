@@ -887,34 +887,85 @@ Horarios a los que un vehículo llega a una parada concreta y sale de ella en ca
 {
     "results": [
         {
-            "shape_pt_lat": "-33.406175001",
-            "shape_id": "101I_V34",
-            "shape_pt_lon": "-70.623244000",
-            "shape_pt_sequence": 1
+            "stop_headsign": null,
+            "stop": {
+                "stop_lat": "-33.404553756",
+                "stop_code": "PB1",
+                "stop_lon": "-70.623095148",
+                "agency_id": "TS",
+                "stop_id": "PB1",
+                "directions": [
+                    {
+                        "direction_id": 0,
+                        "direction_headsign": "Cerrillos",
+                        "direction_name": "Outbound"
+                    },
+                    {
+                        "direction_id": 1,
+                        "direction_headsign": "El Salto",
+                        "direction_name": "Inbound"
+                    }
+                ],
+                "stop_name": "PB1-Venezuela Esq. / Bolivia"
+            },
+            "arrival_time": "00:00:00",
+            "stop_sequence": 1,
+            "trip": {
+                "direction_id": "0",
+                "start_time": "00:00:00",
+                "route_id": "101",
+                "frequency": {
+                    "start_time": "00:00:00",
+                    "headway_secs": 1200,
+                    "exact_times": false,
+                    "end_time": "01:00:00"
+                },
+                "trip_headsign": "Cerrillos",
+                "end_time": "01:00:23",
+                "service_id": "L_V35",
+                "trip_len": 76,
+                "trip_id": "101-I-L_V35-B00",
+                "trip_short_name": null
+            },
+            "departure_time": "00:00:00"
         },
         {
-            "shape_pt_lat": "-33.405073001",
-            "shape_id": "101I_V34",
-            "shape_pt_lon": "-70.622375000",
-            "shape_pt_sequence": 2
-        },
-        {
-            "shape_pt_lat": "-33.404523001",
-            "shape_id": "101I_V34",
-            "shape_pt_lon": "-70.623311000",
-            "shape_pt_sequence": 3
-        },
-        {
-            "shape_pt_lat": "-33.403721001",
-            "shape_id": "101I_V34",
-            "shape_pt_lon": "-70.624666000",
-            "shape_pt_sequence": 4
-        },
-        {
-            "shape_pt_lat": "-33.403699001",
-            "shape_id": "101I_V34",
-            "shape_pt_lon": "-70.624721000",
-            "shape_pt_sequence": 5
+            "stop_headsign": null,
+            "stop": {
+                "stop_lat": "-33.402453078",
+                "stop_code": "PB2",
+                "stop_lon": "-70.626639248",
+                "agency_id": "TS",
+                "stop_id": "PB2",
+                "directions": [
+                    {
+                        "direction_id": 0,
+                        "direction_headsign": "Cerrillos",
+                        "direction_name": "Outbound"
+                    }
+                ],
+                "stop_name": "PB2-Venezuela Esq. / H. De La Concepción"
+            },
+            "arrival_time": "00:01:01",
+            "stop_sequence": 2,
+            "trip": {
+                "direction_id": "0",
+                "start_time": "00:00:00",
+                "route_id": "101",
+                "frequency": {
+                    "start_time": "00:00:00",
+                    "headway_secs": 1200,
+                    "exact_times": false,
+                    "end_time": "01:00:00"
+                },
+                "trip_headsign": "Cerrillos",
+                "end_time": "01:00:23",
+                "service_id": "L_V35",
+                "trip_len": 76,
+                "trip_id": "101-I-L_V35-B00",
+                "trip_short_name": null
+            },
+            "departure_time": "00:01:01"
         }
     ]
 }

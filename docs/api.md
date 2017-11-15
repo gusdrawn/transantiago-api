@@ -512,6 +512,64 @@ Lista de [Routes](#Route)
 }
 ```
 
+### Listar viajes de ruta
+
+> **Endpoint**
+
+```curl
+/v1/routes/<route_id>/trips
+```
+
+> **Argumentos**
+
+  - `{string} route_id`: identificador de ruta
+
+
+> **Query params**
+
+| property  | opcional       | default         | description                                         |
+| --------- | :-------:  | :-------------: | --------------------------------------------------- |
+| `is_active`  | `si`   | `None`       | Opción para filtrar viajes activos.  |
+
+
+> **Respuesta**
+
+[Lista de Trips](#Trip)
+
+> **Ejemplo**
+
+- Consulta
+
+```curl
+/v1/routes/102/trips?is_active=1
+```
+
+- Respuesta
+
+```json
+{
+    "results": [
+        {
+            "direction_id": "0",
+            "start_time": "00:00:00",
+            "route_id": "102",
+            "frequency": {
+                "start_time": "14:00:00",
+                "headway_secs": 600,
+                "exact_times": false,
+                "end_time": "17:30:00"
+            },
+            "trip_headsign": "Mall P. Tobalaba",
+            "end_time": "01:30:55",
+            "service_id": "L_V35",
+            "trip_len": 67,
+            "trip_id": "102-I-L_V35-B07",
+            "trip_short_name": null
+        }
+    ]
+}
+```
+
 ## Trips (`Viajes`)
 
 Viajes para cada servicio (`route`). Un viaje es una secuencia de dos o más paradas que se produce en una hora específica.
@@ -1194,9 +1252,9 @@ Lista de [Buses](#Bus)
 ##  Stop
 | campo  |  descripción  |
 | --------- | :-------------: |
-| `stop_lat`  |  El campo stop_lat contiene la latitud de una parada o estación. El valor de este campo debe ser una latitud WGS 84 válida. |
+| `stop_lat`  |  El campo stop_lat contiene la latitud de una parada o estación. El valor de este campo es una latitud WGS 84 válida. |
 | `directions`  | lista de [direcciones](#Direction) |
-| `stop_lon`     |   Contiene la longitud de una parada o estación. El valor de este campo debe ser una latitud WGS 84 válida entre -180 y 180. |
+| `stop_lon`     |   Contiene la longitud de una parada o estación. El valor de este campo es una latitud WGS 84 válida entre -180 y 180. |
 | `stop_code`     | Contiene texto corto o un número que identifica de forma exclusiva la parada de los pasajeros. Los códigos de parada se suelen usar en sistemas de información sobre transporte público para teléfonos o impresos en los carteles de paradas para facilitar a los usuarios la consulta de los horarios de parada o información en tiempo real sobre llegadas a una parada concreta. |
 | `agency_id`     |  Identifica una empresa para la ruta especificada.  |
 | `stop_id`     | ID que identifica de forma exclusiva a una parada o estación. |

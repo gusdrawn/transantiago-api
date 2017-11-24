@@ -604,7 +604,7 @@ Se muestra la información detallada de cada una de las direcciones para una rut
 
 > **Respuesta**
 
-[Lista de direcciones con información detallada](#Direction)
+Lista de [direcciones](#Direction) con información detallada
 
 > **Ejemplo**
 

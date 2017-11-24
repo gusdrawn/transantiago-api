@@ -171,6 +171,7 @@ Lista de [arribos](#Arrival)
 
 ```curl
 /v1/stops/PH84/next_arrivals
+```
 
 - Respuesta
 

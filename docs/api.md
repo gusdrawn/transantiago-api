@@ -20,6 +20,7 @@ Información sobre paraderos o estaciones.
 | --------- | :-------:  | :-------------: | --------------------------------------------------- |
 | `limit`  | `si`   | `100`       | Cantidad de resultados por página.               |
 | `page`     | `si`   | `1` | Número de página |
+| `agency_id`     | `si`   | `None` | El campo agency_id es un ID que identifica de forma exclusiva a una empresa de transporte público. |
 | `is_active`  | `si`   | `None`       | Opción para filtrar paraderos en funcionamiento.  |
 | `center_lon` | `si` | `None`      | Longitud. Si se define, los resultados serán ordenados de más cercano a más lejano a este punto. Usar en conjunto con `center_lat`. Ejemplo: `-70.643562`      |
 | `center_lat` | `si` | `None`      | Latitud. Si se define, los resultados serán ordenados de más cercano a más lejano a este punto. Usar en conjunto con `center_lon`. Ejemplo: `-33.491585`      |
@@ -147,7 +148,81 @@ Lista de [Stops](#Stop)
 }
 ```
 
-### Listar servicios (`routes) de paradero
+### Estimación de próximos arribos
+
+Información sobre próximos arribos en paraderos. Esta información es obtenida en tiempo real utilizando el Web Service de predicción provisto por la dirección de transporte público metropolitano.
+
+> **Endpoint**
+
+```curl
+/v1/stops/<stop_id>/next_arrivals
+```
+> **Argumentos**
+
+  - `{string} stop_id`: identificador de paradero
+
+> **Respuesta**
+
+Lista de [arribos](#Arrival)
+
+> **Ejemplo**
+
+- Consulta
+
+```curl
+/v1/stops/PH84/next_arrivals
+
+- Respuesta
+
+```json
+{
+    "results": [
+        {
+            "bus_plate_number": "ZN-3992",
+            "arrival_estimation": "Menos de 5 min.",
+            "calculated_at": "2017-11-24 13:31",
+            "route_id": "125",
+            "is_live": true,
+            "bus_distance": "591"
+        },
+        {
+            "bus_plate_number": "ZN-6736",
+            "arrival_estimation": "Entre 14 Y 22 min. ",
+            "calculated_at": "2017-11-24 13:31",
+            "route_id": "125",
+            "is_live": true,
+            "bus_distance": "4141"
+        },
+        {
+            "bus_plate_number": "FLXP-63",
+            "arrival_estimation": "Entre 09 Y 15 min. ",
+            "calculated_at": "2017-11-24 13:31",
+            "route_id": "H03",
+            "is_live": true,
+            "bus_distance": "3151"
+        },
+        {
+            "bus_plate_number": null,
+            "arrival_estimation": "No hay buses que se dirijan al paradero",
+            "calculated_at": "2017-11-24 13:31",
+            "route_id": "345",
+            "is_live": true,
+            "bus_distance": null
+        },
+        {
+            "bus_plate_number": null,
+            "arrival_estimation": "Servicio fuera de horario de operacion para ese paradero",
+            "calculated_at": "2017-11-24 13:31",
+            "route_id": "346N",
+            "is_live": true,
+            "bus_distance": null
+        }
+    ]
+}
+```
+
+
+### Listar servicios (`routes`) de paradero
 
 > **Endpoint**
 
@@ -345,6 +420,7 @@ Rutas de transporte público. Una ruta es un grupo de viajes que se muestran a l
 | --------- | :-------:  | :-------------: | --------------------------------------------------- |
 | `limit`  | `si`   | `100`       | Cantidad de resultados por página.               |
 | `page`     | `si`   | `1` | Número de página |
+| `agency_id`     | `si`   | `None` | El campo agency_id es un ID que identifica de forma exclusiva a una empresa de transporte público. |
 
 
 > **Respuesta**
@@ -511,6 +587,313 @@ Lista de [Routes](#Route)
     "start_date": "2017-11-07"
 }
 ```
+
+### Información direcciones
+
+Se muestra la información detallada de cada una de las direcciones para una ruta.
+
+> **Endpoint**
+
+```curl
+/v1/routes/<route_id>/directions
+```
+
+> **Argumentos**
+
+  - `{string} route_id`: identificador de ruta
+
+> **Respuesta**
+
+[Lista de direcciones con información detallada](#Direction)
+
+> **Ejemplo**
+
+- Consulta
+
+/v1/routes/102/directions
+
+```json
+{
+    "results": [
+        {
+            "direction_name": "Outbound",
+            "route_id": "102",
+            "stop_times": [
+                {
+                    "stop_headsign": null,
+                    "stop": {
+                        "stop_lat": "-33.462527571",
+                        "stop_code": "PI1330",
+                        "stop_lon": "-70.693620992",
+                        "agency_id": null,
+                        "stop_id": "PI1330",
+                        "directions": [
+                            {
+                                "direction_id": 0,
+                                "direction_headsign": "Mall P. Tobalaba",
+                                "direction_name": "Outbound"
+                            }
+                        ],
+                        "stop_name": "PI1330-General Amengual Esq. / Padre V. Irarrázaval"
+                    },
+                    "arrival_time": "00:00:00",
+                    "stop_sequence": 1,
+                    "trip": {
+                        "direction_id": "0",
+                        "start_time": "00:00:00",
+                        "route_id": "102",
+                        "frequency": {
+                            "start_time": "12:30:00",
+                            "headway_secs": 600,
+                            "exact_times": false,
+                            "end_time": "14:00:00"
+                        },
+                        "trip_headsign": "Mall P. Tobalaba",
+                        "end_time": "01:21:00",
+                        "service_id": "L_V36",
+                        "trip_len": 67,
+                        "trip_id": "102-I-L_V36-B06",
+                        "trip_short_name": null
+                    },
+                    "departure_time": "00:00:00"
+                },
+                {
+                    "stop_headsign": null,
+                    "stop": {
+                        "stop_lat": "-33.459415666",
+                        "stop_code": "PI1201",
+                        "stop_lon": "-70.691781880",
+                        "agency_id": null,
+                        "stop_id": "PI1201",
+                        "directions": [
+                            {
+                                "direction_id": 0,
+                                "direction_headsign": "Mall P. Tobalaba",
+                                "direction_name": "Outbound"
+                            }
+                        ],
+                        "stop_name": "PI1201-Santa Teresa Esq. / Arica"
+                    },
+                    "arrival_time": "00:01:18",
+                    "stop_sequence": 2,
+                    "trip": {
+                        "direction_id": "0",
+                        "start_time": "00:00:00",
+                        "route_id": "102",
+                        "frequency": {
+                            "start_time": "12:30:00",
+                            "headway_secs": 600,
+                            "exact_times": false,
+                            "end_time": "14:00:00"
+                        },
+                        "trip_headsign": "Mall P. Tobalaba",
+                        "end_time": "01:21:00",
+                        "service_id": "L_V36",
+                        "trip_len": 67,
+                        "trip_id": "102-I-L_V36-B06",
+                        "trip_short_name": null
+                    },
+                    "departure_time": "00:01:18"
+                }
+            ],
+            "direction_id": 0,
+            "shape": [
+                {
+                    "shape_pt_lat": "-33.463178001",
+                    "shape_id": "102I_V36",
+                    "shape_pt_lon": "-70.695377000",
+                    "shape_pt_sequence": 1
+                },
+                {
+                    "shape_pt_lat": "-33.463091001",
+                    "shape_id": "102I_V36",
+                    "shape_pt_lon": "-70.695304000",
+                    "shape_pt_sequence": 2
+                }
+            ],
+            "direction_headsign": "Mall P. Tobalaba"
+        },
+        {
+            "direction_name": "Inbound",
+            "route_id": "102",
+            "stop_times": [
+                {
+                    "stop_headsign": null,
+                    "stop": {
+                        "stop_lat": "-33.578605788",
+                        "stop_code": "PF5",
+                        "stop_lon": "-70.551905003",
+                        "agency_id": null,
+                        "stop_id": "PF5",
+                        "directions": [
+                            {
+                                "direction_id": 0,
+                                "direction_headsign": "Mall P. Tobalaba",
+                                "direction_name": "Outbound"
+                            },
+                            {
+                                "direction_id": 1,
+                                "direction_headsign": "(M) Blanqueado",
+                                "direction_name": "Inbound"
+                            }
+                        ],
+                        "stop_name": "PF5-Parada 2 / Hospital El Peral"
+                    },
+                    "arrival_time": "00:00:00",
+                    "stop_sequence": 1,
+                    "trip": {
+                        "direction_id": "1",
+                        "start_time": "00:00:00",
+                        "route_id": "102",
+                        "frequency": {
+                            "start_time": "12:30:00",
+                            "headway_secs": 600,
+                            "exact_times": false,
+                            "end_time": "14:00:00"
+                        },
+                        "trip_headsign": "(M) Blanqueado",
+                        "end_time": "01:20:35",
+                        "service_id": "L_V36",
+                        "trip_len": 66,
+                        "trip_id": "102-R-L_V36-B06",
+                        "trip_short_name": null
+                    },
+                    "departure_time": "00:00:00"
+                }
+            ],
+            "direction_id": 1,
+            "shape": [
+                {
+                    "shape_pt_lat": "-33.579407001",
+                    "shape_id": "102R_V36",
+                    "shape_pt_lon": "-70.551336000",
+                    "shape_pt_sequence": 1
+                },
+                {
+                    "shape_pt_lat": "-33.579116001",
+                    "shape_id": "102R_V36",
+                    "shape_pt_lon": "-70.551586000",
+                    "shape_pt_sequence": 2
+                }
+            ],
+            "direction_headsign": "(M) Blanqueado"
+        }
+    ]
+}
+```
+
+### Información dirección
+
+Se muestra la información detallada de una dirección para una ruta.
+
+> **Endpoint**
+
+```curl
+/v1/routes/<route_id>/directions/<direction_id>
+```
+
+> **Argumentos**
+
+  - `{string} route_id`: identificador de ruta
+  - `{string} route_id`: identificador de dirección
+
+> **Respuesta**
+
+[Dirección con información detallada](#Direction)
+
+> **Ejemplo**
+
+- Consulta
+
+/v1/routes/102/directions/0
+
+```json
+{
+    "results": {
+        "direction_name": "Outbound",
+        "route_id": "102",
+        "stop_times": [
+            {
+                "stop_headsign": null,
+                "stop": {
+                    "stop_lat": "-33.462527571",
+                    "stop_code": "PI1330",
+                    "stop_lon": "-70.693620992",
+                    "agency_id": null,
+                    "stop_id": "PI1330",
+                    "directions": [
+                        {
+                            "direction_id": 0,
+                            "direction_headsign": "Mall P. Tobalaba",
+                            "direction_name": "Outbound"
+                        }
+                    ],
+                    "stop_name": "PI1330-General Amengual Esq. / Padre V. Irarrázaval"
+                },
+                "arrival_time": "00:00:00",
+                "stop_sequence": 1,
+                "trip": {
+                    "direction_id": "0",
+                    "start_time": "00:00:00",
+                    "route_id": "102",
+                    "frequency": {
+                        "start_time": "12:30:00",
+                        "headway_secs": 600,
+                        "exact_times": false,
+                        "end_time": "14:00:00"
+                    },
+                    "trip_headsign": "Mall P. Tobalaba",
+                    "end_time": "01:21:00",
+                    "service_id": "L_V36",
+                    "trip_len": 67,
+                    "trip_id": "102-I-L_V36-B06",
+                    "trip_short_name": null
+                },
+                "departure_time": "00:00:00"
+            },
+            {
+                "stop_headsign": null,
+                "stop": {
+                    "stop_lat": "-33.459415666",
+                    "stop_code": "PI1201",
+                    "stop_lon": "-70.691781880",
+                    "agency_id": null,
+                    "stop_id": "PI1201",
+                    "directions": [
+                        {
+                            "direction_id": 0,
+                            "direction_headsign": "Mall P. Tobalaba",
+                            "direction_name": "Outbound"
+                        }
+                    ],
+                    "stop_name": "PI1201-Santa Teresa Esq. / Arica"
+                },
+                "arrival_time": "00:01:18",
+                "stop_sequence": 2,
+                "trip": {
+                    "direction_id": "0",
+                    "start_time": "00:00:00",
+                    "route_id": "102",
+                    "frequency": {
+                        "start_time": "12:30:00",
+                        "headway_secs": 600,
+                        "exact_times": false,
+                        "end_time": "14:00:00"
+                    },
+                    "trip_headsign": "Mall P. Tobalaba",
+                    "end_time": "01:21:00",
+                    "service_id": "L_V36",
+                    "trip_len": 67,
+                    "trip_id": "102-I-L_V36-B06",
+                    "trip_short_name": null
+                },
+                "departure_time": "00:01:18"
+            }
+        }
+}
+```
+
+
 
 ### Listar viajes de ruta
 
@@ -1089,6 +1472,53 @@ Lista de [Bip Spots](#bip-spot)
 }
 ```
 
+## Agencias
+Son las empresas de transporte público que proporcionan los datos de este feed.
+
+### Listar agencias
+
+> **Endpoint**
+
+```curl
+/v1/agencies
+```
+
+> **Respuesta**
+
+Lista de [Agencias](#Agency)
+
+> **Ejemplo**
+
+- Consulta
+
+```curl
+/v1/agencies
+```
+
+- Respuesta
+
+```json
+{
+    "results": [
+        {
+            "agency_url": "http://www.transantiago.cl",
+            "agency_name": "Transantiago",
+            "agency_id": "TS"
+        },
+        {
+            "agency_url": "http://www.metro.cl",
+            "agency_name": "Metro de Santiago",
+            "agency_id": "M"
+        },
+        {
+            "agency_url": "http://www.trencentral.cl/bin/link.cgi/servicios/metrotren-nos/",
+            "agency_name": "MetroTren Nos",
+            "agency_id": "MT"
+        }
+    ]
+}
+```
+
 ## Buses
 
 Información sobre buses del transantiago en operación. Esta información es obtenida en tiempo real utilizando el [Web Service de Posicionamiento](https://www.dtpm.cl/index.php/2013-04-24-14-09-09/datos-y-servicios) provisto por la dirección de transporte público metropolitano.
@@ -1108,6 +1538,8 @@ Información sobre buses del transantiago en operación. Esta información es ob
 | --------- | :-------:  | :-------------: | --------------------------------------------------- |
 | `limit`  | `si`   | `50`       | Cantidad de resultados por página.               |
 | `page`     | `si`   | `1` | Número de página |
+| `route_id`     | `si`   | None | Opción de filtrar resultados por route_id` |
+| `direction_id`     | `si`   | None | Opción de filtrar resultados por `direction_id |
 | `center_lon` | `si` | `None`      | Longitud. Si se define, los resultados serán ordenados de más cercano a más lejano a este punto. Usar en conjunto con `center_lat`. Ejemplo: `-70.643562`      |
 | `center_lat` | `si` | `None`      | Latitud. Si se define, los resultados serán ordenados de más cercano a más lejano a este punto. Usar en conjunto con `center_lon`. Ejemplo: `-33.491585`      |
 | `radius` | `si` | `None`      | Radio en metros. Usar en conjunto con `center_lat` y `center_lon`. Si es definido, se mostrarán sólo los resultados dentro de ese radio (en relación al centro (center_lat` y `center_lon`))     |
@@ -1217,15 +1649,27 @@ Lista de [Buses](#Bus)
 
 # Objetos de respuestas
 
+##  Direction (simplificada)
+| campo  |  descripción  |
+| --------- | :-------------: |
+| `direction_id`  |  El campo direction_id contiene un valor binario que indica la dirección de un viaje. `0` : viaje de ida. `1`: viaje de regreso. |
+| `direction_headsign`  |  Contiene el texto que aparece en un cartel que identifica el destino del viaje para los pasajeros.  |
+| `direction_name`  |  Nombres para cada dirección con el campo trip_headsign. |
+
+
 ##  Direction
 | campo  |  descripción  |
 | --------- | :-------------: |
 | `direction_id`  |  El campo direction_id contiene un valor binario que indica la dirección de un viaje. `0` : viaje de ida. `1`: viaje de regreso. |
 | `direction_headsign`  |  Contiene el texto que aparece en un cartel que identifica el destino del viaje para los pasajeros.  |
 | `direction_name`  |  Nombres para cada dirección con el campo trip_headsign. |
- 
+| `stop_times`  |  Lista de [stop times](#StopTime). |
+| `shape`  |  Lista de [shapes](#Shape). |
 
 ##  Route
+
+Rutas de transporte público. Una ruta es un grupo de viajes que se muestran a los usuarios como servicio independiente.
+
 | campo  |  descripción  |
 | --------- | :-------------: |
 | `route_long_name`  | Contiene el nombre completo de una ruta. Este nombre suele ser más descriptivo que el route_short_name y suele incluir el destino o parada de la ruta.  |
@@ -1236,12 +1680,16 @@ Lista de [Buses](#Bus)
 | `agency_id`  |  ID que identifica de forma exclusiva a una empresa de transporte público. Un feed de transporte público puede representar datos de más de una empresa. El agency_id es un conjunto de datos único.  |
 | `route_color`  | Define el color correspondiente a una ruta. Este color está en formato hexadecimal.   |
 | `route_desc`  | Contiene una descripción de una ruta, opcional. |
-| `directions`  |  lista de [direcciones](#Direction) |
+| `directions`  |  lista de [direcciones](#Direction-simplificada) |
 | `route_url`  |  Contiene la URL de una página web relativa a una ruta concreta.  |
 | `route_short_name`  |  Contiene el nombre corto de una ruta. |
 | `start_date`  |  Contiene la fecha de inicio del servicio. |
 
 ##  Frequency
+
+Tiempo entre viajes para las rutas cuya frecuencia de servicio es variable.
+
+
 | campo  |  descripción  |
 | --------- | :-------------: |
 | `start_time`  |  Especifica la hora a la que empieza el servicio con la frecuencia especificada. La hora se calcula como "mediodía menos 12 h" (lo que corresponde a la medianoche, excepto durante el período en el que se aplica el cambio de horario de verano/invierno) al principio de la fecha de servicio. |
@@ -1251,6 +1699,9 @@ Lista de [Buses](#Bus)
 
 
 ##  Trip
+
+Viajes para cada ruta. Un viaje es una secuencia de dos o más paradas que se produce en una hora específica.
+
 | campo  |  descripción  |
 | --------- | :-------------: |
 | `direction_id`  |  Contiene un valor binario que indica la dirección de un viaje. Usa este campo para diferenciar viajes con dos direcciones con el mismo valor de route_id. `0` : viaje de ida. `1`: viaje de regreso  |
@@ -1291,8 +1742,21 @@ Lista de [Buses](#Bus)
 | `bip_spot_entity`  |  Nombre de la institución donde está ubicado el punto de carga  |
 | `bip_opening_time  |  Descripción de los horarios de atención del punto BIP  |
 
+##  Agency
+
+Una o varias empresas de transporte público que proporcionan los datos de este feed.
+
+| campo  |  descripción  |
+| --------- | :-------------: |
+| `agency_id`  |  ID que identifica de forma exclusiva a una empresa de transporte público.   |
+| `agency_name`  |  Contiene el nombre completo de la empresa de transporte público.   |
+| `agency_url`  |  Contiene la URL de la empresa de transporte público.  |
+
 
 ##  Shape
+
+Reglas para el trazado de las líneas en un mapa que representen las rutas de una organización de transporte público.
+
 | campo  |  descripción  |
 | --------- | :-------------: |
 | `shape_pt_lat`  |  Latitud de un punto de una forma con un ID de forma.  |
@@ -1301,15 +1765,44 @@ Lista de [Buses](#Bus)
 | `shape_pt_sequence`  |  Asocia la latitud y la longitud de un punto de una forma al orden secuencial que tienen a lo largo de la forma. Los valores de shape_pt_sequence son enteros no negativos y aumentan a lo largo del viaje.  |
 
 ##  Stop
+
+Ubicaciones concretas en donde los vehículos recogen o dejan pasajeros.
+
 | campo  |  descripción  |
 | --------- | :-------------: |
 | `stop_lat`  |  El campo stop_lat contiene la latitud de una parada o estación. El valor de este campo es una latitud WGS 84 válida. |
-| `directions`  | lista de [direcciones](#Direction) |
+| `directions`  | lista de [direcciones](#Direction-simplificada) |
 | `stop_lon`     |   Contiene la longitud de una parada o estación. El valor de este campo es una latitud WGS 84 válida entre -180 y 180. |
 | `stop_code`     | Contiene texto corto o un número que identifica de forma exclusiva la parada de los pasajeros. Los códigos de parada se suelen usar en sistemas de información sobre transporte público para teléfonos o impresos en los carteles de paradas para facilitar a los usuarios la consulta de los horarios de parada o información en tiempo real sobre llegadas a una parada concreta. |
 | `agency_id`     |  Identifica una empresa para la ruta especificada.  |
 | `stop_id`     | ID que identifica de forma exclusiva a una parada o estación. |
 | `stop_name`     |  Contiene el nombre de una parada o estación.  |
+
+
+## StopTime
+
+Horarios a los que un vehículo llega a una parada concreta y sale de ella en cada viaje.
+
+| campo  |  descripción  |
+| --------- | :-------------: |
+| `stop`  |  Objecto [Stop](#Stop) |
+| `trip`  | Objeto [Route](#Route) |
+| `arrival_time`     |  Especifica la hora de llegada a una parada concreta correspondiente a un viaje específico de una ruta. La hora se calcula como "mediodía menos 12 h" (lo que corresponde a la medianoche, excepto durante el período en el que se aplica el cambio de horario de verano/invierno) al principio de la fecha de servicio.  |
+| `departure_time`     | especifica la hora de salida de una parada concreta correspondiente a un viaje específico en una ruta. La hora se calcula como "mediodía menos 12 h" (que corresponde a la medianoche, excepto los días en los que se aplica el cambio de horario de verano/invierno) al principio de la fecha de servicio. |
+| `stop_sequence`     |  identifica el orden de las paradas en un viaje en concreto. Los valores de stop_sequence son enteros no negativos y aumentan durante el viaje.  |
+| `stop_headsign`     | Contiene el texto que aparece en un cartel que identifica el destino del viaje para los pasajeros. |
+
+## Arrival
+
+| campo  |  descripción  |
+| --------- | :-------------: |
+| `bus_plate_number`  |  Patente del bus. |
+| `arrival_estimation`  | Texto con descripción de estimación de tiempo |
+| `calculated_at`  | Fecha en que la información fue obtenida |
+| `route_id`  | Identificador de ruta |
+| `is_live`  | Indica si la información fue obtenida utilizando el servicio de predicción (tiempo real). Este valor es actualmente siempre true |
+| `bus_distance`  | Distancia en metros al paradero |
+
 
 ## Paginación
 | campo  |  descripción  |

@@ -10,6 +10,10 @@
 
 > ***Transantiago API*** es una API no oficial basada en la información [oficial](#fuentes-de-datos) disponible de Transantiago. Información de servicios de buses y de Metro, posición de paraderos y estaciones, trazados de servicios y frecuencias y tiempos de viaje por periodo del día.
 
+- [Información disponible](#información-disponible)
+- [Fuentes de datos](#fuentes-de-datos)
+- [Sobre la API](#sobre-la-api)
+- [Ejemplos](#ejemplos)
 - [uso](#Uso)
 
 ---

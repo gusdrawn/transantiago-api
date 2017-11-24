@@ -1,9 +1,9 @@
 <p align="center">
     <a href="#">
-        <img src="https://txgr7z1gbc.execute-api.eu-west-2.amazonaws.com/dev/shields/gtfs_version"
+        <img src="https://api.scltrans.it/shields/gtfs_version"
             alt="GTFS"></a>
     <a href="#">
-        <img src="https://txgr7z1gbc.execute-api.eu-west-2.amazonaws.com/dev/shields/fetched_at"
+        <img src="https://api.scltrans.it/shields/fetched_at"
             alt="Last fetch">
     </a>
 </p>

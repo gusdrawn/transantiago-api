@@ -223,12 +223,15 @@ Lista de [arribos](#Arrival)
 ```
 
 
-### Listar servicios (`routes`) de paradero
+### Listar recorridos de paradero
+
+Lista de recorridos, con su respectiva dirección, para un paradero específico. 
+
 
 > **Endpoint**
 
 ```curl
-/v1/stops/<stop_id>/routes
+/v1/stops/<stop_id>/stop_routes
 ```
 
 > **Argumentos**
@@ -237,77 +240,87 @@ Lista de [arribos](#Arrival)
 
 > **Respuesta**
 
-Lista de [Routes](#Route)
+Lista de [StopRoutes](#StopRoute)
 
 > **Ejemplo**
 
 - Consulta
 
 ```curl
-/v1/stops/101/routes
+/v1/stops/PB8/stop_routes
 ```
 
 - Respuesta
 
 ```json
-{
-    "results": [
-        {
-            "route_long_name": "El Salto - Mapocho",
-            "end_date": "2018-03-31",
+[
+    {
+        "direction": {
+            "direction_id": 0,
+            "route_id": "107c",
+            "direction_headsign": "Plaza Renca",
+            "direction_name": "Outbound"
+        },
+        "route": {
+            "route_long_name": "Ciudad Empresarial - Plaza Renca",
             "route_type": "3",
-            "route_text_color": "FFFFFF",
+            "route_text_color": "000000",
             "agency_id": "TS",
-            "route_id": "B14",
-            "route_color": "ED1C24",
+            "route_id": "107c",
+            "route_color": "00D5FF",
             "route_desc": null,
             "directions": [
                 {
                     "direction_id": 1,
-                    "route_id": "B14",
-                    "direction_headsign": "El Salto",
+                    "route_id": "107c",
+                    "direction_headsign": "C. Empresarial",
                     "direction_name": "Inbound"
                 },
                 {
                     "direction_id": 0,
-                    "route_id": "B14",
-                    "direction_headsign": "Mapocho",
+                    "route_id": "107c",
+                    "direction_headsign": "Plaza Renca",
                     "direction_name": "Outbound"
                 }
             ],
             "route_url": null,
-            "route_short_name": "B14",
-            "start_date": "2017-11-07"
+            "route_short_name": "107c"
+        }
+    },
+    {
+        "direction": {
+            "direction_id": 1,
+            "route_id": "107",
+            "direction_headsign": "C. Empresarial",
+            "direction_name": "Inbound"
         },
-        {
-            "route_long_name": "Recoleta - Cerrillos",
-            "end_date": "2018-03-31",
+        "route": {
+            "route_long_name": "Ciudad Empresarial - Av. Departamental",
             "route_type": "3",
             "route_text_color": "000000",
             "agency_id": "TS",
-            "route_id": "101",
+            "route_id": "107",
             "route_color": "00D5FF",
             "route_desc": null,
             "directions": [
                 {
                     "direction_id": 0,
-                    "route_id": "101",
-                    "direction_headsign": "Cerrillos",
+                    "route_id": "107",
+                    "direction_headsign": "Av. Departamental",
                     "direction_name": "Outbound"
                 },
                 {
                     "direction_id": 1,
-                    "route_id": "101",
-                    "direction_headsign": "Recoleta",
+                    "route_id": "107",
+                    "direction_headsign": "C. Empresarial",
                     "direction_name": "Inbound"
                 }
             ],
             "route_url": null,
-            "route_short_name": "101",
-            "start_date": "2017-11-07"
+            "route_short_name": "107"
         }
-    ]
-}
+    }
+]
 ```
 
 ### Listar viajes (`trips`) de paradero
@@ -403,11 +416,11 @@ Lista de [Trips](#Trip)
 ```
 
 
-## Routes (`Servicios`)
+## Routes (`Recorridos`)
 
 Rutas de transporte público. Una ruta es un grupo de viajes que se muestran a los usuarios como servicio independiente.
 
-### Listar servicios
+### Listar recorridos
 
 > **Endpoint**
 
@@ -533,7 +546,7 @@ Lista de [Routes](#Route)
 ```
 
 
-### Obtener ruta
+### Obtener recorrido
 
 > **Endpoint**
 
@@ -1666,6 +1679,17 @@ Lista de [Buses](#Bus)
 | `direction_name`  |  Nombres para cada dirección con el campo trip_headsign. |
 | `stop_times`  |  Lista de [stop times](#StopTime). |
 | `shape`  |  Lista de [shapes](#Shape). |
+
+
+## StopRoute
+
+Tupla ([route](#Route), [dirección](#Direction-simplificada)) que contiene información sobre un recorrido en una dirección particular para una stop
+
+| campo  |  descripción  |
+| --------- | :-------------: |
+| `route`  |  Objecto [route](#Route)   |
+| `direction`  | Objecto [dirección](#Direction-simplificada) |
+
 
 ##  Route
 

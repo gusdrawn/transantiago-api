@@ -1,2 +1,3 @@
 - [readme](readme.md)
+- [guía de uso](user_guide.md)
 - [api](api.md)

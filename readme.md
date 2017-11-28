@@ -50,7 +50,7 @@ Actualmente la API utiliza 4 fuentes de datos:
 
 - **Operaciones extras sobre información**
 
-  Se proveen ciertas operadores sobre la información, como filtros de geolocalización o filtros de fuentes. Para más información revisa la [documentación](http://scltrans.it/#/api).
+  Se proveen ciertas operadores sobre la información, como filtros de geolocalización o filtros de fuentes. Para más información revisa la [guía de uso](http://scltrans.it/#/user_guide) o la [documentación](http://scltrans.it/#/api).
 
 - **Información sincronizada**
 
@@ -58,7 +58,7 @@ Actualmente la API utiliza 4 fuentes de datos:
 
 ## Ejemplos
 
-Ver la [documentación](http://scltrans.it/#/api) para ver todos los endpoints disponibles. 
+Ver la [Guía de uso](http://scltrans.it/#/user_guide) para más ejemplos o la [documentación](http://scltrans.it/#/api) para ver todos los endpoints disponibles. 
 
 Aquí algunos ejemplos de uso:
 
@@ -74,28 +74,16 @@ https://api.scltrans.it/v1/stops?center_lat=-33.491585&center_lon=-70.643562
 https://api.scltrans.it/v1/stops?bbox=-70.609818,-33.442328,-70.566473,-33.409806&is_active=1
 ```
 
-- Listar las rutas o "micros" del paradero PB1:
+- Listar los recorridos del paradero PB1:
 
 ```
-https://api.scltrans.it/v1/stops/PB1/routes
+https://api.scltrans.it/v1/stops/PB1/stop_routes
 ```
 
 - Obtener información sobre los próximos arribos en el paradero PB1:
 
 ```
 https://api.scltrans.it/v1/stops/PB1/next_arrivals
-```
-
-- Obtener la información de un viaje específico (a.k.a `trips`), incluyendo todos los paraderos de la ruta y la "micro" asociada.
-
-```
-https://api.scltrans.it/v1/trips/101-I-L_V34-B00
-```
-
-- Obtener la información de trazado del viaje 101-I-L_V34-B00:
-
-```
-https://api.scltrans.it/v1/trips/101-I-L_V34-B00/shape
 ```
 
 - Listar los puntos de carga bip en área específica (bounding box):

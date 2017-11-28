@@ -1,25 +1,29 @@
 <p align="center">
     <a href="#">
-        <img src="https://txgr7z1gbc.execute-api.eu-west-2.amazonaws.com/dev/shields/gtfs_version"
+        <img src="https://api.scltrans.it/shields/gtfs_version"
             alt="GTFS"></a>
     <a href="#">
-        <img src="https://txgr7z1gbc.execute-api.eu-west-2.amazonaws.com/dev/shields/fetched_at"
+        <img src="https://api.scltrans.it/shields/fetched_at"
             alt="Last fetch">
     </a>
 </p>
 
+# Transantiago API
+
 > ***Transantiago API*** es una API no oficial basada en la información [oficial](#fuentes-de-datos) disponible de Transantiago. Información de servicios de buses y de Metro, posición de paraderos y estaciones, trazados de servicios y frecuencias y tiempos de viaje por periodo del día.
 
+- [Información disponible](#información-disponible)
+- [Fuentes de datos](#fuentes-de-datos)
+- [Sobre la API](#sobre-la-api)
+- [Ejemplos](#ejemplos)
 - [uso](#Uso)
-
----
 
 ## Información disponible
 
 * Recorridos [*ver*](http://scltrans.it/#/api?id=routes-servicios)
 * Paraderos y estaciones de metro [*ver*](http://scltrans.it/#/api?id=stops-paraderos)
 * Predicción de tiempos de arribo en paradero (tiempo real) [*ver*](http://scltrans.it/#/api?id=estimaci%c3%b3n-de-pr%c3%b3ximos-arribos)
-* Itinerarios y horarios [*ver*](http://scltrans.it/#/api)
+* Itinerarios y horarios [*ver*](http://scltrans.it/#/api?id=secuencia-de-detenci%c3%b3n-para-viaje)
 * Viajes [*ver*](http://scltrans.it/#/api?id=trips-viajes)
 * Posición de buses (tiempo real) [*ver*](http://scltrans.it/#/api?id=buses)
 * Puntos de carga BIP [*ver*](http://scltrans.it/#/api?id=bip-spots-puntos-carga)
@@ -42,11 +46,11 @@ Actualmente la API utiliza 4 fuentes de datos:
 
 - **API abierta**
 
-  La API está disponible en **https://api.scltrans.it**. Puedes revisar documentación está diponible [áca](http://scltrans.it/#/api). La API no require autenticación y puede ser utilizada libremente.
+  La API está disponible en **https://api.scltrans.it**. Puedes revisar documentación [áca](http://scltrans.it/#/api). La API no require autenticación y puede ser utilizada libremente.
 
 - **Operaciones extras sobre información**
 
-  Se proveen ciertas operadores sobre la información, como filtros de geolocalización o filtros de fuentes. Para más información revisa la [documentación](http://scltrans.it/#/api).
+  Se proveen ciertas operadores sobre la información, como filtros de geolocalización o filtros de fuentes. Para más información revisa la [guía de uso](http://scltrans.it/#/user_guide) o la [documentación](http://scltrans.it/#/api).
 
 - **Información sincronizada**
 
@@ -54,7 +58,7 @@ Actualmente la API utiliza 4 fuentes de datos:
 
 ## Ejemplos
 
-Ver la [documentación](http://scltrans.it/#/api) para ver todos los endpoints disponibles. 
+Ver la [Guía de uso](http://scltrans.it/#/user_guide) para más ejemplos o la [documentación](http://scltrans.it/#/api) para ver todos los endpoints disponibles. 
 
 Aquí algunos ejemplos de uso:
 
@@ -70,28 +74,16 @@ https://api.scltrans.it/v1/stops?center_lat=-33.491585&center_lon=-70.643562
 https://api.scltrans.it/v1/stops?bbox=-70.609818,-33.442328,-70.566473,-33.409806&is_active=1
 ```
 
-- Listar las rutas o "micros" del paradero PB1:
+- Listar los recorridos del paradero PB1:
 
 ```
-https://api.scltrans.it/v1/stops/PB1/routes
+https://api.scltrans.it/v1/stops/PB1/stop_routes
 ```
 
 - Obtener información sobre los próximos arribos en el paradero PB1:
 
 ```
 https://api.scltrans.it/v1/stops/PB1/next_arrivals
-```
-
-- Obtener la información de un viaje específico (a.k.a `trips`), incluyendo todos los paraderos de la ruta y la "micro" asociada.
-
-```
-https://api.scltrans.it/v1/trips/101-I-L_V34-B00
-```
-
-- Obtener la información de trazado del viaje 101-I-L_V34-B00:
-
-```
-https://api.scltrans.it/v1/trips/101-I-L_V34-B00/shape
 ```
 
 - Listar los puntos de carga bip en área específica (bounding box):

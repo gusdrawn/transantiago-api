@@ -16,7 +16,6 @@
 - [Fuentes de datos](#fuentes-de-datos)
 - [Sobre la API](#sobre-la-api)
 - [Ejemplos](#ejemplos)
-- [uso](#Uso)
 
 ## Información disponible
 

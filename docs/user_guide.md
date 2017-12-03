@@ -60,7 +60,9 @@ https://api.scltrans.it/v1/stops?bbox=-70.615053,-33.438246,-70.591836,-33.42563
 
 ## Todo sobre un recorrido
 
-La información básica del recorrido `411` puede ser obtenida de:
+Utilizaremos como ejemplo el paradero `411`
+
+La información básica del recorrido puede ser obtenida de:
 
 ```
 https://api.scltrans.it/v1/routes/411

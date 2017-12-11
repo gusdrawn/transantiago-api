@@ -52,14 +52,13 @@ Ejemplo:
 
 Listar los paraderos en el bbox: `-70.615053,-33.438246,-70.591836,-33.425639 (Longitud mínima, Latitud máxima, Longitud máxima, Latitud máxima).
 
-Adicionalmente, existe un [endpoint](api.md?id=map) a modo de "helper" que reúne los elementos anteriores en un único método para facilitar la consulta.
-
-
 ![bbox](media/bbox.jpg)
 
 ```
 https://api.scltrans.it/v1/stops?bbox=-70.615053,-33.438246,-70.591836,-33.425639
 ```
+
+!> **NOTA** Adicionalmente, existe un [endpoint](api.md?id=map) a modo de "helper" que reúne los elementos anteriores en un único método para facilitar la consulta.
 
 ## Todo sobre un recorrido
 

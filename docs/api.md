@@ -975,7 +975,7 @@ Colección de elementos geolocalizados. Este endpoint es un "helper" que reúne 
 * [Puntos BIP](#BIP-Spot)
 * [Buses](#Bus) 
 
-NOTA: Por defecto este endpoint sólo lista las [stops](#Stop), el resto son elementos opcionales configurables.
+!> **NOTA** Por defecto este endpoint sólo lista las [stops](#Stop), el resto son elementos opcionales configurables.
 
 ### Listar elementos
 

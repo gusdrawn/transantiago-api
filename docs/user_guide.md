@@ -58,7 +58,10 @@ Listar los paraderos en el bbox: `-70.615053,-33.438246,-70.591836,-33.425639 (L
 https://api.scltrans.it/v1/stops?bbox=-70.615053,-33.438246,-70.591836,-33.425639
 ```
 
-?> **NOTA** Adicionalmente, existe un [endpoint](api.md?id=map) a modo de "helper" que reúne los elementos anteriores en un único método para facilitar la consulta.
+### Mapa
+
+?> **NOTA** Adicionalmente a los endpoints anteriores, existe un [endpoint](api.md?id=map) a modo de "helper" que reúne los elementos con latitud, longitud en un único método para facilitar la consulta.
+
 
 ## Todo sobre un recorrido
 
@@ -78,7 +81,6 @@ https://api.scltrans.it/v1/routes/411/directions
 Esta respuesta incluye información detallada para la ida y regreso (direcciones) del recorrido, incluyendo el [trazado del recorrido](api.md?id=shape) (`shape`) y la [secuencia de detenciones](api.md?id=stoptime) (`stop_time`).
 
 ![shape_stop_times](media/shape_stop_times.jpg)
-
 
 Si lo deseas, puedes obtener la información para una dirección en particular (ida:0 /regreso: 1) con:
 

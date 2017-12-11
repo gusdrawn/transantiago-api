@@ -967,6 +967,126 @@ Se muestra la información detallada de una dirección para una ruta.
 }
 ```
 
+## Map
+
+Colección de elementos geolocalizados. Este endpoint es un "helper" que reúne diferentes elementos en un único método para facilitar la consulta. Actualmente los elementos disponibles son:
+
+* [Stops](#Stop)
+* [Puntos BIP](#BIP-Spot)
+* [Buses](#Bus) 
+
+NOTA: Por defecto este endpoint sólo lista las [stops](#Stop), el resto son elementos opcionales configurables.
+
+### Listar elementos
+
+> **Endpoint**
+
+```curl
+/v1/map
+```
+
+> **Query params**
+
+| property  | opcional       | ejemplo  | description                                         |
+| --------- | :-------:  | :-------------: | -------- ---------------------------------------------------- |
+| `include_buses`     | `si`   | 1 | Incluir [buses](#Bus)  |
+| `include_bip_spots`     | `si`   | 1 | Incluir [puntos BIP](#BIP-Spot) |
+| `include_stop_routes`     | `si`   | 1 | Incluir [stop routes](#StopRoute) |
+| `center_lon` | `si` | `-70.643562`      | Longitud. Si se define, los resultados serán ordenados de más cercano a más lejano a este punto. Usar en conjunto con `center_lat`.    |
+| `center_lat` | `si` | `-33.491585`      | Latitud. Si se define, los resultados serán ordenados de más cercano a más lejano a este punto. Usar en conjunto con `center_lon`.     |
+| `radius` | `si` | 2000      | Radio en metros. Usar en conjunto con `center_lat` y `center_lon`. Si es definido, se mostrarán sólo los resultados dentro de ese radio (en relación al centro (`center_lat` y `center_lon`)     |
+| `bbox` | `si` |     |  Bounding box (min Longitude , min Latitude , max Longitude , max Latitude). Si es definido, se mostrarán sólo los resultados dentro de este bbox.    |
+
+> **Respuesta**
+
+Lista de elementos. Dependiendo de la llamada pueden ser [Stops](#Stop) y/o [Puntos BIP](#BIP-Spot) y/o [Buses](#Bus) 
+
+> **Ejemplo**
+
+- Consulta
+
+```curl
+/v1/map?include_buses=1&include_bip_spots=1&center_lon=-70.643562&center_lat=-33.491585
+```
+
+- Respuesta
+
+```json
+{
+    "results": {
+        "bip_spots": [
+            {
+                "bip_spot_lat": "-33.4899533888888",
+                "bip_spot_code": "66366",
+                "bip_spot_fantasy_name": "ALMACEN LA ESCALERA SAN JOAQUIN",
+                "bip_spot_commune": "SAN JOAQUIN",
+                "bip_spot_lon": "-70.6348931666666",
+                "bip_spot_address": "ALCALDE PEDRO ALARCON 478",
+                "bip_spot_entity": "Fullcarga",
+                "bip_opening_time": null
+            },
+            {
+                "bip_spot_lat": "-33.4896497619048",
+                "bip_spot_code": "79567",
+                "bip_spot_fantasy_name": "ANITA",
+                "bip_spot_commune": "SAN MIGUEL",
+                "bip_spot_lon": "-70.6410821428571",
+                "bip_spot_address": "MARIA AUXILIADORA 702",
+                "bip_spot_entity": "Fullcarga",
+                "bip_opening_time": null
+            }
+        ],
+        "stops": [
+            {
+                "stop_lat": "-33.492728459",
+                "stop_code": "PH187",
+                "stop_lon": "-70.640237998",
+                "agency_id": "TS",
+                "stop_id": "PH187",
+                "stop_name": "PH187-Parada 1 / Paradero 8   Santa Rosa"
+            },
+            {
+                "stop_lat": "-33.490277793",
+                "stop_code": "PH132",
+                "stop_lon": "-70.651118926",
+                "agency_id": "TS",
+                "stop_id": "PH132",
+                "stop_name": "PH132-Parada 2 / Paradero 8   Gran Avenida"
+            }
+        ],
+        "buses": [
+            {
+                "bus_plate_number": "BJFP-22",
+                "operator_number": 16,
+                "direction_id": 1,
+                "bus_movement_orientation": 2,
+                "added_at": "2017-12-11T22:12:16+00:00",
+                "bus_lon": "-70.6509170532227",
+                "route_id": "H05",
+                "bus_speed": 30.9,
+                "bus_lat": "-33.5000419616699",
+                "captured_at": "2017-12-11T22:12:08+00:00"
+            },
+            {
+                "bus_plate_number": "BJFT-94",
+                "operator_number": 16,
+                "direction_id": 1,
+                "bus_movement_orientation": 0,
+                "added_at": "2017-12-11T22:12:30+00:00",
+                "bus_lon": "-70.6513748168945",
+                "route_id": "301",
+                "bus_speed": 0,
+                "bus_lat": "-33.4909744262695",
+                "captured_at": "2017-12-11T22:12:23+00:00"
+            }
+        ]
+    }
+}
+```
+
+
+
+
 ## Trips (`Viajes`)
 
 Viajes para cada servicio (`route`). Un viaje es una secuencia de dos o más paradas que se produce en una hora específica.

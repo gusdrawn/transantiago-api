@@ -6,18 +6,18 @@ import requests
 from decimal import Decimal
 
 RECORD_FIELDS = [
-    'captured_at',  # Fecha Hora Gps UTC (Alfanumérico) -> 03-11-2017 11:00:22
-    'bus_plate_number',  # 'Patente (Alfanumérico)' -> BJFC-73
-    'latitud',  # Latitud -33.4332656860352
-    'longitud',  # longitud -70.6573715209961
-    'vehicle_speed',  # velocidad_instantanea (km/hr) 13.0
-    'vehicle_movement_orientation',  # 'Dirección Geográfica Movimiento del bus (0-7)', 2.0
-    'operator_number',  # Número de Operador 5.0
-    'original_route_id',  # Nombre Comercial del Servicio T502
-    'direction_id',  #  Sentido <>(Alfabético), I-Ida, R-Retorno (vacio)', # I  (TODO: process to inbound/outbound and check)
-    'console_route_id', # T502 00I ruta asignada por consola
-    'synoptic_route_id', # T502 00I ruta asignada por
-    'added_at' # Fecha Hora de inserción UTC'  # 03-11-2017 11:00:27
+    'captured_at',
+    'bus_plate_number',
+    'latitud',
+    'longitud',
+    'vehicle_speed',
+    'vehicle_movement_orientation',
+    'operator_number',
+    'original_route_id',
+    'direction_id',
+    'console_route_id',
+    'synoptic_route_id',
+    'added_at'
 ]
 
 NUM_OF_RECORDS = len(RECORD_FIELDS)
@@ -154,7 +154,7 @@ class PositioningFetcher(object):
     @property
     def input_data(self):
         if not self._input_data:
-            r = requests.get('https://www.dtpmetropolitano.cl/posiciones', auth=(self.username, self.password), verify=False)
+            r = requests.get(os.getenv('POSITIONING_SERVICE_URL'), auth=(self.username, self.password), verify=False)
             self._input_data = r.json()
         return self._input_data
 

@@ -39,9 +39,6 @@ class Bus(Base):
     added_at = Column(DateTime, nullable=True)
     fetched_at = Column(DateTime, nullable=False, index=True)
 
-    # TODO: remove or load in a different way
-    #geom = Column(Geometry(geometry_type='POINT', srid=config.SRID))
-
     @classmethod
     def add_geometry_column(cls):
         if not hasattr(cls, 'geom'):

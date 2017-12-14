@@ -5,7 +5,7 @@ from sqlalchemy import Column, Sequence
 from sqlalchemy.orm import relationship
 from sqlalchemy.types import Integer, String
 
-from .. import config
+from ..settings import config
 from .base import Base
 from .trip import Trip
 

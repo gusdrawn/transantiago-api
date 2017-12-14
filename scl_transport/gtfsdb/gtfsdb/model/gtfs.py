@@ -6,7 +6,7 @@ import time
 from urllib import urlretrieve
 import zipfile
 
-from .. import config
+from ..settings import config
 from .route import Route
 
 

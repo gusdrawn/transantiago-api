@@ -6,7 +6,7 @@ from sqlalchemy import Column, Integer, Numeric, String
 from sqlalchemy.orm import deferred, relationship
 from sqlalchemy.sql import func
 
-from .. import config
+from ..settings import config
 from .base import Base
 
 

@@ -2,7 +2,7 @@ from sqlalchemy import Column
 from sqlalchemy.orm import relationship
 from sqlalchemy.types import Integer, String, Time
 
-from .. import config
+from ..settings import config
 from .base import Base
 
 

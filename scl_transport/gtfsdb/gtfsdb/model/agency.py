@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Sequence
 from sqlalchemy.types import Integer, String
 
-from .. import config
+from ..settings import config
 from .base import Base
 
 
@@ -10,7 +10,7 @@ class Agency(Base):
     filename = 'agency.txt'
 
     __tablename__ = 'agency'
-    __table_args__ = {'extend_existing': True}
+    __table_args__ = {'extend_existing': config.EXISTING_SCHEMA_FLAG}
 
     id = Column(Integer, Sequence(None, optional=True), primary_key=True, nullable=True)
     agency_id = Column(String(255), index=True, unique=True)

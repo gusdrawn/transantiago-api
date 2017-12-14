@@ -1,6 +1,6 @@
 from sqlalchemy import Column
 from geoalchemy2 import Geometry
-from .. import config
+from ..settings import config
 from .base import Base
 from sqlalchemy.types import Integer, String
 
@@ -14,7 +14,6 @@ class BipSpot(Base):
 
     __tablename__ = 'bip_spot'
     __table_args__ = {'extend_existing': config.EXISTING_SCHEMA_FLAG}
-
     bip_spot_code = Column(String(255), nullable=False, primary_key=True)
     bip_spot_entity = Column(String(255), nullable=False)
     bip_spot_fantasy_name = Column(String(255), nullable=False)

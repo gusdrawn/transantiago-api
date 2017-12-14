@@ -6,7 +6,7 @@ from geoalchemy2 import Geometry
 from sqlalchemy import Column, Integer, Numeric, String, PickleType
 from sqlalchemy.orm import joinedload_all, object_session, relationship
 
-from .. import config
+from ..settings import config
 from .. import util
 from .base import Base
 
@@ -36,9 +36,7 @@ class Stop(Base):
     direction = Column(String(50))
     position = Column(String(50))
     agency_id = Column(String(255), index=True, nullable=True)
-    cached_routes = Column(PickleType)
-    # TODO: remove or load in a different way
-    geom = Column(Geometry(geometry_type='POINT', srid=config.SRID))
+    _stop_routes = Column("stop_routes", PickleType)
 
     stop_features = relationship(
         'StopFeature',
@@ -69,6 +67,19 @@ class Stop(Base):
         row['geom'] = 'SRID={0};POINT({1} {2})'.format(*args)
 
     @property
+    def stop_routes(self):
+        from .route_stop import RouteStop
+        from scl_transport.api.schemas import StopRouteSchema
+        if not self._stop_routes:
+            stop_routes = self.session.query(RouteStop).filter(RouteStop.stop_id == self.stop_id)
+            stop_route_schema = StopRouteSchema()
+            results = stop_route_schema.dump(stop_routes, many=True).data
+            self._stop_routes = results
+            self.object_session.add(self)
+            self.object_session.commit()
+        return self._stop_routes
+
+    @property
     def headsigns(self):
         """ Returns a dictionary of all unique (route_id, headsign) tuples used
             at the stop and the number of trips the head sign is used
@@ -77,7 +88,7 @@ class Stop(Base):
             from gtfsdb.model.stop_time import StopTime
             self._headsigns = defaultdict(int)
             session = object_session(self)
-            log.info("QUERY StopTime")
+            #log.info("QUERY StopTime")
             q = session.query(StopTime)
             q = q.options(joinedload_all('trip.route'))
             q = q.filter_by(stop_id=self.stop_id)

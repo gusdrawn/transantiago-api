@@ -1,5 +1,9 @@
 import mechanize
 import re
+import StringIO
+import requests
+import xlrd
+import csv
 
 
 class LinkExtractor(object):
@@ -46,3 +50,161 @@ class LinkExtractor(object):
                 self._link = link_obj.absolute_url
                 count += 1
         return self._link
+
+
+def float_to_str(val):
+    print "converting", val
+    return unicode(int(val))
+
+
+def str_to_utf8(val):
+    return unicode(val).encode('utf-8')
+
+
+class BIPFeedBase(object):
+
+    xls_file = "tmp.xlsx"
+    _link = None
+    url = None
+    sheet_name = None
+    FIELD_MAPPING = []
+
+    def link(self):
+        if not self._link:
+            link_extractor = LinkExtractor(url=self.url, contains_url=".xlsx")
+            self._link = link_extractor.link
+        return self._link
+
+    def preprocess_fields(self, input_fields):
+        return input_fields
+
+    def get_fields(self, input_fields):
+        fields = []
+        for idx, field in enumerate(input_fields):
+            field_name, converter = self.FIELD_MAPPING[idx]
+            if converter:
+                fields.append(converter(field))
+        return fields
+
+    def write(self):
+        # 1: get xlsx link
+        link_extractor = LinkExtractor(url=self.url, contains_url=".xlsx")
+        u = requests.get(link_extractor.link)
+        f = StringIO.StringIO()
+        # 2: save xlsx file
+        with open(self.xls_file, "wb") as f:
+            f.write(u.content)
+        f.close()
+        # 3: format and write results
+        wb = xlrd.open_workbook(self.xls_file)
+        sh = wb.sheet_by_name(self.sheet_name)
+        shared_csv = open('bip_spots.csv', 'a')
+        wr = csv.writer(shared_csv, quoting=csv.QUOTE_ALL)
+        for rownum in xrange(sh.nrows):
+            try:
+                data = sh.row_values(rownum)
+                data = self.preprocess_fields(data)
+                gt = self.get_fields(data)
+                print gt
+                wr.writerow(gt)
+            except Exception, e:
+                print str(e)
+                pass
+
+        shared_csv.close()
+
+
+class RetailBIPFeed(BIPFeedBase):
+    url = 'http://datos.gob.cl/dataset/33353'
+    sheet_name = 'RETAIL'
+    FIELD_MAPPING = [
+        ('bip_spot_code', float_to_str),
+        ('bip_spot_entity', str_to_utf8),
+        ('bip_spot_fantasy_name', str_to_utf8),
+        ('bip_spot_address', str_to_utf8),
+        ('bip_spot_commune', str_to_utf8),
+        ('bip_opening_time', str_to_utf8),
+        ('bip_spot_east_ref', float_to_str),
+        ('bip_spot_north_ref', float_to_str),
+        ('bip_spot_lon', str_to_utf8),
+        ('bip_spot_lat', str_to_utf8)
+    ]
+
+
+class MetroBIPFeed1(BIPFeedBase):
+    url = 'http://datos.gob.cl/dataset/33355'
+    sheet_name = 'Hoja1'
+    FIELD_MAPPING = [
+        ('bip_spot_code', str_to_utf8),
+        ('bip_spot_entity', str_to_utf8),
+        ('bip_spot_fantasy_name', str_to_utf8),
+        ('bip_spot_address', str_to_utf8),
+        ('bip_spot_commune', str_to_utf8),
+        ('bip_opening_time', str_to_utf8),
+        ('bip_spot_east_ref', float_to_str),
+        ('bip_spot_north_ref', float_to_str),
+        ('bip_spot_lon', str_to_utf8),
+        ('bip_spot_lat', str_to_utf8)
+    ]
+
+
+class MetroBIPFeed2(BIPFeedBase):
+    url = 'http://datos.gob.cl/dataset/33355'
+    sheet_name = 'METRO'
+    FIELD_MAPPING = [
+        ('', None),
+        ('bip_spot_code', str_to_utf8),
+        ('bip_spot_entity', str_to_utf8),
+        ('bip_spot_fantasy_name', str_to_utf8),
+        ('bip_spot_address', str_to_utf8),
+        ('bip_spot_commune', str_to_utf8),
+        ('bip_opening_time', str_to_utf8),
+        ('bip_spot_east_ref', float_to_str),
+        ('bip_spot_north_ref', float_to_str),
+        ('bip_spot_lon', str_to_utf8),
+        ('bip_spot_lat', str_to_utf8)
+    ]
+
+
+class HighStandardBIPFeed(BIPFeedBase):
+    url = 'http://datos.gob.cl/dataset/28192'
+    sheet_name = 'PCMAV ALTO ESTANDAR'
+    FIELD_MAPPING = [
+        ('', None),
+        ('bip_spot_code', float_to_str),
+        ('bip_spot_entity', str_to_utf8),
+        ('bip_spot_fantasy_name', str_to_utf8),
+        ('bip_spot_address', str_to_utf8),
+        ('bip_spot_commune', str_to_utf8),
+        ('bip_opening_time', str_to_utf8),
+        ('bip_spot_east_ref', float_to_str),
+        ('bip_spot_north_ref', float_to_str),
+        ('bip_spot_lon', str_to_utf8),
+        ('bip_spot_lat', str_to_utf8)
+    ]
+
+    def preprocess_fields(self, input_fields):
+        input_fields.insert(3, input_fields[2])
+        return input_fields
+
+
+class NormalStandardBIPFeed(BIPFeedBase):
+    url = 'http://datos.gob.cl/dataset/28194'
+    sheet_name = 'PCMAV ESTANDAR NORMAL'
+    FIELD_MAPPING = [
+        ('', None),
+        ('bip_spot_code', str_to_utf8),
+        ('bip_spot_entity', str_to_utf8),
+        ('bip_spot_fantasy_name', str_to_utf8),
+        ('bip_spot_address', str_to_utf8),
+        ('bip_spot_commune', str_to_utf8),
+        ('bip_opening_time', str_to_utf8),
+        ('bip_spot_east_ref', float_to_str),
+        ('bip_spot_north_ref', float_to_str),
+        ('bip_spot_lon', str_to_utf8),
+        ('bip_spot_lat', str_to_utf8)
+    ]
+
+    def preprocess_fields(self, input_fields):
+        input_fields.insert(3, input_fields[2])
+        return input_fields

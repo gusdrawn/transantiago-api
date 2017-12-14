@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Sequence
 from sqlalchemy.types import Integer, Numeric, String
 
-from .. import config
+from ..settings import config
 from .base import Base
 
 

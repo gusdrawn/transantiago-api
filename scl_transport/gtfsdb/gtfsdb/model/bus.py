@@ -1,4 +1,5 @@
 import logging
+import uuid
 from geoalchemy2 import Geometry
 
 from sqlalchemy import Column
@@ -19,7 +20,8 @@ class Bus(Base):
     __tablename__ = 'bus'
     __table_args__ = ({'extend_existing': config.EXISTING_SCHEMA_FLAG})
 
-    bus_plate_number = Column(String(15), primary_key=True, index=True)
+    uuid = Column(String, default=lambda: str(uuid.uuid4()), primary_key=True)
+    bus_plate_number = Column(String(15), index=True)
     direction_id = Column(Integer, nullable=True)
     bus_movement_orientation = Column(Integer, nullable=True)
     operator_number = Column(Integer, nullable=True)
@@ -35,9 +37,10 @@ class Bus(Base):
     # dates
     captured_at = Column(DateTime, nullable=True)
     added_at = Column(DateTime, nullable=True)
+    fetched_at = Column(DateTime, nullable=False, index=True)
 
     # TODO: remove or load in a different way
-    geom = Column(Geometry(geometry_type='POINT', srid=config.SRID))
+    #geom = Column(Geometry(geometry_type='POINT', srid=config.SRID))
 
     @classmethod
     def add_geometry_column(cls):

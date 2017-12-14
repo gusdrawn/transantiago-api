@@ -1,10 +1,11 @@
 import logging
-log = logging.getLogger(__file__)
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 
-from .. import config
+from ..settings import config
+
+log = logging.getLogger(__file__)
 
 
 class Database(object):
@@ -24,7 +25,7 @@ class Database(object):
 
     @property
     def classes(self):
-        from gtfsdb.model.base import Base
+        from .base import Base
         if self.tables:
             return [c for c in Base.__subclasses__() if c.__tablename__ in self.tables]
         return Base.__subclasses__()
@@ -37,6 +38,7 @@ class Database(object):
                 cls.__table__.drop(self.engine, checkfirst=True)
             except:
                 log.info("NOTE: couldn't drop table")
+                continue
             cls.__table__.create(self.engine)
 
     @property
@@ -101,7 +103,12 @@ class Database(object):
     @url.setter
     def url(self, val):
         self._url = val
-        self.engine = create_engine(val)
+        self.engine = create_engine(
+            val,
+            encoding='utf8',
+            convert_unicode=True,
+            client_encoding='utf8'
+        )
         if self.is_sqlite:
             self.engine.connect().connection.connection.text_factory = str
         self.session_factory = sessionmaker(self.engine)

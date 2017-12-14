@@ -5,7 +5,7 @@ from sqlalchemy import Column
 from sqlalchemy.orm import relationship
 from sqlalchemy.types import Integer, String
 
-from .. import config
+from ..settings import config
 from .base import Base
 
 
@@ -101,3 +101,28 @@ class Trip(Base):
     def is_valid(self):
         # trip has to have multiple stop times to be valid, else it's not a trip...
         return self.trip_len >= 2
+
+    @classmethod
+    def get_active_trips_for_route(cls, session, route_id, direction_id=None):
+        from .stop_time import StopTime
+        stop_times = StopTime.get_active_stop_times_for_route(session, route_id, direction_id)
+        return [stop_time.trip for stop_time in stop_times]
+
+    @classmethod
+    def get_trips_for_stop(cls, session, stop_id, route_id=None, only_active=False):
+        from .stop_time import StopTime
+        if only_active:
+            stop_times = StopTime.get_active_stop_times_for_stop(
+                session=session,
+                stop_id=stop_id,
+                route_id=route_id
+            )
+            return [stop_time.trip for stop_time in stop_times]
+        else:
+            # @@TODO: improve route_id filter (query instead this)
+            stop_times = session.query(StopTime).filter(
+                StopTime.stop_id == stop_id
+            ).distinct(StopTime.trip_id)
+            if route_id:
+                return [stop_time.trip for stop_time in stop_times if stop_time.trip.route_id == route_id]
+            return [stop_time.trip for stop_time in stop_times]

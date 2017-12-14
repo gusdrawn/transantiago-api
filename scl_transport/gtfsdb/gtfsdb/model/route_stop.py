@@ -2,15 +2,16 @@ import sys
 import time
 import datetime
 import logging
-log = logging.getLogger(__name__)
 
 from sqlalchemy import Column
-from sqlalchemy.orm import deferred, relationship
+from sqlalchemy.orm import relationship
 from sqlalchemy.types import Integer, String, Date
 from sqlalchemy.sql import func
 
-from .. import config
+from ..settings import config
 from .base import Base
+
+log = logging.getLogger(__name__)
 
 __all__ = ['RouteStop']
 
@@ -40,12 +41,6 @@ class RouteStop(Base):
         foreign_keys='(RouteStop.stop_id)',
         uselist=False, viewonly=True, lazy='joined')
 
-    direction = relationship(
-        'RouteDirection',
-        primaryjoin='RouteStop.route_id==RouteDirection.route_id and RouteStop.direction_id==RouteDirection.direction_id',
-        foreign_keys='(RouteStop.route_id, RouteStop.direction_id)',
-        uselist=False, viewonly=True, lazy='joined')
-
     start_calendar = relationship(
         'UniversalCalendar',
         primaryjoin='RouteStop.start_date==UniversalCalendar.date',
@@ -57,6 +52,14 @@ class RouteStop(Base):
         primaryjoin='RouteStop.end_date==UniversalCalendar.date',
         foreign_keys='(RouteStop.end_date)',
         uselist=True, viewonly=True)
+
+    @property
+    def direction(self):
+        from .route import RouteDirection
+        return self.object_session.query(RouteDirection).filter(
+            RouteDirection.route_id == self.route_id,
+            RouteDirection.direction_id == self.direction_id
+        ).first()
 
     def is_active(self, date=None):
         """ :return False whenever we see that the route_stop's start and end date are
@@ -87,6 +90,26 @@ class RouteStop(Base):
         return ret_val
 
     @classmethod
+    def _get_unique_routes(cls, session, stop_id, agency_id=None, date=None, count=None, sort=False):
+        q = session.query(RouteStop).filter(RouteStop.stop_id == stop_id)
+        if agency_id is not None:
+            q = q.filter(RouteStop.agency_id == agency_id)
+
+        # step 2: filter based on date
+        if date:
+            q = q.filter(RouteStop.start_date <= date).filter(date <= RouteStop.end_date)
+
+        # step 3: limit the number of objects returned by query
+        if count:
+            q = q.limit(count)
+
+        # step 4: sort the results based on order column
+        if sort:
+            q = q.order_by(RouteStop.order)
+
+        return q.distinct(RouteStop.route_id)
+
+    @classmethod
     def query_by_stop(cls, session, stop_id, agency_id=None, date=None, count=None, sort=False):
         """ get all route stop records by looking for a given stop_id.
             further filtering can be had by providing an active date and agency id
@@ -109,6 +132,8 @@ class RouteStop(Base):
         if sort:
             q = q.order_by(RouteStop.order)
 
+        q.distinct(RouteStop.route_id)
+
         ret_val = q.all()
         return ret_val
 
@@ -117,22 +142,8 @@ class RouteStop(Base):
         """ get a unique set of route records by looking for a given stop_id.
             further filtering can be had by providing an active date and agency id, and route name
         """
-        ret_val = []
-
-        route_ids = []
-        route_names = []
-
-        route_stops = RouteStop.query_by_stop(session, stop_id, agency_id, date, sort=True)
-        for rs in route_stops:
-            # step 1: filter(s) check
-            if rs.route_id in route_ids: continue
-            if route_name_filter and rs.route.route_name in route_names: continue
-            route_ids.append(rs.route_id)
-            route_names.append(rs.route.route_name)
-
-            # step 2: append route object to results
-            ret_val.append(rs.route)
-        return ret_val
+        route_stops = RouteStop._get_unique_routes(session, stop_id, agency_id, date, sort=False)
+        return [route_stop.route for route_stop in route_stops]
 
     @classmethod
     def active_unique_routes_at_stop(cls, session, stop_id, agency_id=None, date=None, route_name_filter=False):
@@ -256,8 +267,6 @@ class RouteStop(Base):
                                         unique_stops.insert(last_pos, st.stop_id)
                                     else:
                                         unique_stops.append(st.stop_id)
-
-                print unique_stops
 
                 # PART B: add records to the database ...
                 if len(unique_stops) > 0:

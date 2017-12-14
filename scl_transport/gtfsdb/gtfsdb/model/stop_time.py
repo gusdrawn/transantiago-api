@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import datetime
 import logging
 log = logging.getLogger(__name__)
@@ -9,11 +11,17 @@ from sqlalchemy.orm import relationship, joinedload_all
 from sqlalchemy.sql.expression import func
 from sqlalchemy.types import Boolean, Integer, Numeric, String, Time, BigInteger
 
-from .. import config
+from ..settings import config
 from ..util import convert_str_to_time
 from .base import Base
 from .frequency import Frequency
 from .trip import Trip
+
+
+def _get_now():
+    now = arrow.now('America/Santiago')
+    n = arrow.get(now.naive)
+    return n
 
 
 class StopTime(Base):
@@ -167,13 +175,15 @@ class StopTime(Base):
                 ret_val.append(k)
         return ret_val
 
+
     @classmethod
     def get_departure_schedule(
         cls,
         session,
-        stop_id,
+        stop_id=None,
         date=None,
         route_id=None,
+        trip_ids=None,
         limit=None
     ):
         """ helper routine which returns the stop schedule for a give date
@@ -185,9 +195,14 @@ class StopTime(Base):
             date = datetime.date.today()
 
         # step 1: get stop times based on date
-        log.debug("QUERY StopTime")
+        #log.debug("QUERY StopTime")
         q = session.query(StopTime)
-        q = q.filter_by(stop_id=stop_id)
+        if stop_id:
+            q = q.filter_by(stop_id=stop_id)
+
+        if trip_ids:
+            q = q.filter(StopTime.trip_id.in_(trip_ids))
+
         q = q.filter(StopTime.departure_time is not None)
 
         # step 2: apply an optional route filter
@@ -200,6 +215,7 @@ class StopTime(Base):
             )
         else:
             q = q.filter(StopTime.trip.has(Trip.universal_calendar.any(date=date)))
+
         # step 3: options to speed up /q
         q = q.options(joinedload_all('trip'))
 
@@ -213,8 +229,53 @@ class StopTime(Base):
 
         stop_times = q.all()
         ret_val = cls.block_filter(session, stop_id, stop_times)
-
         return ret_val
+
+    @classmethod
+    def get_active_stop_times_for_route(cls, session, route_id, direction_id=None):
+        now = _get_now()
+        trips = session.query(Trip).filter(Trip.route_id == route_id)
+        if direction_id:
+            trips = trips.filter(Trip.direction_id == int(direction_id))
+        trip_ids = [trip.trip_id for trip in trips]
+
+        stop_times_results = cls.get_departure_schedule(session, date=now.date(), trip_ids=trip_ids)
+        # 2) filter
+        stop_times = session.query(StopTime).join(StopTime.frequency).filter(
+            StopTime.id.in_([stop_time.id for stop_time in stop_times_results]),
+            Frequency.start_time <= now.time(),
+            Frequency.end_time >= now.time()
+        ).distinct(StopTime.trip_id)
+        results = []
+        if route_id:
+            for stop_time in stop_times:
+                if stop_time.trip.route_id == route_id:
+                    results.append(stop_time)
+                    return results
+        else:
+            results = stop_times.all()
+        return results
+
+    @classmethod
+    def get_active_stop_times_for_stop(cls, session, stop_id, route_id=None):
+        now = _get_now()
+        # 1) get stop_time valid on date
+        stop_times_results = cls.get_departure_schedule(session, stop_id=stop_id, date=now.date(), route_id=route_id)
+        # 2) filter
+        stop_times = session.query(StopTime).join(StopTime.frequency).filter(
+            StopTime.id.in_([stop_time.id for stop_time in stop_times_results]),
+            Frequency.start_time <= now.time(),
+            Frequency.end_time >= now.time()
+        )
+        results = []
+        if route_id:
+            for stop_time in stop_times:
+                if stop_time.trip.route_id == route_id:
+                    results.append(stop_time)
+                    return results
+        else:
+            results = stop_times.all()
+        return results
 
     @classmethod
     def block_filter(cls, session, stop_id, stop_times):
@@ -246,6 +307,9 @@ class StopTime(Base):
                             # (don't return the stop_time as a departure)
                             # this is the last trip of the day (so return it)
         return ret_val
+
+
+LIMIT_PER_ROUTE = 2
 
 
 class StopSchedule(object):
@@ -293,25 +357,44 @@ class StopSchedule(object):
         end_datetime = self._build_datetime(now.date(), stop_time.frequency.end_time)
 
         route_schedule = []
-        """
-        @@TODO: get proper start_date instead of iterate
-        #num = int((self._get_time_seconds(stop_time.trip.frequency.end_time) - self._get_time_seconds(stop_time.trip.frequency.start_time)) / stop_time.trip.frequency.headway_secs)
-        """
+
+        # get closest
+        headway_secs = stop_time.trip.frequency.headway_secs
+        n = (now - start_datetime).seconds / headway_secs
+        start_datetime = start_datetime.replace(seconds=n * headway_secs)
+
         for i in range(100):
-            if len(route_schedule) > 5:
+            if len(route_schedule) >= LIMIT_PER_ROUTE:
                 break
             if start_datetime > end_datetime:
                 # @@TODO: is this possible?
                 break
             datetime_to_cast = start_datetime.replace(seconds=arrival_seconds_offset)
+            if datetime_to_cast.second > 30:  # round
+                formatted_arrival_time = arrow.get(datetime_to_cast).replace(minutes=1).format('HH:mm')
+            else:
+                formatted_arrival_time = arrow.get(datetime_to_cast).format('HH:mm')
             if datetime_to_cast >= now.datetime:
+                calculated_at = now.format('YYYY-MM-DD HH:mm:ss')
+
+                if headway_secs:
+                    headway_mins = int(headway_secs) / 60
+                    if int(headway_secs) % 60 > 30:
+                        headway_mins += 1
+                    arrival_prediction_message = 'Cada {} min.'.format(headway_mins)
+                else:
+                    arrival_prediction_message = ''
+
                 route_schedule.append({
+                    'calculated_at': calculated_at,
+                    'arrival_prediction_message': arrival_prediction_message,
                     'route_id': stop_time.trip.route_id,
                     'stop_id': stop_time.stop_id,
                     'trip_id': stop_time.trip_id,
+                    'headway_secs': headway_secs,
                     'arrival_timestamp': datetime_to_cast.timestamp,
                     'arrival_date': arrow.get(datetime_to_cast).format('YYYY-MM-DD'),
-                    'arrival_time': arrow.get(datetime_to_cast).format('HH:mm:ss')
+                    'arrival_time': formatted_arrival_time
                 })
             start_datetime = arrow.get(start_datetime).replace(seconds=stop_time.frequency.headway_secs)
         return route_schedule
@@ -322,7 +405,7 @@ class StopSchedule(object):
             return []
         while next_stop_times:
             stop_time = next_stop_times.pop(0)
-            if len(route_schedule) > 5:
+            if len(route_schedule) >= LIMIT_PER_ROUTE:
                 break
             route_schedule.extend(self._next_route_schedule(now, route_id, stop_time))
         return route_schedule

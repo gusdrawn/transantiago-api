@@ -1,16 +1,16 @@
 import datetime
 import time
 import logging
-log = logging.getLogger(__name__)
 
 from sqlalchemy import Column
 from sqlalchemy.orm import deferred, relationship
 from sqlalchemy.types import Integer, String
 from sqlalchemy.sql import func
 
-from .. import config
+from ..settings import config
 from .base import Base
 
+log = logging.getLogger(__name__)
 __all__ = ['RouteType', 'Route', 'RouteDirection', 'RouteFilter']
 
 
@@ -23,6 +23,169 @@ class RouteType(Base):
     route_type = Column(Integer, primary_key=True, index=True, autoincrement=False)
     route_type_name = Column(String(255))
     route_type_desc = Column(String(1023))
+
+
+class RouteDirection(Base):
+    datasource = config.DATASOURCE_GTFS
+    filename = 'route_directions.txt'
+
+    __tablename__ = 'route_directions'
+
+    route_id = Column(String(255), primary_key=True, index=True, nullable=False)
+    direction_id = Column(Integer, primary_key=True, index=True, nullable=False)
+    direction_name = Column(String(255))
+    direction_headsign = Column(String(255))
+    # cache
+    _active_trip = None
+    _stop_times = None
+
+    route = relationship(
+        'Route',
+        primaryjoin='RouteDirection.route_id==Route.route_id',
+        foreign_keys='(RouteDirection.route_id)',
+        uselist=False, viewonly=True, lazy='joined')
+
+    @classmethod
+    def post_process(cls, db, **kwargs):
+        log.debug('{0}.post_process'.format(cls.__name__))
+        cls.populate(db.session)
+
+    @property
+    def is_active(self):
+        if self.active_trip:
+            return True
+        return False
+
+    @property
+    def active_trip(self):
+        from .trip import Trip
+        if not self._active_trip:
+            active_trips = Trip.get_active_trips_for_route(self.object_session, self.route_id, int(self.direction_id))
+            if active_trips:
+                self._active_trip = active_trips[0]
+        return self._active_trip
+
+    @property
+    def _active_shape(self):
+        if self.active_trip:
+            return self.active_trip.pattern.shape
+        return None
+
+    @property
+    def _active_stop_times(self):
+        from .stop_time import StopTime
+        if not self._active_trip:
+            return None
+        if not self._stop_times:
+            self._stop_times = self.object_session.query(StopTime).filter(
+                StopTime.trip_id == self._active_trip.trip_id
+            ).order_by(StopTime.stop_sequence)
+        return self._stop_times
+
+    @property
+    def trip_sample(self):
+        from .trip import Trip
+        return self.object_session.query(Trip).filter(Trip.route_id == self.route_id).first()
+
+    @property
+    def active_stop_times(self):
+        if self._active_stop_times:
+            return self._active_stop_times
+        # fallback, get an arbitrary trip
+        from .stop_time import StopTime
+        return self.object_session.query(StopTime).filter(
+            StopTime.trip_id == self.trip_sample.trip_id
+        ).order_by(StopTime.stop_sequence)
+
+    @property
+    def active_shape(self):
+        # TODO: temporary solution
+        if self._active_shape:
+            return self._active_shape
+        return self.trip_sample.pattern.shape
+
+    @classmethod
+    def populate(cls, session):
+        """
+        Populate RouteDirection.direction_headsign using stop_time.headsign or trip.trip_headsign (fallback)
+        """
+        from .stop_time import StopTime
+        from .trip import Trip
+
+        stop_times = session.query(StopTime).filter().distinct(StopTime.stop_id)
+        results_to_update = []
+        # collect headsigns from StopTime
+        for stop_time in stop_times:
+            stop_times_for_stop = session.query(StopTime).filter(StopTime.stop_id == stop_time.stop_id)
+            results = {}
+            for unique_stop_time in stop_times_for_stop:
+                headsign = stop_time.get_headsign()
+                direction_id = stop_time.trip.direction_id
+                key = '{}|{}'.format(stop_time.trip.route_id, direction_id)
+                if not results.get(key):
+                    results[key] = headsign
+                else:
+                    if results[key] != headsign:
+                        log.warning('{0}.post_process -> multiple headsigns for route'.format(cls.__name__))
+            for r, headsign in results.items():
+                results_to_update.append({
+                    'route_id': r.split('|')[0],
+                    'direction_id': r.split('|')[1],
+                    'direction_headsign': headsign
+                })
+
+        for result in results_to_update:
+            # update Route Direction
+            route_direction = session.query(RouteDirection).filter(
+                RouteDirection.route_id == result['route_id'],
+                RouteDirection.direction_id == int(result['direction_id'])
+            ).first()
+            route_direction.direction_headsign = result['direction_headsign']
+            session.add(route_direction)
+
+        session.commit()
+
+        # collect headsigns from Trip for remaining records (empty RouteDirection.direction_headsign)
+        results_to_update = []
+        empty_route_directions = session.query(RouteDirection).filter(RouteDirection.direction_headsign == None)
+        for route_direction in empty_route_directions:
+            # analyze all trips with match for route_direction
+            trips = session.query(Trip).filter(Trip.route_id == route_direction.route_id)
+            trip_headsigns = []
+            for trip in trips:
+                if trip.direction_id != route_direction.direction_id:
+                    continue
+                trip_headsigns.append(trip.trip_headsign)
+
+            result = {}
+            if len(set(trip_headsigns)) > 1:
+                print route_direction.route_id, trip_headsigns
+            elif len(set(trip_headsigns)) == 1:
+                key = "{}|{}".format(route_direction.route_id, route_direction.direction_id)
+                result[key] = trip_headsigns[0]
+            else:
+                log.warning('{}.post_process -> No info for'.format(cls.__name__, route_direction.route_id))
+            for r, headsign in result.items():
+                results_to_update.append({
+                    'route_id': r.split('|')[0],
+                    'direction_id': r.split('|')[1],
+                    'direction_headsign': headsign
+                })
+
+        for result in results_to_update:
+            # update Route Direction
+            route_direction = session.query(RouteDirection).filter(
+                RouteDirection.route_id == result['route_id'],
+                RouteDirection.direction_id == int(result['direction_id'])
+            ).first()
+            route_direction.direction_headsign = result['direction_headsign']
+            session.add(route_direction)
+
+        session.commit()
+
+        # safety check
+        if session.query(RouteDirection).filter(RouteDirection.direction_headsign.is_(None)).count():
+            log.warning('{}.post_process -> RouteDirection without direction_headsign'.format(cls.__name__))
 
 
 class Route(Base):
@@ -63,7 +226,7 @@ class Route(Base):
             log.warn("query route name")
             ret_val = self.route_long_name
             if self.route_long_name and self.route_short_name:
-                ret_val = fmt.format(self=self)
+                ret_val = self.route_short_name + "-" + self.route_long_name
             elif self.route_long_name is None:
                 ret_val = self.route_short_name
             self._route_name = ret_val
@@ -176,19 +339,8 @@ class Route(Base):
         ret_val = []
         routes = cls.active_routes(session)
         for r in routes:
-            ret_val.append({"route_id":r.route_id, "agency_id":r.agency_id})
+            ret_val.append({"route_id":r.route_id, "agency_id": r.agency_id})
         return ret_val
-
-
-class RouteDirection(Base):
-    datasource = config.DATASOURCE_GTFS
-    filename = 'route_directions.txt'
-
-    __tablename__ = 'route_directions'
-
-    route_id = Column(String(255), primary_key=True, index=True, nullable=False)
-    direction_id = Column(Integer, primary_key=True, index=True, nullable=False)
-    direction_name = Column(String(255))
 
 
 class RouteFilter(Base):

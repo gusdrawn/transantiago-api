@@ -6,11 +6,13 @@ import sys
 import time
 import arrow
 import logging
-log = logging.getLogger(__name__)
-
+from sqlalchemy import inspect as sqlalchemy_inspect
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import object_session
-from .. import config, util
+from .. import util
+from ..settings import config
+
+log = logging.getLogger(__name__)
 
 
 class _Base(object):
@@ -28,7 +30,7 @@ class _Base(object):
 
     @classmethod
     def make_geom_lazy(cls):
-        from sqlalchemy.orm import deferred 
+        from sqlalchemy.orm import deferred
         try:
             cls.__mapper__.add_property('geom', deferred(cls.__table__.c.geom))
         except Exception, e:
@@ -38,6 +40,10 @@ class _Base(object):
     def from_dict(cls, attrs):
         clean_dict = cls.make_record(attrs)
         return cls(**clean_dict)
+
+    @property
+    def object_session(self):
+        return sqlalchemy_inspect(self).session
 
     @property
     def to_dict(self):

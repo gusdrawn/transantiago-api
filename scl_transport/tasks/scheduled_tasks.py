@@ -1,6 +1,7 @@
+# -*- coding: utf-8 -*-
+
 import os
 import datetime
-import time
 
 from bs4 import BeautifulSoup
 
@@ -11,7 +12,7 @@ from .tasks import send_email_async
 
 BASE_URL = 'https://www.dtpm.cl/index.php/'
 # @@TODO: save and use DB reference
-REFERENCE_GTFS = '28-10-2017'
+REFERENCE_GTFS = '24-11-2017'
 
 
 def analyze_available_gtfs():
@@ -51,9 +52,14 @@ def fetch_positioning_data():
     kwargs = {}
     db = Database(**kwargs)
 
+    #
+    fetched_at = datetime.datetime.now()
+
     api_results = positioning_fetcher.get_results()
     results = []
     for result in api_results:
+        if not result['direction_id']:
+            result['direction_id'] = 0
         bus = Bus(
             bus_plate_number=result['bus_plate_number'],
             direction_id=result['direction_id'],
@@ -67,24 +73,19 @@ def fetch_positioning_data():
             synoptic_route_id=result['synoptic_route_id'],
             captured_at=result['captured_at'],
             added_at=result['added_at'],
+            fetched_at=fetched_at,
             geom=Bus.get_geom(result)
         )
         # safety checks
         if len(result['bus_plate_number']) < 4:
             continue
-        if not result['direction_id']:
-            continue
         if not result['original_route_id']:
             continue
         results.append(bus)
 
-    start = time.time()
-    # delete current records
-    db.session.query(Bus).delete()
-    db.session.commit()
-    # insert new records
-    print "inserting ...", len(results)
+    # 1) insert new
     db.session.bulk_save_objects(results)
     db.session.commit()
-    end = time.time()
-    print end - start
+    # 2) delete old
+    db.session.query(Bus).filter(Bus.fetched_at != fetched_at).delete()
+    db.session.commit()

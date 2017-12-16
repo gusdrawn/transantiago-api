@@ -1,10 +1,34 @@
 import zeep
+import datetime
+from zeep.cache import Base, _is_expired
+from zeep.transports import Transport
+from pprint import pprint
+
 import random
 import logging
 import os
 log = logging.getLogger(__name__)
 
 CHARACTERS = 'abcdefghjklmnpqrstuvwxyz23456789'
+
+
+class PermanentCache(Base):
+    _cache = {
+        'http://ws13.smsbus.cl:8080/wspatentedos/services/PredictorParaderoServicioWS?WSDL': '<?xml version="1.0" encoding="UTF-8"?>\n<wsdl:definitions targetNamespace="http://predParaderoServicioWS.ws.simtws.wirelessiq.cl" xmlns:apachesoap="http://xml.apache.org/xml-soap" xmlns:impl="http://predParaderoServicioWS.ws.simtws.wirelessiq.cl" xmlns:intf="http://predParaderoServicioWS.ws.simtws.wirelessiq.cl" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">\n<!--WSDL created by Apache Axis version: 1.4\nBuilt on Apr 22, 2006 (06:55:48 PDT)-->\n <wsdl:types>\n  <schema elementFormDefault="qualified" targetNamespace="http://predParaderoServicioWS.ws.simtws.wirelessiq.cl" xmlns="http://www.w3.org/2001/XMLSchema">\n <element name="predictorParaderoServicio">\n  <complexType>\n   <sequence>\n  <element name="paradero" type="xsd:string"/>\n  <element name="servicio" type="xsd:string"/>\n  <element name="cliente" type="xsd:int"/>\n  <element name="resolucion" type="xsd:string"/>\n  <element name="ipUsuarioFinal" type="xsd:string"/>\n  <element name="webTransId" type="xsd:string"/>\n   </sequence>\n  </complexType>\n </element>\n <element name="predictorParaderoServicioResponse">\n  <complexType>\n   <sequence>\n  <element name="predictorParaderoServicioReturn" type="impl:Result"/>\n   </sequence>\n  </complexType>\n </element>\n <complexType name="Servicios">\n  <sequence>\n   <element name="codigorespuesta" nillable="true" type="xsd:string"/>\n   <element name="distanciabus1" nillable="true" type="xsd:string"/>\n   <element name="distanciabus2" nillable="true" type="xsd:string"/>\n   <element name="horaprediccionbus1" nillable="true" type="xsd:string"/>\n   <element name="horaprediccionbus2" nillable="true" type="xsd:string"/>\n   <element name="ppubus1" nillable="true" type="xsd:string"/>\n   <element name="ppubus2" nillable="true" type="xsd:string"/>\n   <element name="respuestaServicio" nillable="true" type="xsd:string"/>\n   <element name="servicio" nillable="true" type="xsd:string"/>\n  </sequence>\n </complexType>\n <complexType name="ArrayOfServicios">\n  <sequence>\n   <element maxOccurs="unbounded" minOccurs="0" name="item" type="impl:Servicios"/>\n  </sequence>\n </complexType>\n <complexType name="Result">\n  <sequence>\n   <element name="fechaprediccion" nillable="true" type="xsd:string"/>\n   <element name="horaprediccion" nillable="true" type="xsd:string"/>\n   <element name="nomett" nillable="true" type="xsd:string"/>\n   <element name="paradero" nillable="true" type="xsd:string"/>\n   <element name="respuestaParadero" nillable="true" type="xsd:string"/>\n   <element name="servicios" nillable="true" type="impl:ArrayOfServicios"/>\n   <element name="urlLinkPublicidad" nillable="true" type="xsd:string"/>\n   <element name="urlPublicidad" nillable="true" type="xsd:string"/>\n  </sequence>\n </complexType>\n  </schema>\n </wsdl:types>\n\n <wsdl:message name="predictorParaderoServicioRequest">\n\n  <wsdl:part element="impl:predictorParaderoServicio" name="parameters">\n\n  </wsdl:part>\n\n </wsdl:message>\n\n <wsdl:message name="predictorParaderoServicioResponse">\n\n  <wsdl:part element="impl:predictorParaderoServicioResponse" name="parameters">\n\n  </wsdl:part>\n\n </wsdl:message>\n\n <wsdl:portType name="PredictorParaderoServicioWS">\n\n  <wsdl:operation name="predictorParaderoServicio">\n\n   <wsdl:input message="impl:predictorParaderoServicioRequest" name="predictorParaderoServicioRequest">\n\n   </wsdl:input>\n\n   <wsdl:output message="impl:predictorParaderoServicioResponse" name="predictorParaderoServicioResponse">\n\n   </wsdl:output>\n\n  </wsdl:operation>\n\n </wsdl:portType>\n\n <wsdl:binding name="PredictorParaderoServicioWSSoapBinding" type="impl:PredictorParaderoServicioWS">\n\n  <wsdlsoap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>\n\n  <wsdl:operation name="predictorParaderoServicio">\n\n   <wsdlsoap:operation soapAction=""/>\n\n   <wsdl:input name="predictorParaderoServicioRequest">\n\n    <wsdlsoap:body use="literal"/>\n\n   </wsdl:input>\n\n   <wsdl:output name="predictorParaderoServicioResponse">\n\n    <wsdlsoap:body use="literal"/>\n\n   </wsdl:output>\n\n  </wsdl:operation>\n\n </wsdl:binding>\n\n <wsdl:service name="PredictorParaderoServicioWSService">\n\n  <wsdl:port binding="impl:PredictorParaderoServicioWSSoapBinding" name="PredictorParaderoServicioWS">\n\n   <wsdlsoap:address location="http://ws13.smsbus.cl:8080/wspatentedos/services/PredictorParaderoServicioWS"/>\n\n  </wsdl:port>\n\n </wsdl:service>\n\n</wsdl:definitions>\n'
+    }
+
+    def __init__(self, timeout=3600):
+        self._timeout = timeout
+
+    def add(self, url, content):
+        pass
+
+    def get(self, url):
+        return self._cache[url]
+
+
+transport = Transport(cache=PermanentCache())
+
 
 """
 Serializers
@@ -133,7 +157,7 @@ class Predictor(object):
     @property
     def client(self):
         if not self._client:
-            self._client = zeep.Client(wsdl=os.getenv('PREDICTOR_WS_CLIENT_WSDL'))
+            self._client = zeep.Client(wsdl=os.getenv('PREDICTOR_WS_CLIENT_WSDL'), transport=transport)
         return self._client
 
     @property

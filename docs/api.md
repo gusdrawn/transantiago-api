@@ -28,7 +28,7 @@ Información sobre paraderos o estaciones.
 | `bbox` | `si` | `None`      |  Bounding box (min Longitude , min Latitude , max Longitude , max Latitude). Si es definido, se mostrarán sólo los resultados dentro de este bbox.  Ejemplo: `-70.609818,-33.442328,-70.566473,-33.409806`    |
 
 
-!> **NOTA**  `center_lon`, `center_lat` y `radius` formar parte del mismo filtro de geolocalización. No se debe usar en conjunto con `bbox`, puesto que este es otro filtro. 
+!> **NOTA**  `center_lon`, `center_lat` y `radius` formar parte del mismo filtro de geolocalización. No se debe usar en conjunto con `bbox` (son 2 filtros independientes). 
 
 > **Respuesta**
 
@@ -151,6 +151,8 @@ Lista de [Stops](#Stop)
 ### Estimación de próximos arribos
 
 Información sobre próximos arribos en paraderos. Esta información es obtenida en tiempo real utilizando el Web Service de predicción provisto por la dirección de transporte público metropolitano.
+
+!> **NOTA** Lamentablemente, el webservice oficial (SMSBUS) que es utilizado para las predicciones no es del todo estable. Debes manejar posibles timeouts de la respuesta. Se está gestionando una solución con la empresa que está a cargo del servicio.
 
 > **Endpoint**
 

@@ -152,7 +152,7 @@ Lista de [Stops](#Stop)
 
 Información sobre próximos arribos en paraderos. Esta información es obtenida en tiempo real utilizando el Web Service de predicción provisto por la dirección de transporte público metropolitano.
 
-!> **NOTA** Lamentablemente, el webservice oficial (SMSBUS) que es utilizado para las predicciones no es del todo estable. Debes manejar posibles timeouts de la respuesta. Se está gestionando una solución con la empresa que está a cargo del servicio.
+!> **NOTA**: Lamentablemente, el webservice oficial (SMSBUS) que es utilizado para las predicciones no es del todo estable. Debes manejar posibles timeouts de la respuesta. Se está gestionando una solución con la empresa que está a cargo del servicio.
 
 > **Endpoint**
 

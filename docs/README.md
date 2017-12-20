@@ -10,7 +10,7 @@
 
 # Transantiago API
 
-> ***Transantiago API*** es una API no oficial basada en la información [oficial](#fuentes-de-datos) disponible de Transantiago. Información de servicios de buses y de Metro, posición de paraderos y estaciones, trazados de servicios y frecuencias y tiempos de viaje por periodo del día.
+> ***Transantiago API*** es una API [abierta](#sobre-la-api) no oficial basada en la información [oficial](#fuentes-de-datos) disponible de Transantiago. Información de servicios de buses y de Metro, posición de paraderos y estaciones, trazados de servicios y frecuencias y tiempos de viaje por periodo del día.
 
 - [Información disponible](#información-disponible)
 - [Fuentes de datos](#fuentes-de-datos)
@@ -45,7 +45,7 @@ Actualmente la API utiliza 4 fuentes de datos:
 
 - **API abierta**
 
-  La API está disponible en **https://api.scltrans.it**. Puedes revisar documentación [áca](http://scltrans.it/#/api). La API no require autenticación y puede ser utilizada libremente.
+  La API está disponible en **https://api.scltrans.it**. Puedes revisar documentación [acá](http://scltrans.it/#/api). La API no requiere autenticación y puede ser utilizada libremente.
 
 - **Operaciones extras sobre información**
 

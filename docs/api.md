@@ -21,7 +21,7 @@ Información sobre paraderos o estaciones.
 | `limit`  | `si`   | `100`       | Cantidad de resultados por página.               |
 | `page`     | `si`   | `1` | Número de página |
 | `agency_id`     | `si`   | `None` | El campo agency_id es un ID que identifica de forma exclusiva a una empresa de transporte público. |
-| `is_active`  | `si`   | `None`       | Opción para filtrar paraderos en funcionamiento.  |
+| `is_active`  | `si`   | `None`       | Opción para filtrar paraderos en funcionamiento. Ejemplo: is_active=1  |
 | `center_lon` | `si` | `None`      | Longitud. Si se define, los resultados serán ordenados de más cercano a más lejano a este punto. Usar en conjunto con `center_lat`. Ejemplo: `-70.643562`      |
 | `center_lat` | `si` | `None`      | Latitud. Si se define, los resultados serán ordenados de más cercano a más lejano a este punto. Usar en conjunto con `center_lon`. Ejemplo: `-33.491585`      |
 | `radius` | `si` | `None`      | Radio en metros. Usar en conjunto con `center_lat` y `center_lon`. Si es definido, se mostrarán sólo los resultados dentro de ese radio (en relación al centro (center_lat` y `center_lon`))     |
@@ -342,7 +342,7 @@ Lista de [StopRoutes](#StopRoute)
 | property  | opcional       | default         | description                                         |
 | --------- | :-------:  | :-------------: | --------------------------------------------------- |
 | `route_id`     | `si`   | `None` | opción de filtrar por `route_id` |
-| `is_active`  | `si`   | `None`       | Opción para filtrar viajes activos.  |
+| `is_active`  | `si`   | `None`       | Opción para filtrar viajes activos. Ejemplo: is_active=1 |
 
 > **Respuesta**
 
@@ -928,7 +928,7 @@ Se muestra la información detallada de una dirección para una ruta.
 
 | property  | opcional       | default         | description                                         |
 | --------- | :-------:  | :-------------: | --------------------------------------------------- |
-| `is_active`  | `si`   | `None`       | Opción para filtrar viajes activos.  |
+| `is_active`  | `si`   | `None`       | Opción para filtrar viajes activos. Esjemplo: is_active=1 |
 
 
 > **Respuesta**

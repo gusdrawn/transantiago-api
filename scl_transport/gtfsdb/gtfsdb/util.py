@@ -22,6 +22,11 @@ def convert_str_to_time(time_str):
     return arrow.get(input_date, 'YYYY/MM/DD HH:mm:ss').time()
 
 
+def get_now_datetime():
+    now = arrow.now('America/Santiago')
+    n = arrow.get(now.naive)
+    return n
+
 def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '█'):
     """
     Call in a loop to create terminal progress bar

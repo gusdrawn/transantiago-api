@@ -142,3 +142,14 @@ class DetailedDirectionSchema(DirectionSchema):
 class StopRouteSchema(Schema):
     route = fields.Nested(RouteSchema)
     direction = fields.Nested(DirectionSchema)
+
+
+class StopTimeSchema_v2(Schema):
+    stop_id = fields.Str()
+    trip_id = fields.Str()
+    arrival_time = fields.Time()
+    departure_time = fields.Time()
+    stop_sequence = fields.Integer()
+
+
+

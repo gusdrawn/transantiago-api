@@ -4,7 +4,6 @@ import json
 import falcon
 import arrow
 import os
-
 from webargs.falconparser import use_args
 from sqlalchemy.orm import scoped_session
 from sqlalchemy import func
@@ -28,8 +27,9 @@ from scl_transport.gtfsdb.gtfsdb import (
     Agency,
     Bus
 )
-
-
+import newrelic.agent
+if os.environ.get('NEWRELIC_ENABLED'):
+    newrelic.agent.initialize('newrelic.ini')
 
 # global raven
 
@@ -107,16 +107,10 @@ def internal_error_handler(ex, req, resp, params):
         }
     }
 
-    # decide message to use
     message = isinstance(ex, falcon.HTTPError) and ex.title or str(ex)
-
-    # if not a HTTP status or error exception, send to Sentry and respond with HTTP 500
-    if not issubclass(type(ex), (falcon.HTTPError, falcon.HTTPStatus)):
-        raven_client.captureException(message=message, data=data)
-        resp.status = falcon.HTTP_500
-        resp.body = ('A server error occurred. Please contact the administrator.')
-    else:
-        raise ex
+    raven_client.captureException(message=message, data=data)
+    resp.status = falcon.HTTP_500
+    resp.body = json.dumps({'results': 'Our engineers are working quickly to resolve the issue'})
 
 
 """
@@ -307,11 +301,39 @@ class RouteDirectionCollectionResource(object):
                 title='Not found',
                 description='Not found Route for ID: {}'.format(route_id)
             )
-
         direction_schema = DetailedDirectionSchema()
         dump_data = direction_schema.dump(route.directions, many=True).data
         body = dict(
             results=dump_data
+        )
+        resp.body = json.dumps(body, ensure_ascii=False)
+
+
+# /v2/routes/{route_id}/directions
+class RouteDirectionCollectionResource_v2(object):
+    def on_get(self, req, resp, route_id):
+        route = self.session.query(Route).filter_by(route_id=route_id).one_or_none()
+        if not route:
+            raise falcon.HTTPNotFound(
+                title='Not found',
+                description='Not found Route for ID: {}'.format(route_id)
+            )
+
+        # @@TODO: use serializer (Schema)
+        data = []
+        for d in route.directions:
+            direction_data = {
+                'route_id': d.route_id,
+                'direction_id': d.direction_id,
+                'direction_name': d.direction_name,
+                'direction_headsign': d.direction_headsign,
+                'stop_times': d.trip_stop_times,
+                'shape': d.trip_shape,
+                'is_active': d.trip_is_active
+            }
+            data.append(direction_data)
+        body = dict(
+            results=data
         )
         resp.body = json.dumps(body, ensure_ascii=False)
 
@@ -659,11 +681,13 @@ class StopArrivalCollectionResource(object):
         except Exception, e:
             if 'Connection timed out' in str(e):
                 print "time out..."
+                print str(e)
                 resp.status = falcon.HTTP_REQUEST_TIMEOUT
                 resp.body = json.dumps({'title': 'smsbus webservice timeout'})
             else:
-                print "undhandled exception..."
+                print "undhandled exception...", str(e)
                 raise Exception(str(e))
+
 
 # /v1/buses
 class BusCollectionResource(object):
@@ -774,6 +798,7 @@ App construction & route registration
 
 
 def add_routes(app):
+
     app.add_route('/', HealthCheckResource())
     app.add_route('/v1/ping', HealthCheckResource())
     # GTFS resources
@@ -787,11 +812,11 @@ def add_routes(app):
     app.add_route('/v1/stops/{stop_id}/stop_routes', StopRouteCollectionResource())
     # prediction webservice related
     app.add_route('/v1/stops/{stop_id}/next_arrivals', StopArrivalCollectionResource())
-
     app.add_route('/v1/routes', RouteCollectionResource())
     app.add_route('/v1/routes/{route_id}', RouteResource())
     app.add_route('/v1/routes/{route_id}/trips', RouteTripsResource())
     app.add_route('/v1/routes/{route_id}/directions', RouteDirectionCollectionResource())
+    app.add_route('/v2/routes/{route_id}/directions', RouteDirectionCollectionResource_v2())
     app.add_route('/v1/routes/{route_id}/directions/{direction_id}', RouteDirectionResource())
 
     app.add_route('/v1/trips/', TripCollectionResource())
@@ -831,7 +856,10 @@ def create_app():
     if os.environ.get('SENTRY_ENABLED'):
         from raven.base import Client
         global raven_client
-        raven_client = Client()
+        raven_client = Client(os.getenv('SENTRY_CLIENT'))
         app.add_error_handler(Exception, internal_error_handler)
+
+    if os.environ.get('NEWRELIC_ENABLED'):
+        app = newrelic.agent.WSGIApplicationWrapper(app)
 
     return app

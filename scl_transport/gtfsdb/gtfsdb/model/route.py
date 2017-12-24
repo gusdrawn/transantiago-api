@@ -7,11 +7,68 @@ from sqlalchemy.orm import deferred, relationship
 from sqlalchemy.types import Integer, String
 from sqlalchemy.sql import func
 
+from redis import Redis
+import pickle
+import os
+
 from ..settings import config
 from .base import Base
+from scl_transport.api.schemas import (
+    StopTimeSchema_v2,
+    ShapeSchema
+)
 
 log = logging.getLogger(__name__)
 __all__ = ['RouteType', 'Route', 'RouteDirection', 'RouteFilter']
+
+
+"""
+Utils
+"""
+
+
+class RouteDirectionCache(object):
+    _event_hash = None
+    _connection = None
+
+    def __init__(self, route_id, direction_id):
+        self.redis_key = 'rdc|{}|{}'.format(route_id, direction_id)
+
+    @property
+    def is_enabled(self):
+        if os.getenv('REDIS_CACHE_HOST') and os.getenv('REDIS_CACHE_PORT'):
+            return True
+        return False
+
+    @property
+    def connection(self):
+        if not self.is_enabled:
+            return None
+        if not self._connection:
+            self._connection = Redis(
+                host=os.getenv('REDIS_CACHE_HOST'),
+                port=int(os.getenv('REDIS_CACHE_PORT')),
+                db=0
+            )
+        return self._connection
+
+    def exists(self):
+        return self.connection.exists(self.redis_key)
+
+    # @@TODO: getter/setter
+    def get_key(self):
+        return pickle.loads(self.connection.get(self.redis_key))
+
+    def set_key(self, data, cache_expiration):
+        self.connection.set(self.redis_key, pickle.dumps(data), cache_expiration)
+
+    def delete_key(self):
+        self.connection.delete(self.redis_key)
+
+
+"""
+Models
+"""
 
 
 class RouteType(Base):
@@ -38,6 +95,10 @@ class RouteDirection(Base):
     # cache
     _active_trip = None
     _stop_times = None
+
+    _cached_stop_times = None
+    _cached_shape = None
+    _cached_is_active = None
 
     route = relationship(
         'Route',
@@ -85,7 +146,10 @@ class RouteDirection(Base):
     @property
     def trip_sample(self):
         from .trip import Trip
-        return self.object_session.query(Trip).filter(Trip.route_id == self.route_id).first()
+        return self.object_session.query(Trip).filter(
+            Trip.route_id == self.route_id,
+            Trip.direction_id == int(self.direction_id)
+        ).first()
 
     @property
     def active_stop_times(self):
@@ -99,10 +163,63 @@ class RouteDirection(Base):
 
     @property
     def active_shape(self):
-        # TODO: temporary solution
+        # @@TODO: temporary solution
         if self._active_shape:
             return self._active_shape
         return self.trip_sample.pattern.shape
+
+    def _set_data(self):
+        if not self._cached_stop_times or not self._cached_shape:
+            route_direction_cache = RouteDirectionCache(route_id=self.route_id, direction_id=int(self.direction_id))
+            if not route_direction_cache.is_enabled or not route_direction_cache.exists():
+                from .trip import Trip
+                # get processed data for RouteDirection
+                trip, stop_times, is_active, cache_expiration = Trip.get_trip_data_for_route(
+                    self.object_session,
+                    self.route_id,
+                    int(self.direction_id)
+                )
+                # serialize response
+                stop_times_schema = StopTimeSchema_v2()
+                stop_times_data = stop_times_schema.dump(stop_times, many=True).data
+                shape_schema = ShapeSchema()
+                shape_data = shape_schema.dump(trip.pattern.shape, many=True).data
+                data = {
+                    'stop_times': stop_times_data,
+                    'shape': shape_data,
+                    'is_active': is_active
+                }
+                # set cache
+                if route_direction_cache.is_enabled:
+                    route_direction_cache.set_key(data, cache_expiration)
+                # set values
+                self._cached_stop_times = stop_times_data
+                self._cached_shape = shape_data
+                self._cached_is_active = is_active
+            else:
+                # hit cache
+                data = route_direction_cache.get_key()
+                self._cached_stop_times = data['stop_times']
+                self._cached_shape = data['shape']
+                self._cached_is_active = data['is_active']
+
+    @property
+    def trip_shape(self):
+        if not self._cached_shape:
+            self._set_data()
+        return self._cached_shape
+
+    @property
+    def trip_stop_times(self):
+        if not self._cached_stop_times:
+            self._set_data()
+        return self._cached_stop_times
+
+    @property
+    def trip_is_active(self):
+        if not self._cached_is_active:
+            self._set_data()
+        return self._cached_is_active
 
     @classmethod
     def populate(cls, session):
@@ -204,7 +321,7 @@ class Route(Base):
     route_color = Column(String(6))
     route_text_color = Column(String(6))
     route_sort_order = Column(Integer, index=True)
-    min_headway_minutes = Column(Integer) # Trillium extension.
+    min_headway_minutes = Column(Integer)  # Trillium extension.
 
     trips = relationship(
         'Trip',

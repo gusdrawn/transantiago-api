@@ -2,9 +2,7 @@
 
 import datetime
 import logging
-log = logging.getLogger(__name__)
 
-import time
 import arrow
 from sqlalchemy import Column, and_
 from sqlalchemy.orm import relationship, joinedload_all
@@ -12,16 +10,12 @@ from sqlalchemy.sql.expression import func
 from sqlalchemy.types import Boolean, Integer, Numeric, String, Time, BigInteger
 
 from ..settings import config
-from ..util import convert_str_to_time
+from ..util import get_now_datetime
 from .base import Base
 from .frequency import Frequency
 from .trip import Trip
 
-
-def _get_now():
-    now = arrow.now('America/Santiago')
-    n = arrow.get(now.naive)
-    return n
+log = logging.getLogger(__name__)
 
 
 class StopTime(Base):
@@ -175,7 +169,6 @@ class StopTime(Base):
                 ret_val.append(k)
         return ret_val
 
-
     @classmethod
     def get_departure_schedule(
         cls,
@@ -233,14 +226,13 @@ class StopTime(Base):
 
     @classmethod
     def get_active_stop_times_for_route(cls, session, route_id, direction_id=None):
-        now = _get_now()
+        now = get_now_datetime()
         trips = session.query(Trip).filter(Trip.route_id == route_id)
         if direction_id:
             trips = trips.filter(Trip.direction_id == int(direction_id))
         trip_ids = [trip.trip_id for trip in trips]
 
         stop_times_results = cls.get_departure_schedule(session, date=now.date(), trip_ids=trip_ids)
-        # 2) filter
         stop_times = session.query(StopTime).join(StopTime.frequency).filter(
             StopTime.id.in_([stop_time.id for stop_time in stop_times_results]),
             Frequency.start_time <= now.time(),
@@ -258,7 +250,7 @@ class StopTime(Base):
 
     @classmethod
     def get_active_stop_times_for_stop(cls, session, stop_id, route_id=None):
-        now = _get_now()
+        now = get_now_datetime()
         # 1) get stop_time valid on date
         stop_times_results = cls.get_departure_schedule(session, stop_id=stop_id, date=now.date(), route_id=route_id)
         # 2) filter
@@ -410,13 +402,13 @@ class StopSchedule(object):
             route_schedule.extend(self._next_route_schedule(now, route_id, stop_time))
         return route_schedule
 
-    def _get_now(self):
+    def get_now_datetime(self):
         now = arrow.now('America/Santiago')
         n = arrow.get(now.naive)
         return n
 
     def as_dict(self, session):
-        now = self._get_now()
+        now = self.get_now_datetime()
         stop_id = self.stop_id
         given_route_id = self.route_id
 

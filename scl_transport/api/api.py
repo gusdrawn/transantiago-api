@@ -309,6 +309,32 @@ class RouteDirectionCollectionResource(object):
         resp.body = json.dumps(body, ensure_ascii=False)
 
 
+# /v1/routes/{route_id}/directions/<direction_id>
+class RouteDirectionResource(object):
+    def on_get(self, req, resp, route_id, direction_id):
+        route = self.session.query(Route).filter_by(route_id=route_id).one_or_none()
+        if not route:
+            raise falcon.HTTPNotFound(
+                title='Not found',
+                description='Not found Route for ID: {}'.format(route_id)
+            )
+
+        direction = None
+        for route_direction in route.directions:
+            if int(route_direction.direction_id) == int(direction_id):
+                direction = route_direction
+
+        if not route_direction:
+            raise EntityNotFound()
+
+        direction_schema = DetailedDirectionSchema()
+        dump_data = direction_schema.dump(direction).data
+        body = dict(
+            results=dump_data
+        )
+        resp.body = json.dumps(body, ensure_ascii=False)
+
+
 # /v2/routes/{route_id}/directions
 class RouteDirectionCollectionResource_v2(object):
     def on_get(self, req, resp, route_id):
@@ -338,8 +364,8 @@ class RouteDirectionCollectionResource_v2(object):
         resp.body = json.dumps(body, ensure_ascii=False)
 
 
-# /v1/routes/{route_id}/directions/<direction_id>
-class RouteDirectionResource(object):
+# /v2/routes/{route_id}/directions/<direction_id>
+class RouteDirectionResource_v2(object):
     def on_get(self, req, resp, route_id, direction_id):
         route = self.session.query(Route).filter_by(route_id=route_id).one_or_none()
         if not route:
@@ -353,13 +379,21 @@ class RouteDirectionResource(object):
             if int(route_direction.direction_id) == int(direction_id):
                 direction = route_direction
 
-        if not route_direction:
+        if not direction:
             raise EntityNotFound()
 
-        direction_schema = DetailedDirectionSchema()
-        dump_data = direction_schema.dump(direction).data
+        direction_data = {
+            'route_id': direction.route_id,
+            'direction_id': direction.direction_id,
+            'direction_name': direction.direction_name,
+            'direction_headsign': direction.direction_headsign,
+            'stop_times': direction.trip_stop_times,
+            'shape': direction.trip_shape,
+            'is_active': direction.trip_is_active
+        }
+
         body = dict(
-            results=dump_data
+            results=direction_data
         )
         resp.body = json.dumps(body, ensure_ascii=False)
 
@@ -816,9 +850,9 @@ def add_routes(app):
     app.add_route('/v1/routes/{route_id}', RouteResource())
     app.add_route('/v1/routes/{route_id}/trips', RouteTripsResource())
     app.add_route('/v1/routes/{route_id}/directions', RouteDirectionCollectionResource())
-    app.add_route('/v2/routes/{route_id}/directions', RouteDirectionCollectionResource_v2())
     app.add_route('/v1/routes/{route_id}/directions/{direction_id}', RouteDirectionResource())
-
+    app.add_route('/v2/routes/{route_id}/directions', RouteDirectionCollectionResource_v2())
+    app.add_route('/v2/routes/{route_id}/directions/{direction_id}', RouteDirectionResource_v2())
     app.add_route('/v1/trips/', TripCollectionResource())
     app.add_route('/v1/trips/{trip_id}', TripResource())  # @@TODO: order by sequence
     app.add_route('/v1/trips/{trip_id}/stops', TripStopsCollectionResource())  # TODO: order by sequence

@@ -610,8 +610,10 @@ Se muestra la información detallada de cada una de las direcciones para una rut
 
 > **Endpoint**
 
+?> **NOTA**: A pesar de que el `v1` de este endpoint sigue existiendo por propósitos de retro-compatibilidad, es altamente recomendable utilizar `v2`. 
+
 ```curl
-/v1/routes/<route_id>/directions
+/v2/routes/<route_id>/directions
 ```
 
 > **Argumentos**
@@ -626,7 +628,7 @@ Lista de [direcciones](#Direction) con información detallada
 
 - Consulta
 
-/v1/routes/102/directions
+/v2/routes/102/directions
 
 ```json
 {
@@ -636,79 +638,17 @@ Lista de [direcciones](#Direction) con información detallada
             "route_id": "102",
             "stop_times": [
                 {
-                    "stop_headsign": null,
-                    "stop": {
-                        "stop_lat": "-33.462527571",
-                        "stop_code": "PI1330",
-                        "stop_lon": "-70.693620992",
-                        "agency_id": null,
-                        "stop_id": "PI1330",
-                        "directions": [
-                            {
-                                "direction_id": 0,
-                                "direction_headsign": "Mall P. Tobalaba",
-                                "direction_name": "Outbound"
-                            }
-                        ],
-                        "stop_name": "PI1330-General Amengual Esq. / Padre V. Irarrázaval"
-                    },
+                    "stop": "PI1330",
                     "arrival_time": "00:00:00",
                     "stop_sequence": 1,
-                    "trip": {
-                        "direction_id": "0",
-                        "start_time": "00:00:00",
-                        "route_id": "102",
-                        "frequency": {
-                            "start_time": "12:30:00",
-                            "headway_secs": 600,
-                            "exact_times": false,
-                            "end_time": "14:00:00"
-                        },
-                        "trip_headsign": "Mall P. Tobalaba",
-                        "end_time": "01:21:00",
-                        "service_id": "L_V36",
-                        "trip_len": 67,
-                        "trip_id": "102-I-L_V36-B06",
-                        "trip_short_name": null
-                    },
+                    "trip_id": "102-I-L_V36-B06",
                     "departure_time": "00:00:00"
                 },
                 {
-                    "stop_headsign": null,
-                    "stop": {
-                        "stop_lat": "-33.459415666",
-                        "stop_code": "PI1201",
-                        "stop_lon": "-70.691781880",
-                        "agency_id": null,
-                        "stop_id": "PI1201",
-                        "directions": [
-                            {
-                                "direction_id": 0,
-                                "direction_headsign": "Mall P. Tobalaba",
-                                "direction_name": "Outbound"
-                            }
-                        ],
-                        "stop_name": "PI1201-Santa Teresa Esq. / Arica"
-                    },
+                    "stop_id": "PI1201",
                     "arrival_time": "00:01:18",
                     "stop_sequence": 2,
-                    "trip": {
-                        "direction_id": "0",
-                        "start_time": "00:00:00",
-                        "route_id": "102",
-                        "frequency": {
-                            "start_time": "12:30:00",
-                            "headway_secs": 600,
-                            "exact_times": false,
-                            "end_time": "14:00:00"
-                        },
-                        "trip_headsign": "Mall P. Tobalaba",
-                        "end_time": "01:21:00",
-                        "service_id": "L_V36",
-                        "trip_len": 67,
-                        "trip_id": "102-I-L_V36-B06",
-                        "trip_short_name": null
-                    },
+                    "trip_id": "102-I-L_V36-B06",
                     "departure_time": "00:01:18"
                 }
             ],
@@ -734,46 +674,10 @@ Lista de [direcciones](#Direction) con información detallada
             "route_id": "102",
             "stop_times": [
                 {
-                    "stop_headsign": null,
-                    "stop": {
-                        "stop_lat": "-33.578605788",
-                        "stop_code": "PF5",
-                        "stop_lon": "-70.551905003",
-                        "agency_id": null,
-                        "stop_id": "PF5",
-                        "directions": [
-                            {
-                                "direction_id": 0,
-                                "direction_headsign": "Mall P. Tobalaba",
-                                "direction_name": "Outbound"
-                            },
-                            {
-                                "direction_id": 1,
-                                "direction_headsign": "(M) Blanqueado",
-                                "direction_name": "Inbound"
-                            }
-                        ],
-                        "stop_name": "PF5-Parada 2 / Hospital El Peral"
-                    },
+                    "stop_id": "PF5",,
                     "arrival_time": "00:00:00",
                     "stop_sequence": 1,
-                    "trip": {
-                        "direction_id": "1",
-                        "start_time": "00:00:00",
-                        "route_id": "102",
-                        "frequency": {
-                            "start_time": "12:30:00",
-                            "headway_secs": 600,
-                            "exact_times": false,
-                            "end_time": "14:00:00"
-                        },
-                        "trip_headsign": "(M) Blanqueado",
-                        "end_time": "01:20:35",
-                        "service_id": "L_V36",
-                        "trip_len": 66,
-                        "trip_id": "102-R-L_V36-B06",
-                        "trip_short_name": null
-                    },
+                    "trip_id": "102-R-L_V36-B06",
                     "departure_time": "00:00:00"
                 }
             ],
@@ -805,7 +709,7 @@ Se muestra la información detallada de una dirección para una ruta.
 > **Endpoint**
 
 ```curl
-/v1/routes/<route_id>/directions/<direction_id>
+/v2/routes/<route_id>/directions/<direction_id>
 ```
 
 > **Argumentos**
@@ -821,7 +725,7 @@ Se muestra la información detallada de una dirección para una ruta.
 
 - Consulta
 
-/v1/routes/102/directions/0
+/v2/routes/102/directions/0
 
 ```json
 {
@@ -830,79 +734,16 @@ Se muestra la información detallada de una dirección para una ruta.
         "route_id": "102",
         "stop_times": [
             {
-                "stop_headsign": null,
-                "stop": {
-                    "stop_lat": "-33.462527571",
-                    "stop_code": "PI1330",
-                    "stop_lon": "-70.693620992",
-                    "agency_id": null,
-                    "stop_id": "PI1330",
-                    "directions": [
-                        {
-                            "direction_id": 0,
-                            "direction_headsign": "Mall P. Tobalaba",
-                            "direction_name": "Outbound"
-                        }
-                    ],
-                    "stop_name": "PI1330-General Amengual Esq. / Padre V. Irarrázaval"
-                },
+                "stop_id": "PI1330",
                 "arrival_time": "00:00:00",
                 "stop_sequence": 1,
-                "trip": {
-                    "direction_id": "0",
-                    "start_time": "00:00:00",
-                    "route_id": "102",
-                    "frequency": {
-                        "start_time": "12:30:00",
-                        "headway_secs": 600,
-                        "exact_times": false,
-                        "end_time": "14:00:00"
-                    },
-                    "trip_headsign": "Mall P. Tobalaba",
-                    "end_time": "01:21:00",
-                    "service_id": "L_V36",
-                    "trip_len": 67,
-                    "trip_id": "102-I-L_V36-B06",
-                    "trip_short_name": null
-                },
+                "trip_id": "102-I-L_V36-B06",
                 "departure_time": "00:00:00"
             },
-            {
-                "stop_headsign": null,
-                "stop": {
-                    "stop_lat": "-33.459415666",
-                    "stop_code": "PI1201",
-                    "stop_lon": "-70.691781880",
-                    "agency_id": null,
-                    "stop_id": "PI1201",
-                    "directions": [
-                        {
-                            "direction_id": 0,
-                            "direction_headsign": "Mall P. Tobalaba",
-                            "direction_name": "Outbound"
-                        }
-                    ],
-                    "stop_name": "PI1201-Santa Teresa Esq. / Arica"
-                },
+                "stop_id": "PI1201",
                 "arrival_time": "00:01:18",
                 "stop_sequence": 2,
-                "trip": {
-                    "direction_id": "0",
-                    "start_time": "00:00:00",
-                    "route_id": "102",
-                    "frequency": {
-                        "start_time": "12:30:00",
-                        "headway_secs": 600,
-                        "exact_times": false,
-                        "end_time": "14:00:00"
-                    },
-                    "trip_headsign": "Mall P. Tobalaba",
-                    "end_time": "01:21:00",
-                    "service_id": "L_V36",
-                    "trip_len": 67,
-                    "trip_id": "102-I-L_V36-B06",
-                    "trip_short_name": null
-                },
+                "trip_id": "102-I-L_V36-B06",
                 "departure_time": "00:01:18"
             }
         }
@@ -1932,8 +1773,8 @@ Horarios a los que un vehículo llega a una parada concreta y sale de ella en ca
 
 | campo  |  descripción  |
 | --------- | :-------------: |
-| `stop`  |  Objecto [Stop](#Stop) |
-| `trip`  | Objeto [Route](#Route) |
+| `stop_id`  | ID que identifica de forma exclusiva a una parada o estación. |
+| `trip_id`  | Contiene un ID que identifica un viaje. trip_id es un conjunto de datos único. |
 | `arrival_time`     |  Especifica la hora de llegada a una parada concreta correspondiente a un viaje específico de una ruta. La hora se calcula como "mediodía menos 12 h" (lo que corresponde a la medianoche, excepto durante el período en el que se aplica el cambio de horario de verano/invierno) al principio de la fecha de servicio.  |
 | `departure_time`     | especifica la hora de salida de una parada concreta correspondiente a un viaje específico en una ruta. La hora se calcula como "mediodía menos 12 h" (que corresponde a la medianoche, excepto los días en los que se aplica el cambio de horario de verano/invierno) al principio de la fecha de servicio. |
 | `stop_sequence`     |  identifica el orden de las paradas en un viaje en concreto. Los valores de stop_sequence son enteros no negativos y aumentan durante el viaje.  |

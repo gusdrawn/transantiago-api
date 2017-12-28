@@ -106,11 +106,14 @@ def internal_error_handler(ex, req, resp, params):
             'headers': req.headers,
         }
     }
-
     message = isinstance(ex, falcon.HTTPError) and ex.title or str(ex)
-    raven_client.captureException(message=message, data=data)
-    resp.status = falcon.HTTP_500
-    resp.body = json.dumps({'results': 'Our engineers are working quickly to resolve the issue'})
+    # if not a HTTP status or error exception, send to Sentry and respond with HTTP 500
+    if not issubclass(type(ex), (falcon.HTTPError, falcon.HTTPStatus)):
+        raven_client.captureException(message=message, data=data)
+        resp.status = falcon.HTTP_500
+        resp.body = json.dumps({'results': 'Our engineers are working quickly to resolve the issue'})
+    else:
+        raise ex
 
 
 """

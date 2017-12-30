@@ -95,3 +95,7 @@ https://api.scltrans.it/v1/bip_spots?bbox=-70.609818,-33.442328,-70.566473,-33.4
 ## Contribución
 
 Este es un proyecto 100% opensource y por amor al arte. Cualquier colaboración es muy bienvenida. Especialmente sugerencias y reporte de errores.
+
+## Contacto
+
+Si necesitas ayuda o quieres realizar alguna consulta puedes contactar a admin@scltrans.it. Feliz de ayudarte.

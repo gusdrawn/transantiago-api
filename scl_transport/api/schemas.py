@@ -1,6 +1,14 @@
 from marshmallow import Schema, fields
 
 """
+Constants
+"""
+
+
+DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
+
+
+"""
 Schemas
 """
 
@@ -129,8 +137,8 @@ class BusSchema(Schema):
     bus_lon = fields.Str()
     original_route_id = fields.Str(dump_to='route_id')
     # dates
-    captured_at = fields.DateTime()
-    added_at = fields.DateTime()
+    captured_at = fields.DateTime(format=DATETIME_FORMAT)
+    added_at = fields.DateTime(format=DATETIME_FORMAT)
 
 
 class DetailedDirectionSchema(DirectionSchema):

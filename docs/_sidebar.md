@@ -1,2 +1,2 @@
-- [readme](readme.md)
+- [readme](README.md)
 - [api](api.md)

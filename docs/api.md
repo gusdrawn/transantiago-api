@@ -233,8 +233,11 @@ Lista de recorridos, con su respectiva dirección, para un paradero específico.
 > **Endpoint**
 
 ```curl
-/v1/stops/<stop_id>/stop_routes
+/v2/stops/<stop_id>/stop_routes
 ```
+
+?> **OJO**: Este endpoint actualmente está en `v2`. 
+
 
 > **Argumentos**
 
@@ -249,80 +252,82 @@ Lista de [StopRoutes](#StopRoute)
 - Consulta
 
 ```curl
-/v1/stops/PB8/stop_routes
+/v2/stops/PB8/stop_routes
 ```
 
 - Respuesta
 
 ```json
-[
-    {
-        "direction": {
-            "direction_id": 0,
-            "route_id": "107c",
-            "direction_headsign": "Plaza Renca",
-            "direction_name": "Outbound"
+{
+    results: [
+        {
+            "direction": {
+                "direction_id": 0,
+                "route_id": "107c",
+                "direction_headsign": "Plaza Renca",
+                "direction_name": "Outbound"
+            },
+            "route": {
+                "route_long_name": "Ciudad Empresarial - Plaza Renca",
+                "route_type": "3",
+                "route_text_color": "000000",
+                "agency_id": "TS",
+                "route_id": "107c",
+                "route_color": "00D5FF",
+                "route_desc": null,
+                "directions": [
+                    {
+                        "direction_id": 1,
+                        "route_id": "107c",
+                        "direction_headsign": "C. Empresarial",
+                        "direction_name": "Inbound"
+                    },
+                    {
+                        "direction_id": 0,
+                        "route_id": "107c",
+                        "direction_headsign": "Plaza Renca",
+                        "direction_name": "Outbound"
+                    }
+                ],
+                "route_url": null,
+                "route_short_name": "107c"
+            }
         },
-        "route": {
-            "route_long_name": "Ciudad Empresarial - Plaza Renca",
-            "route_type": "3",
-            "route_text_color": "000000",
-            "agency_id": "TS",
-            "route_id": "107c",
-            "route_color": "00D5FF",
-            "route_desc": null,
-            "directions": [
-                {
-                    "direction_id": 1,
-                    "route_id": "107c",
-                    "direction_headsign": "C. Empresarial",
-                    "direction_name": "Inbound"
-                },
-                {
-                    "direction_id": 0,
-                    "route_id": "107c",
-                    "direction_headsign": "Plaza Renca",
-                    "direction_name": "Outbound"
-                }
-            ],
-            "route_url": null,
-            "route_short_name": "107c"
+        {
+            "direction": {
+                "direction_id": 1,
+                "route_id": "107",
+                "direction_headsign": "C. Empresarial",
+                "direction_name": "Inbound"
+            },
+            "route": {
+                "route_long_name": "Ciudad Empresarial - Av. Departamental",
+                "route_type": "3",
+                "route_text_color": "000000",
+                "agency_id": "TS",
+                "route_id": "107",
+                "route_color": "00D5FF",
+                "route_desc": null,
+                "directions": [
+                    {
+                        "direction_id": 0,
+                        "route_id": "107",
+                        "direction_headsign": "Av. Departamental",
+                        "direction_name": "Outbound"
+                    },
+                    {
+                        "direction_id": 1,
+                        "route_id": "107",
+                        "direction_headsign": "C. Empresarial",
+                        "direction_name": "Inbound"
+                    }
+                ],
+                "route_url": null,
+                "route_short_name": "107"
+            }
         }
-    },
-    {
-        "direction": {
-            "direction_id": 1,
-            "route_id": "107",
-            "direction_headsign": "C. Empresarial",
-            "direction_name": "Inbound"
-        },
-        "route": {
-            "route_long_name": "Ciudad Empresarial - Av. Departamental",
-            "route_type": "3",
-            "route_text_color": "000000",
-            "agency_id": "TS",
-            "route_id": "107",
-            "route_color": "00D5FF",
-            "route_desc": null,
-            "directions": [
-                {
-                    "direction_id": 0,
-                    "route_id": "107",
-                    "direction_headsign": "Av. Departamental",
-                    "direction_name": "Outbound"
-                },
-                {
-                    "direction_id": 1,
-                    "route_id": "107",
-                    "direction_headsign": "C. Empresarial",
-                    "direction_name": "Inbound"
-                }
-            ],
-            "route_url": null,
-            "route_short_name": "107"
-        }
-    }
-]
+    ]
+}
 ```
 
 ### Listar viajes (`trips`) de paradero

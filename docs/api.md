@@ -259,7 +259,7 @@ Lista de [StopRoutes](#StopRoute)
 
 ```json
 {
-    results: [
+    "results": [
         {
             "direction": {
                 "direction_id": 0,

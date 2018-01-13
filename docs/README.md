@@ -1,5 +1,5 @@
 <p align="center">
-    <a href="#">
+    <a href="https://www.dtpm.cl/descargas/gtfs/GTFS.zip">
         <img src="https://api.scltrans.it/shields/gtfs_version"
             alt="GTFS"></a>
     <a href="#">
@@ -98,4 +98,4 @@ Este es un proyecto 100% opensource y por amor al arte. Cualquier colaboración 
 
 ## Contacto
 
-Si necesitas ayuda o quieres realizar alguna consulta puedes contactar a admin@scltrans.it.
+Si necesitas ayuda o quieres realizar alguna consulta puedes contactar a admin@scltrans.it. Feliz de ayudarte.

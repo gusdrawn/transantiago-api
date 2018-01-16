@@ -7,6 +7,7 @@ from sqlalchemy import Column, Integer, Numeric, String, PickleType
 from sqlalchemy.orm import joinedload_all, object_session, relationship
 
 from ..settings import config
+from ..schemas import StopRouteSchema
 from .. import util
 from .base import Base
 
@@ -69,7 +70,6 @@ class Stop(Base):
     @property
     def stop_routes(self):
         from .route_stop import RouteStop
-        from scl_transport.api.schemas import StopRouteSchema
         if not self._stop_routes:
             stop_routes = self.session.query(RouteStop).filter(RouteStop.stop_id == self.stop_id)
             stop_route_schema = StopRouteSchema()
@@ -191,6 +191,15 @@ class StopDirection(Base):
 
     @classmethod
     def populate(cls, session):
+        # populate stop directions
+        cls._populate_stop_directions(session)
+        # populate stop sessions
+        cls._populate_stop_routes(session)
+        # populate stop agency ids
+        cls._populate_stop_agency_id(session)
+
+    @classmethod
+    def _populate_stop_directions(cls, session):
         from .stop_time import StopTime
         stops = {}
         total = session.query(StopTime).count()
@@ -225,4 +234,44 @@ class StopDirection(Base):
                 )
 
         session.bulk_save_objects(stop_directions)
+        session.commit()
+
+    @classmethod
+    def _populate_stop_routes(cls, session):
+        """
+        Pre-caching stop routes
+        """
+        stops = session.query(Stop).filter()
+        total = stops.count()
+        util.printProgressBar(0, total, prefix='Generating stop routes:', suffix='Complete', length=50)
+        i = 0
+        for stop in stops:
+            _ = stop.stop_routes
+            util.printProgressBar(i + 1, total, prefix='Generating stop routes:', suffix='Complete', length=50)
+            i += 1
+
+    @classmethod
+    def _populate_stop_agency_id(cls, session):
+        stops = {}
+        for stop in session.query(Stop).filter():
+            stop_id = stop.stop_id
+            for stop_route in stop.stop_routes:
+                if not stops.get(stop_id):
+                    stops[stop_id] = []
+                if stop_route['route']['agency_id'] not in stops[stop_id]:
+                    stops[stop_id].append(stop_route['route']['agency_id'])
+
+        for stop_id, stop_agencies in stops.items():
+            if len(stop_agencies) > 1:
+                raise Exception("multiple agencies for stop")
+
+        total = len(stops.keys())
+        i = 0
+        util.printProgressBar(0, total, prefix='Generating stop agency_id:', suffix='Complete', length=50)
+        for stop_id, stop_agencies in stops.items():
+            if stop_agencies:
+                agency_id = stop_agencies[0]
+                session.query(Stop).filter(Stop.stop_id == stop_id).update({"agency_id": (agency_id)})
+                util.printProgressBar(i + 1, total, prefix='Generating stop agency_id:', suffix='Complete', length=50)
+                i += 1
         session.commit()

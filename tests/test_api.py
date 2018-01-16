@@ -14,13 +14,14 @@ from scl_transport.gtfsdb.gtfsdb import (
 )
 from scl_transport.api.api import create_app
 from scl_transport.gtfsdb.gtfsdb import Database
+from scl_transport.gtfsdb.gtfsdb.settings import config
 
 
 class BaseTestCase(testing.TestCase):
     def setUp(self):
         super(BaseTestCase, self).setUp()
-        os.putenv('SQLALCHEMY_DATABASE_URI', 'postgresql://postgres:@localhost/test_gtfs')
-        self.db = Database()
+        kwargs = {'url': config.DEFAULT_DATABASE_URL}
+        self.db = Database(**kwargs)
         self.session = self.db.session
         # createdb
         self.db.create()

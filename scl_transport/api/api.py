@@ -4,6 +4,7 @@ import json
 import falcon
 import arrow
 import os
+from marshmallow import fields
 from webargs.falconparser import use_args
 from sqlalchemy.orm import scoped_session
 from sqlalchemy import func
@@ -13,7 +14,6 @@ from scl_transport.api.utils import pager
 from scl_transport.api.utils.predictor import Predictor
 from scl_transport.api.utils.arrivals import NextArrivals
 from scl_transport.api.utils.geo import BoundingBox, get_bounding_box
-from .schemas import *  # @@TODO: define import list
 from scl_transport.gtfsdb.gtfsdb import (
     Stop,
     StopTime,
@@ -27,6 +27,22 @@ from scl_transport.gtfsdb.gtfsdb import (
     Agency,
     Bus
 )
+from scl_transport.gtfsdb.gtfsdb.schemas import (
+    BusSchema,
+    FeedSchema,
+    BipSpotSchema,
+    TripSchema,
+    ShapeSchema,
+    AgencySchema,
+    RouteSchema,
+    DetailedDirectionSchema,
+    StopSchema,
+    StopRouteSchema,
+    StopTimeSchema,
+    StopWithStopRoutesSchema
+)
+
+
 import newrelic.agent
 if os.environ.get('NEWRELIC_ENABLED'):
     newrelic.agent.initialize('newrelic.ini')
@@ -111,7 +127,7 @@ def internal_error_handler(ex, req, resp, params):
     if not issubclass(type(ex), (falcon.HTTPError, falcon.HTTPStatus)):
         raven_client.captureException(message=message, data=data)
         resp.status = falcon.HTTP_500
-        resp.body = json.dumps({'results': 'Our engineers are working quickly to resolve the issue'})
+        resp.body = json.dumps({'results': 'Our engineers are working quickly to resolve the issue. If you need help or more information please contact to admin@scltrans.it'})
     else:
         raise ex
 
@@ -510,6 +526,21 @@ class StopRouteCollectionResource(object):
         resp.body = json.dumps(dump_data, ensure_ascii=False)
 
 
+# /v2/stops/{stop_id}/stop_routes
+class StopRouteCollectionResource_v2(object):
+    def on_get(self, req, resp, stop_id):
+        stop = self.session.query(Stop).filter_by(stop_id=stop_id).one_or_none()
+        if not stop:
+            raise falcon.HTTPNotFound(
+                title='Not found',
+                description='Not found Stop for ID: {}'.format(stop_id)
+            )
+        stop_route_schema = StopRouteSchema()
+        results = stop_route_schema.dump(stop.stop_routes, many=True).data
+        body = dict(results=results,)
+        resp.body = json.dumps(body, ensure_ascii=False)
+
+
 # /v1/stops/{stop_id}/routes
 class StopRoutesResource(object):
     def on_get(self, req, resp, stop_id):
@@ -706,11 +737,7 @@ class StopArrivalCollectionResource(object):
                 registered_IP=os.getenv("PREDICTOR_WS_REGISTERED_IP")
             )
             live_arrivals = predictor.get(stop_id, route_id)
-            # GTFS information
-            stop_schedule = StopSchedule(stop_id, route_id)
-            scheduled_arrivals = stop_schedule.as_dict(self.session)
-            # combine results
-            next_arrivals = NextArrivals(live_arrivals, scheduled_arrivals)
+            next_arrivals = NextArrivals(live_arrivals, [])
             body = dict(
                 results=next_arrivals.get_combined_results(),
             )
@@ -845,10 +872,11 @@ def add_routes(app):
     app.add_route('/v1/stops', StopCollectionResource())
     app.add_route('/v1/stops/{stop_id}', StopResource())
     app.add_route('/v1/stops/{stop_id}/trips', StopTripsCollectionResource())
-    #app.add_route('/v1/stops/{stop_id}/routes', StopRoutesResource())
     app.add_route('/v1/stops/{stop_id}/stop_routes', StopRouteCollectionResource())
+    app.add_route('/v2/stops/{stop_id}/stop_routes', StopRouteCollectionResource_v2())
     # prediction webservice related
     app.add_route('/v1/stops/{stop_id}/next_arrivals', StopArrivalCollectionResource())
+
     app.add_route('/v1/routes', RouteCollectionResource())
     app.add_route('/v1/routes/{route_id}', RouteResource())
     app.add_route('/v1/routes/{route_id}/trips', RouteTripsResource())

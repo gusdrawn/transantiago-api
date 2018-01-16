@@ -47,7 +47,7 @@ class Config(object):
 
 
 class LocalConfig(Config):
-    DEFAULT_DATABASE_URL = os.getenv('SQLALCHEMY_DATABASE_URI', 'postgresql://postgres:@localhost/test_gtfs')
+    DEFAULT_DATABASE_URL = 'postgresql://postgres:@localhost/test_gtfs'
     DEFAULT_IS_GEOSPATIAL = True
 
 
@@ -57,7 +57,7 @@ class ProductionConfig(Config):
 
 
 class TestConfig(Config):
-    DEFAULT_DATABASE_URL = os.getenv('SQLALCHEMY_DATABASE_URI', 'postgresql://postgres:@localhost/testing')
+    DEFAULT_DATABASE_URL = 'postgresql://postgres:@localhost/testing'
     DEFAULT_IS_GEOSPATIAL = False
 
 

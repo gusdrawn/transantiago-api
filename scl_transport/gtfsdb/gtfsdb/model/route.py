@@ -11,12 +11,9 @@ from redis import Redis
 import pickle
 import os
 
+from ..schemas import StopTimeSchema_v2, ShapeSchema
 from ..settings import config
 from .base import Base
-from scl_transport.api.schemas import (
-    StopTimeSchema_v2,
-    ShapeSchema
-)
 
 log = logging.getLogger(__name__)
 __all__ = ['RouteType', 'Route', 'RouteDirection', 'RouteFilter']

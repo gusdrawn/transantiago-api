@@ -1,6 +1,6 @@
-# Ejemplos
+# Guía de Uso
 
-## Trabajar con mapas (elementos geolocalizados)
+## 1) Trabajar con mapas (elementos geolocalizados)
 
 Actualmente hay 4 tipos de elementos con información de geolocalización (latitud, longitud):
 1. [Paraderos](api.md?id=stops): Posición de paraderos.
@@ -24,7 +24,7 @@ Listar los paraderos en base a un centro (ordenados por cercanía).
 https://api.scltrans.it/v1/stops?center_lat=-33.491585&center_lon=-70.643562
 ```
 
-Listar los paraderos en un radio de `2000 metros de un centro
+Listar los paraderos en un radio de `2000` metros de un centro
 
 ```
 https://api.scltrans.it/v1/stops?center_lat=-33.491585&center_lon=-70.643562&radius=2000
@@ -50,7 +50,7 @@ Si deseas filtrar los elementos en una zona específica, puedes indicar un bound
 
 Ejemplo:
 
-Listar los paraderos en el bbox: `-70.615053,-33.438246,-70.591836,-33.425639 (Longitud mínima, Latitud máxima, Longitud máxima, Latitud máxima).
+Listar los paraderos en el bbox: `-70.615053,-33.438246,-70.591836,-33.425639` (Longitud mínima, Latitud máxima, Longitud máxima, Latitud máxima).
 
 ![bbox](media/bbox.jpg)
 
@@ -60,7 +60,7 @@ https://api.scltrans.it/v1/stops?bbox=-70.615053,-33.438246,-70.591836,-33.42563
 
 ?> **NOTA** Adicionalmente a los endpoints anteriores, existe un [endpoint](api.md?id=map) a modo de "helper" que reúne los elementos con latitud, longitud en un único método para facilitar la consulta.
 
-## Todo sobre un recorrido
+## 2) Todo sobre un recorrido
 
 Utilizaremos como ejemplo el paradero `411`
 
@@ -72,7 +72,7 @@ https://api.scltrans.it/v1/routes/411
 Esta información incluye nombre, destinos, agencia y otros datos básicos del recorrido. Si necesitas información más detallada sobre el recorrido puedes consultar por los detalles de las direcciones del recorrido:
 
 ```
-https://api.scltrans.it/v1/routes/411/directions
+https://api.scltrans.it/v2/routes/411/directions
 ```
 
 Esta respuesta incluye información detallada para la ida y regreso (direcciones) del recorrido, incluyendo el [trazado del recorrido](api.md?id=shape) (`shape`) y la [secuencia de detenciones](api.md?id=stoptime) (`stop_time`).
@@ -82,7 +82,7 @@ Esta respuesta incluye información detallada para la ida y regreso (direcciones
 Si lo deseas, puedes obtener la información para una dirección en particular (ida:0 /regreso: 1) con:
 
 ```
-https://api.scltrans.it/v1/routes/411/directions/<direction_id>
+https://api.scltrans.it/v2/routes/411/directions/<direction_id>
 ```
 
 Ejemplo:
@@ -91,7 +91,7 @@ Ejemplo:
 https://api.scltrans.it/v1/routes/411/directions/0
 ```
 
-## Todo sobre un paradero
+## 3) Todo sobre un paradero
 
 Utilizaremos como ejemplo el paradero `411`
 
@@ -109,7 +109,7 @@ La respuesta es una lista de [StopRoutes](api.md?id=stoproute) (pares de direcci
 La [dirección](api.md?id=direction-simplificada) te permite conocer si el bus es ida/regreso y el nombre del destino (el nombre del letrero del bus), entre otros campos. [Route](api.md?id=route) es un objecto que muestra información básica acerca del recorrido.
 
 
-## Información en tiempo real (`arribos y ubicación de buses`)
+## 4) Información en tiempo real (`arribos y ubicación de buses`)
 
 ### Estimación de tiempo de arribo a paradero
 

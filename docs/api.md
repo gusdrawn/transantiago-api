@@ -152,7 +152,7 @@ Lista de [Stops](#Stop)
 
 Información sobre próximos arribos en paraderos. Esta información es obtenida en tiempo real utilizando el Web Service de predicción provisto por la dirección de transporte público metropolitano.
 
-!> **NOTA**: Lamentablemente, el webservice oficial (SMSBUS) que es utilizado para las predicciones no es del todo estable. Debes manejar posibles timeouts de la respuesta. Se está gestionando una solución con la empresa que está a cargo del servicio.
+!> **NOTA**: Lamentablemente, el webservice oficial (SMSBUS) que es utilizado para las predicciones no es del todo estable. Debes manejar posibles timeouts de la respuesta y excepciones no controladas (errores 503). Se está gestionando una solución con la empresa que está a cargo del servicio.
 
 > **Endpoint**
 
@@ -1505,6 +1505,7 @@ Lista de [Agencias](#Agency)
 
 Información sobre buses del transantiago en operación. Esta información es obtenida en tiempo real utilizando el [Web Service de Posicionamiento](https://www.dtpm.cl/index.php/2013-04-24-14-09-09/datos-y-servicios) provisto por la dirección de transporte público metropolitano.
 
+!> **NOTA**: La información de origen (Web service de posicionamiento) es actualizada con una frecuencia de entre 1 y 2 minutos.
 
 ### Listar buses en operación
 

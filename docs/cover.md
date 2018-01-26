@@ -5,7 +5,7 @@
 - Información de servicios de buses, posición de paraderos y estaciones, trazados de servicios, frecuencias y tiempos de viaje por periodo del día.
 
 
-[Uso](#transantiago-api)
+[Más info](#transantiago-api)
 [Documentación API](api.md)
 
 

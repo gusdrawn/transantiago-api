@@ -330,102 +330,9 @@ Lista de [StopRoutes](#StopRoute)
 }
 ```
 
-### Listar viajes (`trips`) de paradero
-
-> **Endpoint**
-
-```curl
-/v1/stops/<stop_id>/trips
-```
-
-> **Argumentos**
-
-  - `{string} stop_id`: identificador de paradero
-
-> **Query params**
-
-| property  | opcional       | default         | description                                         |
-| --------- | :-------:  | :-------------: | --------------------------------------------------- |
-| `route_id`     | `si`   | `None` | opción de filtrar por `route_id` |
-| `is_active`  | `si`   | `None`       | Opción para filtrar viajes activos. Ejemplo: is_active=1 |
-
-> **Respuesta**
-
-Lista de [Trips](#Trip)
-
-
-> **Ejemplo**
-
-- Consulta
-
-```curl
-/v1/stops/101/trips
-```
-
-- Respuesta
-
-```json
-{
-    "results": [
-        {
-            "direction_id": "0",
-            "start_time": "00:00:00",
-            "route_id": "101",
-            "frequency": {
-                "start_time": "00:00:00",
-                "headway_secs": 1800,
-                "exact_times": false,
-                "end_time": "01:00:00"
-            },
-            "trip_headsign": "Cerrillos",
-            "end_time": "01:01:05",
-            "service_id": "D_V35",
-            "trip_len": 76,
-            "trip_id": "101-I-D_V35-B21",
-            "trip_short_name": null
-        },
-        {
-            "direction_id": "0",
-            "start_time": "00:00:00",
-            "route_id": "101",
-            "frequency": {
-                "start_time": "05:30:00",
-                "headway_secs": 720,
-                "exact_times": false,
-                "end_time": "09:30:00"
-            },
-            "trip_headsign": "Cerrillos",
-            "end_time": "01:05:30",
-            "service_id": "D_V35",
-            "trip_len": 76,
-            "trip_id": "101-I-D_V35-B23",
-            "trip_short_name": null
-        },
-        {
-            "direction_id": "0",
-            "start_time": "00:00:00",
-            "route_id": "101",
-            "frequency": {
-                "start_time": "09:30:00",
-                "headway_secs": 533,
-                "exact_times": false,
-                "end_time": "13:30:00"
-            },
-            "trip_headsign": "Cerrillos",
-            "end_time": "01:17:10",
-            "service_id": "D_V35",
-            "trip_len": 76,
-            "trip_id": "101-I-D_V35-B24",
-            "trip_short_name": null
-        }
-    ]
-}
-```
-
-
 ## Routes (`Recorridos`)
 
-Rutas de transporte público. Una ruta es un grupo de viajes que se muestran a los usuarios como servicio independiente.
+Recorridos de transporte público. Un recorrido o ruta es un grupo de viajes que se muestran a los usuarios como servicio independiente.
 
 ### Listar recorridos
 
@@ -609,9 +516,9 @@ Lista de [Routes](#Route)
 }
 ```
 
-### Información direcciones
+### Direcciones - detalles recorrido
 
-Se muestra la información detallada de cada una de las direcciones para una ruta.
+Se muestra la información detallada de cada una de las direcciones para un recorrido (ruta). Este endpoint expone a su vez información del viaje activo para cada una de las direcciones.
 
 > **Endpoint**
 
@@ -932,12 +839,306 @@ Lista de elementos. Dependiendo de la llamada pueden ser [Stops](#Stop) y/o [Pun
 }
 ```
 
+## BIP Spots (`Puntos carga`)
+
+Información sobre puntos carga tarjeta BIP
+
+### Listar puntos de carga
+
+> **Endpoint**
+
+```curl
+/v1/bip_spots
+```
+
+> **Query params**
+
+| property  | opcional       | default         | description                                         |
+| --------- | :-------:  | :-------------: | --------------------------------------------------- |
+| `limit`  | `si`   | `50`       | Cantidad de resultados por página.               |
+| `page`     | `si`   | `1` | Número de página |
+| `center_lon` | `si` | `None`      | Longitud. Si se define, los resultados serán ordenados de más cercano a más lejano a este punto. Usar en conjunto con `center_lat`. Ejemplo: `-70.643562`      |
+| `center_lat` | `si` | `None`      | Latitud. Si se define, los resultados serán ordenados de más cercano a más lejano a este punto. Usar en conjunto con `center_lon`. Ejemplo: `-33.491585`      |
+| `radius` | `si` | `None`      | Radio en metros. Usar en conjunto con `center_lat` y `center_lon`. Si es definido, se mostrarán sólo los resultados dentro de ese radio (en relación al centro (center_lat` y `center_lon`))     |
+
+> **Respuesta**
+
+Lista de [Bip Spots](#bip-spot)
+
+> **Ejemplo**
+
+- Consulta
+
+```curl
+/v1/bip_spots?limit=3
+```
+
+- Respuesta
+
+```json
+{
+    "has_next": true,
+    "page_number": 1,
+    "total_results": 676,
+    "total_pages": 676,
+    "results": [
+        {
+            "bip_spot_code": "60",
+            "bip_spot_fantasy_name": "PCMA60",
+            "bip_spot_commune": "SANTIAGO",
+            "bip_spot_lat": "-33.44272566",
+            "bip_spot_lon": "-70.644872",
+            "bip_spot_address": "AV. LIB. BERNARDO OHIGGINS 622",
+            "bip_spot_entity": "Serviestado",
+            "bip_opening_time": "Lun a Vie 8:00 a 19:00 Sab 9:00 a 17:00"
+        },
+        {
+            "bip_spot_lat": "-33.486436",
+            "bip_spot_code": "61",
+            "bip_spot_fantasy_name": "PCMA61",
+            "bip_spot_commune": "MAIPU",
+            "bip_spot_lon": "-70.750752",
+            "bip_spot_address": "AV. AMERICO VESPUCIO NORTE CALETERA ORIENTE 51",
+            "bip_spot_entity": "Serviestado",
+            "bip_opening_time": "Lun a Vie 8:00 a 19:00 Sab 9:00 a 17:00"
+        },
+        {
+            "bip_spot_lat": "-33.5332983565256",
+            "bip_spot_code": "64",
+            "bip_spot_fantasy_name": "PCMA 64",
+            "bip_spot_commune": "LA CISTERNA",
+            "bip_spot_lon": "-70.6630693155897",
+            "bip_spot_address": "GRAN AV. JOSE MIGUEL CARRERA 8496",
+            "bip_spot_entity": "Serviestado",
+            "bip_opening_time": "Lun a Vie 8:00 a 19:00 Sab 9:00 a 17:00"
+        }
+    ],
+    "page_size": 3
+}
+```
+
+### Obtener Punto de carga BIP
+
+> **Endpoint**
+
+```curl
+/v1/bip_spots/<bip_spot_code>
+```
+
+> **Argumentos**
+
+  - `{string} bip_spot_code`: identificador de Punto de carga
+
+> **Respuesta**
+
+[Objeto de BIP Spot](#bip-spot)
 
 
+> **Ejemplo**
+
+- Consulta
+
+```curl
+/v1/bip_spots/60
+```
+
+- Respuesta
+
+```json
+{
+    "bip_spot_lat": "-33.44272566",
+    "bip_spot_code": "60",
+    "bip_spot_fantasy_name": "PCMA60",
+    "bip_spot_commune": "SANTIAGO",
+    "bip_spot_lon": "-70.644872",
+    "bip_spot_address": "AV. LIB. BERNARDO OHIGGINS 622",
+    "bip_spot_entity": "Serviestado",
+    "bip_opening_time": "Lun a Vie 8:00 a 19:00 Sab 9:00 a 17:00"
+}
+```
+
+## Agencias
+Son las empresas de transporte público que proporcionan los datos de este feed.
+
+### Listar agencias
+
+> **Endpoint**
+
+```curl
+/v1/agencies
+```
+
+> **Respuesta**
+
+Lista de [Agencias](#Agency)
+
+> **Ejemplo**
+
+- Consulta
+
+```curl
+/v1/agencies
+```
+
+- Respuesta
+
+```json
+{
+    "results": [
+        {
+            "agency_url": "http://www.transantiago.cl",
+            "agency_name": "Transantiago",
+            "agency_id": "TS"
+        },
+        {
+            "agency_url": "http://www.metro.cl",
+            "agency_name": "Metro de Santiago",
+            "agency_id": "M"
+        },
+        {
+            "agency_url": "http://www.trencentral.cl/bin/link.cgi/servicios/metrotren-nos/",
+            "agency_name": "MetroTren Nos",
+            "agency_id": "MT"
+        }
+    ]
+}
+```
+
+## Buses
+
+Información sobre buses del transantiago en operación. Esta información es obtenida en tiempo real utilizando el [Web Service de Posicionamiento](https://www.dtpm.cl/index.php/2013-04-24-14-09-09/datos-y-servicios) provisto por la dirección de transporte público metropolitano.
+
+!> **NOTA**: La información de origen (Web service de posicionamiento) es actualizada con una frecuencia de entre 1 y 2 minutos.
+
+### Listar buses en operación
+
+> **Endpoint**
+
+```curl
+/v1/buses
+```
+
+> **Query params**
+
+| property  | opcional       | default         | description                                         |
+| --------- | :-------:  | :-------------: | --------------------------------------------------- |
+| `limit`  | `si`   | `50`       | Cantidad de resultados por página.               |
+| `page`     | `si`   | `1` | Número de página |
+| `route_id`     | `si`   | None | Opción de filtrar resultados por route_id` |
+| `direction_id`     | `si`   | None | Opción de filtrar resultados por `direction_id |
+| `center_lon` | `si` | `None`      | Longitud. Si se define, los resultados serán ordenados de más cercano a más lejano a este punto. Usar en conjunto con `center_lat`. Ejemplo: `-70.643562`      |
+| `center_lat` | `si` | `None`      | Latitud. Si se define, los resultados serán ordenados de más cercano a más lejano a este punto. Usar en conjunto con `center_lon`. Ejemplo: `-33.491585`      |
+| `radius` | `si` | `None`      | Radio en metros. Usar en conjunto con `center_lat` y `center_lon`. Si es definido, se mostrarán sólo los resultados dentro de ese radio (en relación al centro (center_lat` y `center_lon`))     |
+
+> **Respuesta**
+
+Lista de [Buses](#Bus)
+
+> **Ejemplo**
+
+- Consulta
+
+```curl
+/v1/buses?limit=3
+```
+
+- Respuesta
+
+```json
+{
+    "has_next": true,
+    "page_number": 1,
+    "total_results": 903,
+    "total_pages": 903,
+    "results": [
+        {
+            "bus_plate_number": "BJFC-73",
+            "operator_number": 5,
+            "direction_id": 1,
+            "bus_movement_orientation": 6,
+            "added_at": "2017-11-11T17:23:26+00:00",
+            "bus_lon": "-70.6349182128906",
+            "route_id": "502",
+            "bus_speed": 0,
+            "bus_lat": "-33.4347496032715",
+            "captured_at": "2017-11-11T17:23:21+00:00"
+        },
+        {
+            "bus_plate_number": "ZB-6711",
+            "operator_number": 4,
+            "direction_id": 1,
+            "bus_movement_orientation": 5,
+            "added_at": "2017-11-11T17:23:16+00:00",
+            "bus_lon": "-70.6487503051758",
+            "route_id": "403",
+            "bus_speed": 0,
+            "bus_lat": "-33.4433441162109",
+            "captured_at": "2017-11-11T17:23:09+00:00"
+        },
+        {
+            "bus_plate_number": "CJRC-20",
+            "operator_number": 9,
+            "direction_id": 1,
+            "bus_movement_orientation": 2,
+            "added_at": "2017-11-11T17:23:11+00:00",
+            "bus_lon": "-70.5545120239258",
+            "route_id": "F06",
+            "bus_speed": 0,
+            "bus_lat": "-33.602611541748",
+            "captured_at": "2017-11-11T17:23:06+00:00"
+        }
+    ],
+    "page_size": 3
+}
+```
+
+### Obtener bus
+
+> **Endpoint**
+
+```curl
+/v1/buses/<bus_plate_number>
+```
+
+> **Argumentos**
+
+  - `{string} bus_plate_number`: patente de bus
+
+> **Respuesta**
+
+[Objeto de Bus](#Bus)
+
+> **Ejemplo**
+
+- Consulta
+
+```curl
+/v1/buses/BJFC-73
+```
+
+- Respuesta
+
+```json
+{
+    "bus_plate_number": "BJFC-73",
+    "operator_number": 5,
+    "direction_id": 1,
+    "bus_movement_orientation": 6,
+    "added_at": "2017-11-11T17:23:26+00:00",
+    "bus_lon": "-70.6349182128906",
+    "route_id": "502",
+    "bus_speed": 0,
+    "bus_lat": "-33.4347496032715",
+    "captured_at": "2017-11-11T17:23:21+00:00"
+}
+```
 
 ## Trips (`Viajes`)
 
 Viajes para cada servicio (`route`). Un viaje es una secuencia de dos o más paradas que se produce en una hora específica.
+
+?> **NOTA**: Para la mayoría de los casos no será necesario trabajar directamente con viajes. Los detalles del viaje activo (vigente ahora) está incluida implícitamente en la respuesta de la [información detallada para un recorrido](#Direcciones-detalles-recorrido).
+
 
 ### Listar viajes
 
@@ -1336,299 +1537,7 @@ Horarios a los que un vehículo llega a una parada concreta y sale de ella en ca
 }
 ```
 
-## BIP Spots (`Puntos carga`)
 
-Información sobre puntos carga tarjeta BIP
-
-### Listar puntos de carga
-
-> **Endpoint**
-
-```curl
-/v1/bip_spots
-```
-
-> **Query params**
-
-| property  | opcional       | default         | description                                         |
-| --------- | :-------:  | :-------------: | --------------------------------------------------- |
-| `limit`  | `si`   | `50`       | Cantidad de resultados por página.               |
-| `page`     | `si`   | `1` | Número de página |
-| `center_lon` | `si` | `None`      | Longitud. Si se define, los resultados serán ordenados de más cercano a más lejano a este punto. Usar en conjunto con `center_lat`. Ejemplo: `-70.643562`      |
-| `center_lat` | `si` | `None`      | Latitud. Si se define, los resultados serán ordenados de más cercano a más lejano a este punto. Usar en conjunto con `center_lon`. Ejemplo: `-33.491585`      |
-| `radius` | `si` | `None`      | Radio en metros. Usar en conjunto con `center_lat` y `center_lon`. Si es definido, se mostrarán sólo los resultados dentro de ese radio (en relación al centro (center_lat` y `center_lon`))     |
-
-> **Respuesta**
-
-Lista de [Bip Spots](#bip-spot)
-
-> **Ejemplo**
-
-- Consulta
-
-```curl
-/v1/bip_spots?limit=3
-```
-
-- Respuesta
-
-```json
-{
-    "has_next": true,
-    "page_number": 1,
-    "total_results": 676,
-    "total_pages": 676,
-    "results": [
-        {
-            "bip_spot_code": "60",
-            "bip_spot_fantasy_name": "PCMA60",
-            "bip_spot_commune": "SANTIAGO",
-            "bip_spot_lat": "-33.44272566",
-            "bip_spot_lon": "-70.644872",
-            "bip_spot_address": "AV. LIB. BERNARDO OHIGGINS 622",
-            "bip_spot_entity": "Serviestado",
-            "bip_opening_time": "Lun a Vie 8:00 a 19:00 Sab 9:00 a 17:00"
-        },
-        {
-            "bip_spot_lat": "-33.486436",
-            "bip_spot_code": "61",
-            "bip_spot_fantasy_name": "PCMA61",
-            "bip_spot_commune": "MAIPU",
-            "bip_spot_lon": "-70.750752",
-            "bip_spot_address": "AV. AMERICO VESPUCIO NORTE CALETERA ORIENTE 51",
-            "bip_spot_entity": "Serviestado",
-            "bip_opening_time": "Lun a Vie 8:00 a 19:00 Sab 9:00 a 17:00"
-        },
-        {
-            "bip_spot_lat": "-33.5332983565256",
-            "bip_spot_code": "64",
-            "bip_spot_fantasy_name": "PCMA 64",
-            "bip_spot_commune": "LA CISTERNA",
-            "bip_spot_lon": "-70.6630693155897",
-            "bip_spot_address": "GRAN AV. JOSE MIGUEL CARRERA 8496",
-            "bip_spot_entity": "Serviestado",
-            "bip_opening_time": "Lun a Vie 8:00 a 19:00 Sab 9:00 a 17:00"
-        }
-    ],
-    "page_size": 3
-}
-```
-
-### Obtener Punto de carga BIP
-
-> **Endpoint**
-
-```curl
-/v1/bip_spots/<bip_spot_code>
-```
-
-> **Argumentos**
-
-  - `{string} bip_spot_code`: identificador de Punto de carga
-
-> **Respuesta**
-
-[Objeto de BIP Spot](#bip-spot)
-
-
-> **Ejemplo**
-
-- Consulta
-
-```curl
-/v1/bip_spots/60
-```
-
-- Respuesta
-
-```json
-{
-    "bip_spot_lat": "-33.44272566",
-    "bip_spot_code": "60",
-    "bip_spot_fantasy_name": "PCMA60",
-    "bip_spot_commune": "SANTIAGO",
-    "bip_spot_lon": "-70.644872",
-    "bip_spot_address": "AV. LIB. BERNARDO OHIGGINS 622",
-    "bip_spot_entity": "Serviestado",
-    "bip_opening_time": "Lun a Vie 8:00 a 19:00 Sab 9:00 a 17:00"
-}
-```
-
-## Agencias
-Son las empresas de transporte público que proporcionan los datos de este feed.
-
-### Listar agencias
-
-> **Endpoint**
-
-```curl
-/v1/agencies
-```
-
-> **Respuesta**
-
-Lista de [Agencias](#Agency)
-
-> **Ejemplo**
-
-- Consulta
-
-```curl
-/v1/agencies
-```
-
-- Respuesta
-
-```json
-{
-    "results": [
-        {
-            "agency_url": "http://www.transantiago.cl",
-            "agency_name": "Transantiago",
-            "agency_id": "TS"
-        },
-        {
-            "agency_url": "http://www.metro.cl",
-            "agency_name": "Metro de Santiago",
-            "agency_id": "M"
-        },
-        {
-            "agency_url": "http://www.trencentral.cl/bin/link.cgi/servicios/metrotren-nos/",
-            "agency_name": "MetroTren Nos",
-            "agency_id": "MT"
-        }
-    ]
-}
-```
-
-## Buses
-
-Información sobre buses del transantiago en operación. Esta información es obtenida en tiempo real utilizando el [Web Service de Posicionamiento](https://www.dtpm.cl/index.php/2013-04-24-14-09-09/datos-y-servicios) provisto por la dirección de transporte público metropolitano.
-
-!> **NOTA**: La información de origen (Web service de posicionamiento) es actualizada con una frecuencia de entre 1 y 2 minutos.
-
-### Listar buses en operación
-
-> **Endpoint**
-
-```curl
-/v1/buses
-```
-
-> **Query params**
-
-| property  | opcional       | default         | description                                         |
-| --------- | :-------:  | :-------------: | --------------------------------------------------- |
-| `limit`  | `si`   | `50`       | Cantidad de resultados por página.               |
-| `page`     | `si`   | `1` | Número de página |
-| `route_id`     | `si`   | None | Opción de filtrar resultados por route_id` |
-| `direction_id`     | `si`   | None | Opción de filtrar resultados por `direction_id |
-| `center_lon` | `si` | `None`      | Longitud. Si se define, los resultados serán ordenados de más cercano a más lejano a este punto. Usar en conjunto con `center_lat`. Ejemplo: `-70.643562`      |
-| `center_lat` | `si` | `None`      | Latitud. Si se define, los resultados serán ordenados de más cercano a más lejano a este punto. Usar en conjunto con `center_lon`. Ejemplo: `-33.491585`      |
-| `radius` | `si` | `None`      | Radio en metros. Usar en conjunto con `center_lat` y `center_lon`. Si es definido, se mostrarán sólo los resultados dentro de ese radio (en relación al centro (center_lat` y `center_lon`))     |
-
-> **Respuesta**
-
-Lista de [Buses](#Bus)
-
-> **Ejemplo**
-
-- Consulta
-
-```curl
-/v1/buses?limit=3
-```
-
-- Respuesta
-
-```json
-{
-    "has_next": true,
-    "page_number": 1,
-    "total_results": 903,
-    "total_pages": 903,
-    "results": [
-        {
-            "bus_plate_number": "BJFC-73",
-            "operator_number": 5,
-            "direction_id": 1,
-            "bus_movement_orientation": 6,
-            "added_at": "2017-11-11T17:23:26+00:00",
-            "bus_lon": "-70.6349182128906",
-            "route_id": "502",
-            "bus_speed": 0,
-            "bus_lat": "-33.4347496032715",
-            "captured_at": "2017-11-11T17:23:21+00:00"
-        },
-        {
-            "bus_plate_number": "ZB-6711",
-            "operator_number": 4,
-            "direction_id": 1,
-            "bus_movement_orientation": 5,
-            "added_at": "2017-11-11T17:23:16+00:00",
-            "bus_lon": "-70.6487503051758",
-            "route_id": "403",
-            "bus_speed": 0,
-            "bus_lat": "-33.4433441162109",
-            "captured_at": "2017-11-11T17:23:09+00:00"
-        },
-        {
-            "bus_plate_number": "CJRC-20",
-            "operator_number": 9,
-            "direction_id": 1,
-            "bus_movement_orientation": 2,
-            "added_at": "2017-11-11T17:23:11+00:00",
-            "bus_lon": "-70.5545120239258",
-            "route_id": "F06",
-            "bus_speed": 0,
-            "bus_lat": "-33.602611541748",
-            "captured_at": "2017-11-11T17:23:06+00:00"
-        }
-    ],
-    "page_size": 3
-}
-```
-
-### Obtener bus
-
-> **Endpoint**
-
-```curl
-/v1/buses/<bus_plate_number>
-```
-
-> **Argumentos**
-
-  - `{string} bus_plate_number`: patente de bus
-
-> **Respuesta**
-
-[Objeto de Bus](#Bus)
-
-> **Ejemplo**
-
-- Consulta
-
-```curl
-/v1/buses/BJFC-73
-```
-
-- Respuesta
-
-```json
-{
-    "bus_plate_number": "BJFC-73",
-    "operator_number": 5,
-    "direction_id": 1,
-    "bus_movement_orientation": 6,
-    "added_at": "2017-11-11T17:23:26+00:00",
-    "bus_lon": "-70.6349182128906",
-    "route_id": "502",
-    "bus_speed": 0,
-    "bus_lat": "-33.4347496032715",
-    "captured_at": "2017-11-11T17:23:21+00:00"
-}
-```
 
 # Objetos de respuestas
 
@@ -1662,7 +1571,7 @@ Tupla ([route](#Route), [dirección](#Direction-simplificada)) que contiene info
 
 ##  Route
 
-Rutas de transporte público. Una ruta es un grupo de viajes que se muestran a los usuarios como servicio independiente.
+Rutas (recorridos) de transporte público. Una ruta es un grupo de viajes que se muestran a los usuarios como servicio independiente.
 
 | campo  |  descripción  |
 | --------- | :-------------: |

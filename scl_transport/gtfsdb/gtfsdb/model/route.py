@@ -11,7 +11,7 @@ from redis import Redis
 import pickle
 import os
 
-from ..schemas import StopTimeSchema_v2, ShapeSchema
+from ..schemas import StopTimeSchema_v2, ShapeSchema_v1
 from ..settings import config
 from .base import Base
 
@@ -179,7 +179,7 @@ class RouteDirection(Base):
                 # serialize response
                 stop_times_schema = StopTimeSchema_v2()
                 stop_times_data = stop_times_schema.dump(stop_times, many=True).data
-                shape_schema = ShapeSchema()
+                shape_schema = ShapeSchema_v1()
                 shape_data = shape_schema.dump(trip.pattern.shape, many=True).data
                 data = {
                     'stop_times': stop_times_data,

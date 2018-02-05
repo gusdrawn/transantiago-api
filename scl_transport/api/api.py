@@ -10,6 +10,8 @@ from sqlalchemy.orm import scoped_session
 from sqlalchemy import func
 from geoalchemy2.elements import WKTElement
 
+from requests.exceptions import ConnectTimeout, ReadTimeout
+
 from scl_transport.api.utils import pager
 from scl_transport.api.utils.predictor import Predictor
 from scl_transport.api.utils.arrivals import NextArrivals
@@ -28,18 +30,23 @@ from scl_transport.gtfsdb.gtfsdb import (
     Bus
 )
 from scl_transport.gtfsdb.gtfsdb.schemas import (
-    BusSchema,
-    FeedSchema,
-    BipSpotSchema,
-    TripSchema,
-    ShapeSchema,
-    AgencySchema,
-    RouteSchema,
-    DetailedDirectionSchema,
-    StopSchema,
-    StopRouteSchema,
-    StopTimeSchema,
-    StopWithStopRoutesSchema
+    # v1
+    BusSchema_v1,
+    FeedSchema_v1,
+    BipSpotSchema_v1,
+    TripSchema_v1,
+    ShapeSchema_v1,
+    AgencySchema_v1,
+    RouteSchema_v1,
+    DetailedDirectionSchema_v1,
+    StopSchema_v1,
+    StopRouteSchema_v1,
+    StopTimeSchema_v1,
+    StopArrivalSchema_v1,
+    # v2
+    StopRouteSchema_v2,
+    StopWithStopRoutesSchema_v1,
+    StopWithStopRoutesSchema_v2
 )
 
 
@@ -153,7 +160,7 @@ class InfoResource(object):
         if not feed:
             raise falcon.HTTPNotFound(title='No info', description='No info related to feed')
 
-        feed_schema = FeedSchema()
+        feed_schema = FeedSchema_v1()
         dump_data = feed_schema.dump(feed).data
         resp.body = json.dumps(dump_data, ensure_ascii=False)
 
@@ -181,7 +188,7 @@ class BipSpotCollectionResource(object):
         paginator = pager(bip_spots, page, per_page_limit)
 
         #  serializer  results
-        bip_spot_schema = BipSpotSchema()
+        bip_spot_schema = BipSpotSchema_v1()
         results = bip_spot_schema.dump(paginator.items, many=True).data
         #  build body
         body = dict(
@@ -205,7 +212,7 @@ class BipSpotResource(object):
                 description='Not found bip spot for Bip spot code: {}'.format(bip_spot_code)
             )
 
-        bip_spot_schema = BipSpotSchema()
+        bip_spot_schema = BipSpotSchema_v1()
         dump_data = bip_spot_schema.dump(bip_spot).data
         resp.body = json.dumps(dump_data, ensure_ascii=False)
 
@@ -219,7 +226,7 @@ class TripCollectionResource(object):
         trips = self.session.query(Trip).filter()
         paginator = pager(trips, page, per_page_limit)
         #  serializer  results
-        trip_schema = TripSchema()
+        trip_schema = TripSchema_v1()
         results = trip_schema.dump(paginator.items, many=True).data
         #  build body
         body = dict(
@@ -243,7 +250,7 @@ class TripResource(object):
                 description='Not found Trip for ID: {}'.format(trip_id)
             )
 
-        trip_schema = TripSchema()
+        trip_schema = TripSchema_v1()
         dump_data = trip_schema.dump(trip).data
         resp.body = json.dumps(dump_data, ensure_ascii=False)
 
@@ -257,7 +264,7 @@ class TripShapeCollectionResource(object):
                 title='Not found',
                 description='Not found Trip for ID: {}'.format(trip_id)
             )
-        shape_schema = ShapeSchema()
+        shape_schema = ShapeSchema_v1()
         dump_data = shape_schema.dump(trip.pattern.shape, many=True).data
         resp.body = json.dumps({'results': dump_data}, ensure_ascii=False)
 
@@ -266,7 +273,7 @@ class TripShapeCollectionResource(object):
 class AgencyCollectionResource(object):
     def on_get(self, req, resp):
         agencies = self.session.query(Agency).filter()
-        agency_schema = AgencySchema()
+        agency_schema = AgencySchema_v1()
         dump_data = agency_schema.dump(agencies, many=True).data
         resp.body = json.dumps({'results': dump_data}, ensure_ascii=False)
 
@@ -282,7 +289,7 @@ class RouteCollectionResource(object):
             routes = routes.filter(Route.agency_id == args.get('agency_id'))
         paginator = pager(routes, page, per_page_limit)
         #  serializer  results
-        route_schema = RouteSchema()
+        route_schema = RouteSchema_v1()
         results = route_schema.dump(paginator.items, many=True).data
         #  build body
         body = dict(
@@ -306,7 +313,7 @@ class RouteResource(object):
                 description='Not found Route for ID: {}'.format(route_id)
             )
 
-        route_schema = RouteSchema()
+        route_schema = RouteSchema_v1()
         dump_data = route_schema.dump(route).data
         resp.body = json.dumps(dump_data, ensure_ascii=False)
 
@@ -320,7 +327,7 @@ class RouteDirectionCollectionResource(object):
                 title='Not found',
                 description='Not found Route for ID: {}'.format(route_id)
             )
-        direction_schema = DetailedDirectionSchema()
+        direction_schema = DetailedDirectionSchema_v1()
         dump_data = direction_schema.dump(route.directions, many=True).data
         body = dict(
             results=dump_data
@@ -346,7 +353,7 @@ class RouteDirectionResource(object):
         if not route_direction:
             raise EntityNotFound()
 
-        direction_schema = DetailedDirectionSchema()
+        direction_schema = DetailedDirectionSchema_v1()
         dump_data = direction_schema.dump(direction).data
         body = dict(
             results=dump_data
@@ -428,7 +435,7 @@ class RouteTripsResource(object):
                 Trip.route_id == route_id
             )
 
-        trip_schema = TripSchema()
+        trip_schema = TripSchema_v1()
         dump_data = trip_schema.dump(trips, many=True).data
         body = dict(
             results=dump_data
@@ -479,7 +486,7 @@ class StopCollectionResource(object):
 
         paginator = pager(stops, page, per_page_limit)
 
-        stop_schema = StopSchema()
+        stop_schema = StopSchema_v1()
         items = paginator.items
         if args.get('is_active'):
             items = filter(lambda x: x.is_active(), items)
@@ -507,7 +514,7 @@ class StopResource(object):
                 description='Not found Stop for ID: {}'.format(stop_id)
             )
 
-        stop_schema = StopSchema()
+        stop_schema = StopSchema_v1()
         dump_data = stop_schema.dump(stop).data
         resp.body = json.dumps(dump_data, ensure_ascii=False)
 
@@ -521,12 +528,13 @@ class StopRouteCollectionResource(object):
                 title='Not found',
                 description='Not found Stop for ID: {}'.format(stop_id)
             )
-        stop_route_schema = StopRouteSchema()
+        stop_route_schema = StopRouteSchema_v1()
         dump_data = stop_route_schema.dump(stop.stop_routes, many=True).data
         resp.body = json.dumps(dump_data, ensure_ascii=False)
 
 
 # /v2/stops/{stop_id}/stop_routes
+# /v3/stops/{stop_id}/stop_routes
 class StopRouteCollectionResource_v2(object):
     def on_get(self, req, resp, stop_id):
         stop = self.session.query(Stop).filter_by(stop_id=stop_id).one_or_none()
@@ -535,7 +543,10 @@ class StopRouteCollectionResource_v2(object):
                 title='Not found',
                 description='Not found Stop for ID: {}'.format(stop_id)
             )
-        stop_route_schema = StopRouteSchema()
+        if req.path.startswith('/v3'):
+            stop_route_schema = StopRouteSchema_v2()
+        else:
+            stop_route_schema = StopRouteSchema_v1()
         results = stop_route_schema.dump(stop.stop_routes, many=True).data
         body = dict(results=results,)
         resp.body = json.dumps(body, ensure_ascii=False)
@@ -548,7 +559,7 @@ class StopRoutesResource(object):
             session=self.session,
             stop_id=stop_id
         )
-        route_schema = RouteSchema()
+        route_schema = RouteSchema_v1()
         results = route_schema.dump(stop_routes, many=True).data
         body = dict(results=results,)
         resp.body = json.dumps(body, ensure_ascii=False)
@@ -582,7 +593,7 @@ class StopScheduleResource(object):
             date=date,
             limit=limit
         )
-        stop_time_schema = StopTimeSchema()
+        stop_time_schema = StopTimeSchema_v1()
         results = stop_time_schema.dump(stop_times, many=True).data
         body = dict(results=results,)
         resp.body = json.dumps(body, ensure_ascii=False)
@@ -598,7 +609,7 @@ class StopTripsCollectionResource(object):
             route_id=args.get('route_id'),
             only_active=args.get('is_active', False)
         )
-        trip_schema = TripSchema()
+        trip_schema = TripSchema_v1()
         results = trip_schema.dump(trips, many=True).data
         body = dict(results=results,)
         resp.body = json.dumps(body, ensure_ascii=False)
@@ -625,7 +636,7 @@ class TripStopsCollectionResource(object):
         stops = self.session.query(Stop).filter(Stop.stop_id.in_([stop.stop_id for stop in stops]))
 
         #  serializer  results
-        stop_schema = StopSchema()
+        stop_schema = StopSchema_v1()
         results = stop_schema.dump(stops, many=True).data
 
         #  build body
@@ -639,12 +650,13 @@ class TripStopsCollectionResource(object):
 class TripStopTimesCollectionResource(object):
     def on_get(self, req, resp, trip_id):
         stop_times = self.session.query(StopTime).filter(StopTime.trip_id == trip_id).order_by(StopTime.stop_sequence)
-        stop_time_schema = StopTimeSchema()
+        stop_time_schema = StopTimeSchema_v1()
         results = stop_time_schema.dump(stop_times, many=True).data
         body = dict(results=results,)
         resp.body = json.dumps(body, ensure_ascii=False)
 
 
+# /v2/map
 # /v1/map
 class TransportMapCollectionResource(object):
     @use_args(
@@ -690,11 +702,13 @@ class TransportMapCollectionResource(object):
         stops = self.session.query(Stop).filter()
         stops = stops.filter(Stop.geom.contained(bbox))
 
-        # get routes, @@TODO: improve this
         if args.get('include_stop_routes'):
-            stop_schema = StopWithStopRoutesSchema()
+            if req.path.startswith('/v2'):
+                stop_schema = StopWithStopRoutesSchema_v2()
+            else:
+                stop_schema = StopWithStopRoutesSchema_v1()
         else:
-            stop_schema = StopSchema()
+            stop_schema = StopSchema_v1()
         stop_results = stop_schema.dump(stops, many=True).data
         results['stops'] = stop_results
 
@@ -704,7 +718,7 @@ class TransportMapCollectionResource(object):
             BipSpot.add_geometry_column()  # @@TODO: fix this
             bip_spots = self.session.query(BipSpot).filter()
             bip_spots = bip_spots.filter(BipSpot.geom.contained(bbox))
-            bip_spot_schema = BipSpotSchema()
+            bip_spot_schema = BipSpotSchema_v1()
             bip_spot_results = bip_spot_schema.dump(bip_spots, many=True).data
             results['bip_spots'] = bip_spot_results
 
@@ -713,7 +727,7 @@ class TransportMapCollectionResource(object):
         if args.get('include_buses'):
             buses = self.session.query(Bus).filter()
             buses = buses.filter(Bus.geom.contained(bbox))
-            bus_schema = BusSchema()
+            bus_schema = BusSchema_v1()
             bus_results = bus_schema.dump(buses, many=True).data
             results['buses'] = bus_results
 
@@ -725,6 +739,7 @@ class TransportMapCollectionResource(object):
 
 
 # /v1/stops/{stop_id}/next_arrivals
+# /v2/stops/{stop_id}/next_arrivals
 class StopArrivalCollectionResource(object):
     @use_args({'route_id': fields.Int()})
     def on_get(self, req, resp, args, stop_id):
@@ -732,25 +747,43 @@ class StopArrivalCollectionResource(object):
         # live information
         try:
             predictor = Predictor(
-                client_id=int(os.getenv("PREDICTOR_WS_CLIENT_ID")),
+                client_id=int(os.getenv("PREDICTOR_WS_CLIENT_ID") or 0),
                 resolution=os.getenv('PREDICTOR_WS_RESOLUTION'),
                 registered_IP=os.getenv("PREDICTOR_WS_REGISTERED_IP")
             )
             live_arrivals = predictor.get(stop_id, route_id)
-            next_arrivals = NextArrivals(live_arrivals, [])
+
+            if req.path.startswith('/v2'):
+                version = 2
+            else:
+                version = 1
+            next_arrivals = NextArrivals(session=self.session, data=live_arrivals, stop_id=stop_id, version=version)
+
             body = dict(
-                results=next_arrivals.get_combined_results(),
+                results=next_arrivals.get(),
             )
             resp.body = json.dumps(body, ensure_ascii=False)
+        except (ConnectTimeout, ReadTimeout) as e:
+            print str(e)
+            resp.status = falcon.HTTP_REQUEST_TIMEOUT
+            resp.body = json.dumps({'title': 'smsbus webservice timeout'})
         except Exception, e:
-            if 'Connection timed out' in str(e):
-                print "time out..."
-                print str(e)
-                resp.status = falcon.HTTP_REQUEST_TIMEOUT
-                resp.body = json.dumps({'title': 'smsbus webservice timeout'})
+            data = {
+                'request': {
+                    'url': req.url,
+                    'method': req.method,
+                    'query_string': req.query_string,
+                    'env': req.env,
+                    'data': req.params,
+                    'headers': req.headers,
+                }
+            }
+            if os.environ.get('SENTRY_ENABLED'):
+                raven_client.captureException(message=str(e), data=data)
             else:
-                print "undhandled exception...", str(e)
-                raise Exception(str(e))
+                print str(e)
+            resp.status = falcon.HTTP_503
+            resp.body = json.dumps({'title': 'smsbus responded with an unexpected exception'})
 
 
 # /v1/buses
@@ -792,7 +825,7 @@ class BusCollectionResource(object):
                 pt = WKTElement('POINT({0} {1})'.format(args['center_lon'], args['center_lat']), srid=4326)
                 buses = buses.order_by(Bus.geom.distance_box(pt))
 
-        if args.get('direction_id') != None:
+        if args.get('direction_id') != None:  # explicit None cast (because direction_id=0 exists)
             buses = buses.filter(Bus.direction_id == args['direction_id'])
 
         if args.get('route_id'):
@@ -803,11 +836,11 @@ class BusCollectionResource(object):
             last_fetch = self.session.query(func.max(Bus.fetched_at)).filter().scalar()
             buses = buses.filter(Bus.fetched_at == last_fetch)
 
-        bus_schema = BusSchema()
+        bus_schema = BusSchema_v1()
         paginator = pager(buses, page, per_page_limit)
 
         #  serializer  results
-        bus_schema = BusSchema()
+        bus_schema = BusSchema_v1()
         results = bus_schema.dump(paginator.items, many=True).data
         #  build body
         body = dict(
@@ -824,7 +857,7 @@ class BusCollectionResource(object):
 # /v1/buses/{bus_plate_number}
 class BusResource(object):
     def on_get(self, req, resp, bus_plate_number):
-        bus_schema = BusSchema()
+        bus_schema = BusSchema_v1()
         bus = self.session.query(Bus).filter(
             Bus.bus_plate_number == bus_plate_number
         ).order_by('fetched_at desc').first()
@@ -872,18 +905,24 @@ def add_routes(app):
     app.add_route('/v1/stops', StopCollectionResource())
     app.add_route('/v1/stops/{stop_id}', StopResource())
     app.add_route('/v1/stops/{stop_id}/trips', StopTripsCollectionResource())
+
     app.add_route('/v1/stops/{stop_id}/stop_routes', StopRouteCollectionResource())
     app.add_route('/v2/stops/{stop_id}/stop_routes', StopRouteCollectionResource_v2())
+    app.add_route('/v3/stops/{stop_id}/stop_routes', StopRouteCollectionResource_v2())
+
     # prediction webservice related
     app.add_route('/v1/stops/{stop_id}/next_arrivals', StopArrivalCollectionResource())
+    app.add_route('/v2/stops/{stop_id}/next_arrivals', StopArrivalCollectionResource())
 
     app.add_route('/v1/routes', RouteCollectionResource())
     app.add_route('/v1/routes/{route_id}', RouteResource())
     app.add_route('/v1/routes/{route_id}/trips', RouteTripsResource())
     app.add_route('/v1/routes/{route_id}/directions', RouteDirectionCollectionResource())
     app.add_route('/v1/routes/{route_id}/directions/{direction_id}', RouteDirectionResource())
+    # v2
     app.add_route('/v2/routes/{route_id}/directions', RouteDirectionCollectionResource_v2())
     app.add_route('/v2/routes/{route_id}/directions/{direction_id}', RouteDirectionResource_v2())
+    #
     app.add_route('/v1/trips/', TripCollectionResource())
     app.add_route('/v1/trips/{trip_id}', TripResource())  # @@TODO: order by sequence
     app.add_route('/v1/trips/{trip_id}/stops', TripStopsCollectionResource())  # TODO: order by sequence
@@ -893,10 +932,13 @@ def add_routes(app):
     # positioning webservice related
     app.add_route('/v1/buses', BusCollectionResource())
     app.add_route('/v1/buses/{bus_plate_number}', BusResource())
+
     # special endpoints: Schedule, BipPoints
     app.add_route('/v1/map', TransportMapCollectionResource())
+    app.add_route('/v2/map', TransportMapCollectionResource())
     app.add_route('/v1/stops/{stop_id}/schedule', StopScheduleCollectionResource())
     app.add_route('/v1/stops/{stop_id}/schedule/{route_id}', StopScheduleResource())
+
     # external resources
     app.add_route('/v1/bip_spots', BipSpotCollectionResource())
     app.add_route('/v1/bip_spots/{bip_spot_code}', BipSpotResource())

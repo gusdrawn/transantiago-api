@@ -3,11 +3,15 @@ import datetime
 from collections import defaultdict
 
 from geoalchemy2 import Geometry
-from sqlalchemy import Column, Integer, Numeric, String, PickleType
+from sqlalchemy import Column, Integer, Numeric, String, PickleType, Boolean
 from sqlalchemy.orm import joinedload_all, object_session, relationship
 
 from ..settings import config
-from ..schemas import StopRouteSchema
+from ..schemas import StopRouteSchema_v2
+from ..data_augmenters import (
+    RouteStopDirectionAugmenter,
+    RouteStopAugmenter
+)
 from .. import util
 from .base import Base
 
@@ -37,7 +41,11 @@ class Stop(Base):
     direction = Column(String(50))
     position = Column(String(50))
     agency_id = Column(String(255), index=True, nullable=True)
-    _stop_routes = Column("stop_routes", PickleType)
+
+    # internal use
+    _stop_routes = Column("stop_routes", PickleType)  # cache
+    route_directions = Column(PickleType)
+    multi_directional = Column(Boolean, nullable=True)  # support more than 1 direction for the same route
 
     stop_features = relationship(
         'StopFeature',
@@ -72,12 +80,20 @@ class Stop(Base):
         from .route_stop import RouteStop
         if not self._stop_routes:
             stop_routes = self.session.query(RouteStop).filter(RouteStop.stop_id == self.stop_id)
-            stop_route_schema = StopRouteSchema()
+            stop_route_schema = StopRouteSchema_v2()
             results = stop_route_schema.dump(stop_routes, many=True).data
             self._stop_routes = results
             self.object_session.add(self)
             self.object_session.commit()
         return self._stop_routes
+
+    @property
+    def stop_routes_old(self):
+        stop_routes = self.stop_routes
+        for stop_route in stop_routes:
+            stop_route.pop('is_last_stop')
+            stop_route.pop('is_first_stop')
+        return stop_routes
 
     @property
     def headsigns(self):
@@ -131,6 +147,16 @@ class Stop(Base):
         if st and len(st) > 0:
             _is_active = True
         return _is_active
+
+    def is_multi_directional(self, session):
+        hash_s = {}
+        from .route_stop import RouteStop
+        for route_stop in session.query(RouteStop).filter(RouteStop.stop_id == self.stop_id):
+            key = '{}'.format(route_stop.route_id, route_stop.direction_id)
+            if hash_s.get(key):
+                return True
+            hash_s[key] = 1
+        return False
 
     @classmethod
     def active_stops(cls, session, limit=None, active_filter=True, date=None):
@@ -187,91 +213,3 @@ class StopDirection(Base):
     @classmethod
     def post_process(cls, db, **kwargs):
         log.debug('{0}.post_process'.format(cls.__name__))
-        cls.populate(db.session)
-
-    @classmethod
-    def populate(cls, session):
-        # populate stop directions
-        cls._populate_stop_directions(session)
-        # populate stop sessions
-        cls._populate_stop_routes(session)
-        # populate stop agency ids
-        cls._populate_stop_agency_id(session)
-
-    @classmethod
-    def _populate_stop_directions(cls, session):
-        from .stop_time import StopTime
-        stops = {}
-        total = session.query(StopTime).count()
-        util.printProgressBar(0, total, prefix='Generating stop directions:', suffix='Complete', length=50)
-        i = 0
-        for stop_time in session.query(StopTime).filter():
-            stop_id = stop_time.stop_id
-            if not stops.get(stop_id):
-                stops[stop_id] = {}
-            direction_id = stop_time.trip.direction_id
-            trip_headsign = stop_time.trip.trip_headsign
-            if not stops[stop_id].get(direction_id):
-                stops[stop_id][direction_id] = trip_headsign
-            util.printProgressBar(i + 1, total, prefix='Generating stop directions:', suffix='Complete', length=50)
-            i += 1
-
-        DIRECTION_MAP = {
-            0: 'Outbound',
-            1: 'Inbound'
-        }
-
-        stop_directions = []
-        for stop_id, stop_content in stops.items():
-            for direction_id, direction_headsign in stop_content.items():
-                stop_directions.append(
-                    StopDirection(
-                        stop_id=stop_id,
-                        direction_id=int(direction_id),
-                        direction_name=DIRECTION_MAP.get(int(direction_id)),
-                        direction_headsign=direction_headsign
-                    )
-                )
-
-        session.bulk_save_objects(stop_directions)
-        session.commit()
-
-    @classmethod
-    def _populate_stop_routes(cls, session):
-        """
-        Pre-caching stop routes
-        """
-        stops = session.query(Stop).filter()
-        total = stops.count()
-        util.printProgressBar(0, total, prefix='Generating stop routes:', suffix='Complete', length=50)
-        i = 0
-        for stop in stops:
-            _ = stop.stop_routes
-            util.printProgressBar(i + 1, total, prefix='Generating stop routes:', suffix='Complete', length=50)
-            i += 1
-
-    @classmethod
-    def _populate_stop_agency_id(cls, session):
-        stops = {}
-        for stop in session.query(Stop).filter():
-            stop_id = stop.stop_id
-            for stop_route in stop.stop_routes:
-                if not stops.get(stop_id):
-                    stops[stop_id] = []
-                if stop_route['route']['agency_id'] not in stops[stop_id]:
-                    stops[stop_id].append(stop_route['route']['agency_id'])
-
-        for stop_id, stop_agencies in stops.items():
-            if len(stop_agencies) > 1:
-                raise Exception("multiple agencies for stop")
-
-        total = len(stops.keys())
-        i = 0
-        util.printProgressBar(0, total, prefix='Generating stop agency_id:', suffix='Complete', length=50)
-        for stop_id, stop_agencies in stops.items():
-            if stop_agencies:
-                agency_id = stop_agencies[0]
-                session.query(Stop).filter(Stop.stop_id == stop_id).update({"agency_id": (agency_id)})
-                util.printProgressBar(i + 1, total, prefix='Generating stop agency_id:', suffix='Complete', length=50)
-                i += 1
-        session.commit()

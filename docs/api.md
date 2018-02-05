@@ -154,10 +154,12 @@ Información sobre próximos arribos en paraderos. Esta información es obtenida
 
 !> **NOTA**: Lamentablemente, el webservice oficial (SMSBUS) que es utilizado para las predicciones no es del todo estable. Debes manejar posibles timeouts de la respuesta y excepciones no controladas (errores 503). Se está gestionando una solución con la empresa que está a cargo del servicio.
 
+?> **OJO**: Este endpoint actualmente está en `v2`. 
+
 > **Endpoint**
 
 ```curl
-/v1/stops/<stop_id>/next_arrivals
+/v2/stops/<stop_id>/next_arrivals
 ```
 > **Argumentos**
 
@@ -172,7 +174,7 @@ Lista de [arribos](#Arrival)
 - Consulta
 
 ```curl
-/v1/stops/PH84/next_arrivals
+/v2/stops/PH84/next_arrivals
 ```
 
 - Respuesta
@@ -186,6 +188,7 @@ Lista de [arribos](#Arrival)
             "calculated_at": "2017-11-24 13:31",
             "route_id": "125",
             "is_live": true,
+            "direction_id": 1,
             "bus_distance": "591"
         },
         {
@@ -194,6 +197,7 @@ Lista de [arribos](#Arrival)
             "calculated_at": "2017-11-24 13:31",
             "route_id": "125",
             "is_live": true,
+            "direction_id": 0,
             "bus_distance": "4141"
         },
         {
@@ -202,6 +206,7 @@ Lista de [arribos](#Arrival)
             "calculated_at": "2017-11-24 13:31",
             "route_id": "H03",
             "is_live": true,
+            "direction_id": 1,
             "bus_distance": "3151"
         },
         {
@@ -210,6 +215,7 @@ Lista de [arribos](#Arrival)
             "calculated_at": "2017-11-24 13:31",
             "route_id": "345",
             "is_live": true,
+            "direction_id": 1,
             "bus_distance": null
         },
         {
@@ -218,6 +224,7 @@ Lista de [arribos](#Arrival)
             "calculated_at": "2017-11-24 13:31",
             "route_id": "346N",
             "is_live": true,
+            "direction_id": 1,
             "bus_distance": null
         }
     ]
@@ -233,10 +240,10 @@ Lista de recorridos, con su respectiva dirección, para un paradero específico.
 > **Endpoint**
 
 ```curl
-/v2/stops/<stop_id>/stop_routes
+/v3/stops/<stop_id>/stop_routes
 ```
 
-?> **OJO**: Este endpoint actualmente está en `v2`. 
+?> **OJO**: Este endpoint actualmente está en `v3`. 
 
 
 > **Argumentos**
@@ -252,7 +259,7 @@ Lista de [StopRoutes](#StopRoute)
 - Consulta
 
 ```curl
-/v2/stops/PB8/stop_routes
+/v3/stops/PB8/stop_routes
 ```
 
 - Respuesta
@@ -267,6 +274,8 @@ Lista de [StopRoutes](#StopRoute)
                 "direction_headsign": "Plaza Renca",
                 "direction_name": "Outbound"
             },
+            "is_first_stop": false,
+            "is_last_stop": false,
             "route": {
                 "route_long_name": "Ciudad Empresarial - Plaza Renca",
                 "route_type": "3",
@@ -300,6 +309,8 @@ Lista de [StopRoutes](#StopRoute)
                 "direction_headsign": "C. Empresarial",
                 "direction_name": "Inbound"
             },
+            "is_first_stop": false,
+            "is_last_stop": false,
             "route": {
                 "route_long_name": "Ciudad Empresarial - Av. Departamental",
                 "route_type": "3",
@@ -732,12 +743,14 @@ Colección de elementos geolocalizados. Este endpoint es un "helper" que reúne 
 
 ?> **NOTA** Por defecto este endpoint sólo lista las [stops](#Stop), el resto son elementos opcionales configurables.
 
+?> **OJO**: Este endpoint actualmente está en `v2`. 
+
 ### Listar elementos
 
 > **Endpoint**
 
 ```curl
-/v1/map
+/v2/map
 ```
 
 > **Query params**
@@ -761,7 +774,7 @@ Lista de elementos. Dependiendo de la llamada pueden ser [Stops](#Stop) y/o [Pun
 - Consulta
 
 ```curl
-/v1/map?include_buses=1&include_bip_spots=1&center_lon=-70.643562&center_lat=-33.491585
+/v2/map?include_buses=1&include_bip_spots=1&center_lon=-70.643562&center_lat=-33.491585
 ```
 
 - Respuesta
@@ -1567,6 +1580,10 @@ Tupla ([route](#Route), [dirección](#Direction-simplificada)) que contiene info
 | --------- | :-------------: |
 | `route`  |  Objecto [route](#Route)   |
 | `direction`  | Objecto [dirección](#Direction-simplificada) |
+| `is_first_stop`  | Indica si este es el primer paradero para la ruta especificada. |
+| `is_last_stop`  | Indica si este es paraderor terminal para la ruta especificada. |
+
+
 
 
 ##  Route
@@ -1703,6 +1720,7 @@ Horarios a los que un vehículo llega a una parada concreta y sale de ella en ca
 | `arrival_estimation`  | Texto con descripción de estimación de tiempo |
 | `calculated_at`  | Fecha en que la información fue obtenida |
 | `route_id`  | Identificador de ruta |
+| `direction_id`  |  El campo direction_id contiene un valor binario que indica la dirección de un viaje. `0` : viaje de ida. `1`: viaje de regreso. IMPORTANTE: Este campo puede ser null` |
 | `is_live`  | Indica si la información fue obtenida utilizando el servicio de predicción (tiempo real). Este valor es actualmente siempre true |
 | `bus_distance`  | Distancia en metros al paradero |
 

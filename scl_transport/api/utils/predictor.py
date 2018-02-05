@@ -1,8 +1,7 @@
 import zeep
-import datetime
-from zeep.cache import Base, _is_expired
+from zeep.cache import Base
 from zeep.transports import Transport
-from pprint import pprint
+from requests import Session
 
 import random
 import logging
@@ -10,6 +9,8 @@ import os
 log = logging.getLogger(__name__)
 
 CHARACTERS = 'abcdefghjklmnpqrstuvwxyz23456789'
+
+OPERATION_TIMEOUT = 10
 
 
 class PermanentCache(Base):
@@ -27,7 +28,9 @@ class PermanentCache(Base):
         return self._cache[url]
 
 
-transport = Transport(cache=PermanentCache())
+session = Session()
+session.verify = False
+transport = Transport(session=session, cache=PermanentCache(), timeout=10, operation_timeout=OPERATION_TIMEOUT)
 
 
 """

@@ -15,9 +15,14 @@ log = logging.getLogger(__name__)
 
 class GTFS(object):
 
-    def __init__(self, filename):
-        self.file = filename
-        self.local_file = urlretrieve(filename)[0]
+    def __init__(self, filename=None):
+        if filename:
+            self.file = filename
+            self.local_file = urlretrieve(filename)[0]
+
+    def wipe(self, db, **kwargs):
+        for cls in db.sorted_classes:
+            cls.delete(db)
 
     def load(self, db, **kwargs):
         '''Load GTFS into database'''
@@ -40,6 +45,10 @@ class GTFS(object):
 
         for cls in db.sorted_classes:
             cls.post_process(db, **kwargs)
+
+        # generic post-process
+        from ..generic_post_processors import run_post_process
+        run_post_process(db.session)
 
         process_time = time.time() - start_time
         log.debug('GTFS.load ({0:.0f} seconds)'.format(process_time))

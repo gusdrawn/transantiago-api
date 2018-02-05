@@ -12,7 +12,10 @@ from sqlalchemy.orm import object_session
 from .. import util
 from ..settings import config
 
-log = logging.getLogger(__name__)
+#log = logging.getLogger(__name__)
+
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+log = logging.getLogger()
 
 
 class _Base(object):
@@ -107,6 +110,14 @@ class _Base(object):
         return [field.strip().lower() for field in fieldnames]
 
     @classmethod
+    def delete(cls, db):
+        table = cls.__table__
+        try:
+            db.engine.execute(table.delete())
+        except Exception:
+            log.debug("NOTE: couldn't delete this table")
+
+    @classmethod
     def load(cls, db, **kwargs):
         """Load method for ORM
 
@@ -117,7 +128,6 @@ class _Base(object):
             gtfs_directory: path to unzipped GTFS files
             batch_size: batch size for memory management
         """
-        log = logging.getLogger(cls.__module__)
         start_time = time.time()
         batch_size = kwargs.get('batch_size', config.DEFAULT_BATCH_SIZE)
         directory = None

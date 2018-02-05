@@ -5,7 +5,7 @@ import logging
 
 from sqlalchemy import Column
 from sqlalchemy.orm import relationship
-from sqlalchemy.types import Integer, String, Date
+from sqlalchemy.types import Integer, String, Date, Boolean
 from sqlalchemy.sql import func
 
 from ..settings import config
@@ -52,6 +52,14 @@ class RouteStop(Base):
         primaryjoin='RouteStop.end_date==UniversalCalendar.date',
         foreign_keys='(RouteStop.end_date)',
         uselist=True, viewonly=True)
+
+    is_first_stop = Column(Boolean, nullable=True)
+    is_last_stop = Column(Boolean, nullable=True)
+
+    # Internal flags to identify "dynamic" route_stops
+    is_permanent_first_stop = Column(Boolean, nullable=True)
+    is_permanent_last_stop = Column(Boolean, nullable=True)
+    is_multi_direction = Column(Boolean, nullable=True)  # @@TODO: move to hybrid property?
 
     @property
     def direction(self):

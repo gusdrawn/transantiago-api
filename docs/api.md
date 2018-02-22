@@ -638,7 +638,7 @@ Se muestra la información detallada de una dirección para una ruta.
 > **Argumentos**
 
   - `{string} route_id`: identificador de ruta
-  - `{string} route_id`: identificador de dirección
+  - `{string} direction_id`: identificador de dirección
 
 > **Respuesta**
 

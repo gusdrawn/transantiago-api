@@ -42,7 +42,7 @@ Si deseas filtrar los elementos en una zona específica, puedes indicar un bound
     
 1. Longitud mínima
 
-2. Latitud máxima
+2. Latitud mínima
 
 3. Longitud máxima
 
@@ -50,7 +50,7 @@ Si deseas filtrar los elementos en una zona específica, puedes indicar un bound
 
 Ejemplo:
 
-Listar los paraderos en el bbox: `-70.615053,-33.438246,-70.591836,-33.425639` (Longitud mínima, Latitud máxima, Longitud máxima, Latitud máxima).
+Listar los paraderos en el bbox: `-70.615053,-33.438246,-70.591836,-33.425639` (Longitud mínima, Latitud mínima, Longitud máxima, Latitud máxima).
 
 ![bbox](media/bbox.jpg)
 

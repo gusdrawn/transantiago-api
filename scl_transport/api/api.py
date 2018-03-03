@@ -90,6 +90,21 @@ class SQLAlchemySessionManager(object):
 
 
 """
+Hooks
+"""
+
+
+def process_route_id(req, resp, resource, params):
+    special_route_suffix = ('C', 'E', 'V', 'C2')
+    if params['route_id'].endswith(special_route_suffix):
+        for suffix in special_route_suffix:
+            if params['route_id'].endswith(suffix):
+                # replace suffix with lowercase
+                params['route_id'] = params['route_id'][:-len(suffix)] + suffix.lower()
+                break
+
+
+"""
 Error Exceptions and Handlers
 """
 
@@ -305,6 +320,7 @@ class RouteCollectionResource(object):
 
 # /v1/routes/{route_id}
 class RouteResource(object):
+    @falcon.before(process_route_id)
     def on_get(self, req, resp, route_id):
         route = self.session.query(Route).filter_by(route_id=route_id).one_or_none()
         if not route:
@@ -320,6 +336,7 @@ class RouteResource(object):
 
 # /v1/routes/{route_id}/directions
 class RouteDirectionCollectionResource(object):
+    @falcon.before(process_route_id)
     def on_get(self, req, resp, route_id):
         route = self.session.query(Route).filter_by(route_id=route_id).one_or_none()
         if not route:
@@ -337,6 +354,7 @@ class RouteDirectionCollectionResource(object):
 
 # /v1/routes/{route_id}/directions/<direction_id>
 class RouteDirectionResource(object):
+    @falcon.before(process_route_id)
     def on_get(self, req, resp, route_id, direction_id):
         route = self.session.query(Route).filter_by(route_id=route_id).one_or_none()
         if not route:
@@ -363,6 +381,7 @@ class RouteDirectionResource(object):
 
 # /v2/routes/{route_id}/directions
 class RouteDirectionCollectionResource_v2(object):
+    @falcon.before(process_route_id)
     def on_get(self, req, resp, route_id):
         route = self.session.query(Route).filter_by(route_id=route_id).one_or_none()
         if not route:
@@ -392,6 +411,7 @@ class RouteDirectionCollectionResource_v2(object):
 
 # /v2/routes/{route_id}/directions/<direction_id>
 class RouteDirectionResource_v2(object):
+    @falcon.before(process_route_id)
     def on_get(self, req, resp, route_id, direction_id):
         route = self.session.query(Route).filter_by(route_id=route_id).one_or_none()
         if not route:
@@ -426,6 +446,7 @@ class RouteDirectionResource_v2(object):
 
 # /v1/routes/{route_id}/trips
 class RouteTripsResource(object):
+    @falcon.before(process_route_id)
     @use_args({'is_active': fields.Int()})
     def on_get(self, req, resp, args, route_id):
         if args.get('is_active'):
@@ -578,6 +599,7 @@ class StopScheduleCollectionResource(object):
 
 # /v1/stops/{stop_id}/schedule/{route_id}
 class StopScheduleResource(object):
+    @falcon.before(process_route_id)
     def on_get(self, req, resp, stop_id, route_id):
         date = req.params.get('date')
         if date:

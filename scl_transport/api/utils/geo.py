@@ -34,7 +34,7 @@ def get_bounding_box(latitude_in_degrees, longitude_in_degrees, half_side_in_km=
     """
     lat = math.radians(float(latitude_in_degrees))
     lon = math.radians(float(longitude_in_degrees))
-    radius = 6371.0
+    radius = 6359.103
     # Radius of the parallel at given latitude
     parallel_radius = radius * math.cos(lat)
     lat_min = lat - half_side_in_km / radius

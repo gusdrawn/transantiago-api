@@ -10,7 +10,10 @@
 
 # Transantiago API
 
-> ***Transantiago API*** es una API [abierta](#sobre-la-api) no oficial basada en la información [oficial](#fuentes-de-datos) disponible de Transantiago. Información de servicios de buses y de Metro, posición de paraderos y estaciones, trazados de servicios y frecuencias y tiempos de viaje por periodo del día.
+> ***Transantiago API*** es una API [abierta](#sobre-la-api) basada en la información [oficial](#fuentes-de-datos) disponible de Transantiago. Información de servicios de buses y de Metro, posición de paraderos y estaciones, trazados de servicios y frecuencias y tiempos de viaje por periodo del día.
+
+!> **IMPORTANTE**: Esta API es usada internamente y por una serie de proyectos asociados, por lo que 
+existe un compromiso a largo plazo por mantenerla y mejorarla. No temas usarla en proyectos reales!
 
 - [Información disponible](#información-disponible)
 - [Fuentes de datos](#fuentes-de-datos)
@@ -23,7 +26,6 @@
 * Paraderos y estaciones de metro [*ver*](http://scltrans.it/#/api?id=stops-paraderos)
 * Predicción de tiempos de arribo en paradero (tiempo real) [*ver*](http://scltrans.it/#/api?id=estimaci%c3%b3n-de-pr%c3%b3ximos-arribos)
 * Itinerarios y horarios [*ver*](http://scltrans.it/#/api?id=secuencia-de-detenci%c3%b3n-para-viaje)
-* Viajes [*ver*](http://scltrans.it/#/api?id=trips-viajes)
 * Posición de buses (tiempo real) [*ver*](http://scltrans.it/#/api?id=buses)
 * Puntos de carga BIP [*ver*](http://scltrans.it/#/api?id=bip-spots-puntos-carga)
 

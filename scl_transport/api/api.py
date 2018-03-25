@@ -4,7 +4,7 @@ import json
 import falcon
 import arrow
 import os
-from marshmallow import fields
+from marshmallow import fields, ValidationError
 from webargs.falconparser import use_args
 from sqlalchemy.orm import scoped_session
 from sqlalchemy import func
@@ -105,6 +105,21 @@ def process_route_id(req, resp, resource, params):
 
 
 """
+Custom Fields
+"""
+
+
+def validate_positive_integer(data):
+    if data:
+        try:
+            data = int(data)
+        except ValueError:
+            raise ValidationError(u'Invalid integer type.')
+        if int(data) <= 0:
+            raise ValidationError(u'Value must be greater than 0')
+
+
+"""
 Error Exceptions and Handlers
 """
 
@@ -183,7 +198,7 @@ class InfoResource(object):
 # /v1/bip_spots/
 class BipSpotCollectionResource(object):
     @use_args({
-        'limit': fields.Int(),
+        'limit': fields.Int(validate=validate_positive_integer),
         'page': fields.Int(),
         # option 1
         'center_lat': fields.Str(),
@@ -234,7 +249,7 @@ class BipSpotResource(object):
 
 # /v1/trips/
 class TripCollectionResource(object):
-    @use_args({'limit': fields.Int(), 'page': fields.Int()})
+    @use_args({'limit': fields.Int(validate=validate_positive_integer), 'page': fields.Int(validate=validate_positive_integer)})
     def on_get(self, req, resp, args):
         page = args.get('page', 1)
         per_page_limit = args.get('limit', PER_PAGE_LIMIT)
@@ -295,7 +310,11 @@ class AgencyCollectionResource(object):
 
 # /v1/routes/
 class RouteCollectionResource(object):
-    @use_args({'agency_id': fields.Str(), 'limit': fields.Int(), 'page': fields.Int()})
+    @use_args({
+        'agency_id': fields.Str(),
+        'limit': fields.Int(validate=validate_positive_integer),
+        'page': fields.Int(validate=validate_positive_integer)
+    })
     def on_get(self, req, resp, args):
         page = args.get('page', 1)
         per_page_limit = args.get('limit', PER_PAGE_LIMIT)
@@ -468,9 +487,9 @@ class RouteTripsResource(object):
 class StopCollectionResource(object):
 
     @use_args({
-        'limit': fields.Int(),
+        'limit': fields.Int(validate=validate_positive_integer),
         'is_active': fields.Int(),
-        'page': fields.Int(),
+        'page': fields.Int(validate=validate_positive_integer),
         'agency_id': fields.Str(),
         # option 1
         'bbox': fields.Raw(),
@@ -688,7 +707,7 @@ class TransportMapCollectionResource(object):
             # option 2
             'center_lat': fields.Str(),
             'center_lon': fields.Str(),
-            'radius': fields.Int(),
+            'radius': fields.Int(validate=validate_positive_integer),
             # optional elements
             'include_stop_routes': fields.Int(),
             'include_bip_spots': fields.Int(),
@@ -811,8 +830,8 @@ class StopArrivalCollectionResource(object):
 # /v1/buses
 class BusCollectionResource(object):
     @use_args({
-        'limit': fields.Int(),
-        'page': fields.Int(),
+        'limit': fields.Int(validate=validate_positive_integer),
+        'page': fields.Int(validate=validate_positive_integer),
         'route_id': fields.Str(),
         'direction_id': fields.Int(),
         # option 1
@@ -820,7 +839,7 @@ class BusCollectionResource(object):
         # option 2
         'center_lat': fields.Str(),
         'center_lon': fields.Str(),
-        'radius': fields.Int(),
+        'radius': fields.Int(validate=validate_positive_integer),
     })
     def on_get(self, req, resp, args):
         page = args.get('page', 1)

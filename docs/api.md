@@ -152,7 +152,7 @@ Lista de [Stops](#Stop)
 
 Información sobre próximos arribos en paraderos. Esta información es obtenida en tiempo real utilizando el Web Service de predicción provisto por la dirección de transporte público metropolitano.
 
-!> **NOTA**: Lamentablemente, el webservice oficial (SMSBUS) que es utilizado para las predicciones no es del todo estable. Debes manejar posibles timeouts de la respuesta y excepciones no controladas (errores 503). Se está gestionando una solución con la empresa que está a cargo del servicio.
+!> **NOTA**: Lamentablemente, el webservice oficial (SMSBUS) que es utilizado para las predicciones no es del todo estable. Debes manejar posibles timeouts de la respuesta (respuestas con status code `408`) y excepciones no controladas (errores 503). Se está gestionando una solución con la empresa que está a cargo del servicio.
 
 ?> **OJO**: Este endpoint actualmente está en `v2`. 
 
@@ -534,6 +534,8 @@ Se muestra la información detallada de cada una de las direcciones para un reco
 > **Endpoint**
 
 ?> **NOTA**: A pesar de que el `v1` de este endpoint sigue existiendo por propósitos de retro-compatibilidad, es altamente recomendable utilizar `v2`. 
+
+?> **TEN EN CUENTA**: Dado que es necesario realizar una serie de cálculos complejos para determinar la información a devolver, este endpoint tiene un tiempo de respuesta alto, entre 1 y 6 segundos.
 
 ```curl
 /v2/routes/<route_id>/directions

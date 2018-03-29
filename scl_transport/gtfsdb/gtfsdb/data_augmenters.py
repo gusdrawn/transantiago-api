@@ -25,7 +25,6 @@ class RouteStopDirectionAugmenter(object):
         return self._data
 
     def set_stop_route(self, route_id):
-        from .route_stop import RouteStop
         q = self.session.query(RouteStop).filter(
             RouteStop.stop_id == self.stop_id,
             RouteStop.route_id == route_id

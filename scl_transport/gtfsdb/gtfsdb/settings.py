@@ -47,7 +47,7 @@ class Config(object):
 
 
 class LocalConfig(Config):
-    DEFAULT_DATABASE_URL = 'postgresql://postgres:@localhost/test_gtfs'
+    DEFAULT_DATABASE_URL = 'postgresql://postgres:@localhost/scltransit'
     DEFAULT_IS_GEOSPATIAL = True
 
 

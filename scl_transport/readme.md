@@ -1,5 +1,5 @@
 
-# Cómo correr el proyecto
+# Instrucciones Desarrollo
 
 ## Prerrequisitos
 

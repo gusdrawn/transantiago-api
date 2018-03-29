@@ -1,6 +1,4 @@
 
-#import settings
-import argparse
 from gunicorn.app.base import BaseApplication
 from scl_transport.api.api import create_app
 

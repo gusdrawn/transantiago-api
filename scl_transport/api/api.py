@@ -387,7 +387,7 @@ class RouteDirectionResource(object):
             if int(route_direction.direction_id) == int(direction_id):
                 direction = route_direction
 
-        if not route_direction:
+        if not direction:
             raise EntityNotFound()
 
         direction_schema = DetailedDirectionSchema_v1()

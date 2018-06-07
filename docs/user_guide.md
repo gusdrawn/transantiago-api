@@ -62,7 +62,7 @@ https://api.scltrans.it/v1/stops?bbox=-70.615053,-33.438246,-70.591836,-33.42563
 
 ## 2) Todo sobre un recorrido
 
-Utilizaremos como ejemplo el paradero `411`
+Utilizaremos como ejemplo el recorrido `411`
 
 La información básica del recorrido puede ser obtenida de:
 
@@ -93,17 +93,17 @@ https://api.scltrans.it/v1/routes/411/directions/0
 
 ## 3) Todo sobre un paradero
 
-Utilizaremos como ejemplo el paradero `411`
+Utilizaremos como ejemplo el paradero `PI406`
 
 La información básica del paradero puede ser obtenida de:
 
 ```
-https://api.scltrans.it/v1/stops/411
+https://api.scltrans.it/v1/stops/PI406
 ```
 Si deseas conocer los recorridos del paradero puedes hacer la siguiente consulta:
 
 ```
-https://api.scltrans.it/v1/stops/411/stop_routes
+https://api.scltrans.it/v1/stops/PI406/stop_routes
 ```
 La respuesta es una lista de [StopRoutes](api.md?id=stoproute) (pares de dirección, route) para todos los recorridos del paradero.
 La [dirección](api.md?id=direction-simplificada) te permite conocer si el bus es ida/regreso y el nombre del destino (el nombre del letrero del bus), entre otros campos. [Route](api.md?id=route) es un objecto que muestra información básica acerca del recorrido.

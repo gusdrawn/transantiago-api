@@ -7,6 +7,3 @@
 
 [Más info](#transantiago-api)
 [Documentación API](api.md)
-
-
-![color](linear-gradient(to bottom, #cceaff 0%, #b4e4c0 100%))

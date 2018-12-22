@@ -12,7 +12,7 @@ from .tasks import send_email_async
 
 BASE_URL = 'https://www.dtpm.cl/index.php/'
 # @@TODO: save and use DB reference
-REFERENCE_GTFS = '07-04-2018'
+REFERENCE_GTFS = '15-12-2018'
 
 
 def analyze_available_gtfs():

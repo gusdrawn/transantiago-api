@@ -2,6 +2,7 @@
 
 import json
 import falcon
+from falcon_cors import CORS
 import arrow
 import os
 from marshmallow import fields, ValidationError
@@ -48,7 +49,6 @@ from scl_transport.gtfsdb.gtfsdb.schemas import (
     StopWithStopRoutesSchema_v1,
     StopWithStopRoutesSchema_v2
 )
-
 
 import newrelic.agent
 if os.environ.get('NEWRELIC_ENABLED'):
@@ -805,7 +805,6 @@ class StopArrivalCollectionResource(object):
             )
             resp.body = json.dumps(body, ensure_ascii=False)
         except (ConnectTimeout, ReadTimeout) as e:
-            print str(e)
             resp.status = falcon.HTTP_REQUEST_TIMEOUT
             resp.body = json.dumps({'title': 'smsbus webservice timeout'})
         except Exception, e:
@@ -990,9 +989,12 @@ def add_routes(app):
 
 
 def create_app():
+
+    cors = CORS(allow_all_origins=True)
     app = falcon.API(
         middleware=[
             SQLAlchemySessionManager(Session),
+            cors.middleware
         ]
     )
     add_routes(app)

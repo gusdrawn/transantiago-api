@@ -2,10 +2,6 @@
     <a href="https://www.dtpm.cl/descargas/gtfs/GTFS.zip">
         <img src="https://api.scltrans.it/shields/gtfs_version"
             alt="GTFS"></a>
-    <a href="#">
-        <img src="https://api.scltrans.it/shields/fetched_at"
-            alt="Last fetch">
-    </a>
 </p>
 
 # Transantiago API
